@@ -8,9 +8,9 @@
 #pragma GCC diagnostic pop
 
 #include "hinton_market.h"
-#include "login.cpp"
-#include "dashboard.cpp"
-#include "market.cpp"
+#include "login.h"
+#include "dashboard.h"
+#include "market.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
