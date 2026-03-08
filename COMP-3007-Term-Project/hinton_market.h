@@ -5,6 +5,10 @@
 #include <string>
 #include <cstdint>
 
+#define DebugTrap() __builtin_trap()
+#define DebugLog(fmt,...) fprintf(stderr, fmt __VA_OPT__(,) __VA_ARGS__)
+#define Assert(b,fmt,...) do { if(!(b)) { DebugLog(fmt __VA_OPT__(,) __VA_ARGS__); DebugTrap(); } } while(0)
+
 class ComplianceDocs
 {
 public:
@@ -20,10 +24,6 @@ public:
         stall_book_cancel : 1,
         waitlist_book : 1,
         waitlist_book_cancel : 1;
-
-    Permissions()
-    {
-    }
 };
 
 class User
