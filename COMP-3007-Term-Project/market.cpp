@@ -24,25 +24,21 @@ public:
     }
 };
 
+//~ andwu: market
+class Market
+{
+public:
+    uint64_t max_bookings
+    std::vector<User *> bookings;
+};
+
 //~ andwu: booking system
 class BookingSystem
 {
 public:
-    std::vector<User> users;
+    std::vector<Market> markets;
 
-    User *get_user(Credentials creds)
-    {
-        User *user = 0;
-        for(uint64_t ui = 0;
-                ui < users.size();
-                ui += 1)
-        {
-            if(users[ui].creds == creds)
-            {
-                user = &users[ui];
-                break;
-            }
-        }
-        return(user);
-    }
+    void add_market(Market market);
+
+    std::vector<Market *> get_markets_in_range(Date start, Date end);
 };

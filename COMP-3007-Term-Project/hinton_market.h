@@ -4,10 +4,28 @@
 #include <vector>
 #include <string>
 #include <cstdint>
+#include <chrono>
 
 #define DebugTrap() __builtin_trap()
 #define DebugLog(fmt,...) fprintf(stderr, fmt __VA_OPT__(,) __VA_ARGS__)
 #define Assert(b,fmt,...) do { if(!(b)) { DebugLog(fmt __VA_OPT__(,) __VA_ARGS__); DebugTrap(); } } while(0)
+
+//~ time
+#define SecondsInADay 86400ull
+
+class Date
+{
+public:
+    uint64_t day;
+
+    static Date date_now(void) // andwu: WARN: REALLY WRONG
+    {
+        uint64_t t = (uint64_t)time(NULL);
+        Date date;
+        date.day = t / SecondsInADay;
+        return(date);
+    }
+};
 
 //~ andwu: user
 class ComplianceDocs
