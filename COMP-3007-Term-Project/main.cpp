@@ -1,5 +1,5 @@
 #include "mainwindow.h"
-#include "logindialog.h"
+#include "login.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"

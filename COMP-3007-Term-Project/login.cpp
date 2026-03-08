@@ -1,6 +1,6 @@
 #pragma once
 #include "hinton_market.h"
-#include "logindialog.h"
+#include "login.h"
 
 #include <QPushButton>
 #include <QLineEdit>
