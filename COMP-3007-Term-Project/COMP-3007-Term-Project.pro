@@ -17,7 +17,8 @@ SOURCES += \
 
 HEADERS += \
     hinton_market.h \
-    mainwindow.h
+    mainwindow.h \
+    logindialog.h
 
 FORMS += \
     mainwindow.ui
