@@ -1,5 +1,4 @@
 #include "mainwindow.h"
-#include "login.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
@@ -13,11 +12,11 @@ int main(int argc, char *argv[])
 
     LoginDialog login;
 
-    if (login.exec() == QDialog::Accepted)
+    if(1)
     {
-	    MainWindow w;
-	    w.show();
-	    return a.exec();
+        MainWindow w;
+        w.show();
+        return a.exec();
     }
 
     return 0;

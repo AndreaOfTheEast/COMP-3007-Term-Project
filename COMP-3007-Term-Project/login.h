@@ -1,30 +1,19 @@
-#ifndef LOGINDIALOG_H
-#define LOGINDIALOG_H
+#pragma once
 
-#include <QDialog>
-#include <QPushButton>
-#include <QLineEdit>
-#include <QMainWindow> //
-#include <QPushButton>
-#include <QVBoxLayout>
-#include <QWidget>
-#include <QDialog>
+#include "hinton_market.h"
 
-class LoginDialog: public QDialog
+class LoginDialog : public QDialog
 {
     Q_OBJECT
 
 public:
     QVBoxLayout *layout;
-    QPushButton *loginButton;
-    QLineEdit *userTextField;
-    QLineEdit *passTextField;
+    QPushButton *login_button;
+    QLineEdit *user_text_field;
 
-    explicit LoginDialog(QWidget *parent = nullptr);
+    LoginDialog(QWidget *parent = nullptr);
     ~LoginDialog();
 
 public slots:
-    void attemptLogin();
+    void attempt_login(void);
 };
-
-#endif

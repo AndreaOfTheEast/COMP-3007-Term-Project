@@ -1,78 +1,65 @@
-#pragma once
 #include "hinton_market.h"
 #include "login.h"
 
-#include <QPushButton>
-#include <QLineEdit>
-#include <QMainWindow> //
-#include <QPushButton>
-#include <QVBoxLayout>
-#include <QWidget>
-#include <QDialog>
-#include <QMessageBox>
-
-// andwu: TODO: actually make this a ui thing
-
-LoginDialog::LoginDialog(QWidget *parent) : QDialog(parent)
+LoginDialog::LoginDialog(QWidget *parent)
+    : QDialog(parent)
 {
     setWindowTitle("Hinton Market Login");
 
     layout = new QVBoxLayout(this);
-    loginButton = new QPushButton("Login", this);
+    login_button = new QPushButton("Login", this);
 
-    userTextField = new QLineEdit(this);
-    userTextField->setPlaceholderText("Email");
+    user_text_field = new QLineEdit(this);
+    user_text_field->setPlaceholderText("Email");
 
-    passTextField = new QLineEdit(this);
-    passTextField->setPlaceholderText("Password");
-    passTextField->setEchoMode(QLineEdit::Password);
+    layout->addWidget(login_button);
+    layout->addWidget(user_text_field);
 
-    layout->addWidget(loginButton);
-    layout->addWidget(userTextField);
-    layout->addWidget(passTextField);
-    
     /*
-    QObject::connect(loginButton, &QPushButton::clicked, [=]() {
-	std::cout << "Text entered: " << textField->text();
+    QObject::connect(login_button, &QPushButton::clicked, [=]() {
+        std::cout << "Text entered: " << textField->text();
     });
     */
 
-    connect(loginButton, &QPushButton::clicked, this, &LoginDialog::attemptLogin);
+    connect(login_button, &QPushButton::clicked, this, &LoginDialog::attempt_login);
 }
 
-LoginDialog::~LoginDialog()
+LoginDialog::LoginDialog::~LoginDialog()
 {
     QLayoutItem *item;
     QWidget *widget;
-    while ((item = layout->takeAt(0)))
+    for(;;)
     {
-	// dbc: Sublayouts are not handled
-	if ((widget = item->widget()) != 0)
-	{
-	    widget->hide();
-	    delete widget;
-	}
-	else
-	{
-	    delete item;
-	}
+        item = layout->takeAt(0);
+        if(!item) { break; }
+
+        // dbc: Sublayouts are not handled
+        widget = item->widget();
+        if(widget != 0)
+        {
+            widget->hide();
+            delete widget;
+        }
+        else
+        {
+            delete item;
+        }
     }
 
     delete layout;
 }
 
-void LoginDialog::attemptLogin()
+void
+LoginDialog::attempt_login(void)
 {
-    QString username = userTextField->text();
-    QString password = passTextField->text();
+    QString username = user_text_field->text();
 
-    if(username == "admin" && password == "123")
+    if(username == "admin")
     {
-	accept();
+        accept();
     }
     else
     {
-	QMessageBox::warning(this, "Login Failed", "Invalid credentials");
-	passTextField->clear();
+        QMessageBox::warning(this, "Login Failed", "Invalid credentials");
     }
-}
+};

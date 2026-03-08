@@ -5,6 +5,20 @@
 #include <string>
 #include <cstdint>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#include <QDialog>
+#include <QPushButton>
+#include <QLineEdit>
+#include <QMainWindow>
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QWidget>
+#include <QDialog>
+#include <QMessageBox>
+#pragma GCC diagnostic pop
+
 #define DebugTrap() __builtin_trap()
 #define DebugLog(fmt,...) fprintf(stderr, fmt __VA_OPT__(,) __VA_ARGS__)
 #define Assert(b,fmt,...) do { if(!(b)) { DebugLog(fmt __VA_OPT__(,) __VA_ARGS__); DebugTrap(); } } while(0)
