@@ -1,16 +1,15 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
 
-#include "hinton_market.h"
-#include "login.cpp"
-#include "dashboard.cpp"
-#include "market.cpp"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#include "ui_mainwindow.h"
+#pragma GCC diagnostic pop
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
-    User user;
     ui->setupUi(this);
 }
 

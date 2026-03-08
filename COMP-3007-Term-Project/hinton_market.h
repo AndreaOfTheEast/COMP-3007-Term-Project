@@ -9,6 +9,7 @@
 #define DebugLog(fmt,...) fprintf(stderr, fmt __VA_OPT__(,) __VA_ARGS__)
 #define Assert(b,fmt,...) do { if(!(b)) { DebugLog(fmt __VA_OPT__(,) __VA_ARGS__); DebugTrap(); } } while(0)
 
+//~ andwu: user
 class ComplianceDocs
 {
 public:
@@ -26,10 +27,23 @@ public:
         waitlist_book_cancel : 1;
 };
 
+class Credentials
+{
+public:
+    std::string username;
+
+    bool operator==(Credentials creds)
+    {
+        bool b = username == creds.username;
+        return(b);
+    }
+};
+
 class User
 {
 public:
     Permissions perms;
+    Credentials creds;
     std::string name;
     std::string business_name;
     std::string owner_name;
