@@ -22,3 +22,9 @@ void UserSystem::add_user(User user)
 {
     users.push_back(user);
 }
+
+// ~nico: booking system
+void BookingSystem::add_booking(Booking booking)
+{
+    bookings.push_back(booking);
+}

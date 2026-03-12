@@ -11,6 +11,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     UserSystem user_system;
+    BookingSystem booking_system;
 
     uint64_t n = 0;
 
