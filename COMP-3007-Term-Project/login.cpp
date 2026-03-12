@@ -1,8 +1,9 @@
 #include "hinton_market.h"
 #include "login.h"
 
-LoginDialog::LoginDialog(QWidget *parent)
+LoginDialog::LoginDialog(UserSystem *user_system, QWidget *parent)
     : QDialog(parent)
+    , user_system(user_system)
 {
     setWindowTitle("Hinton Market Login");
 
@@ -53,9 +54,17 @@ void
 LoginDialog::attempt_login(void)
 {
     QString username = user_text_field->text();
+    Credentials credentials;
+    credentials.username = username.toStdString();
 
-    if(username == "admin")
+    User *user = user_system->get_user(credentials);
+
+    if(user != nullptr)
     {
+        QString qs = QString("Logged in as %1")
+                .arg(username);
+
+        QMessageBox::information(this, "Login Success", qs);
         accept();
     }
     else

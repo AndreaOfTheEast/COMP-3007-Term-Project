@@ -18,19 +18,7 @@ User *UserSystem::get_user(Credentials creds)
     return(user);
 }
 
-//~ andwu: booking system
-User *BookingSystem::get_user(Credentials creds)
+void UserSystem::add_user(User user)
 {
-    User *user = 0;
-    for(uint64_t ui = 0;
-            ui < users.size();
-            ui += 1)
-    {
-        if(users[ui].creds == creds)
-        {
-            user = &users[ui];
-            break;
-        }
-    }
-    return(user);
+    users.push_back(user);
 }

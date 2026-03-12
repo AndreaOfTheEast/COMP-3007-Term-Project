@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <cstdint>
+#include <time.h>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
@@ -53,12 +54,17 @@ public:
     }
 };
 
+class UserId {
+public:
+    uint64_t id;
+};
+
 class User
 {
 public:
+    UserId id;
     Permissions perms;
     Credentials creds;
-    std::string name;
     std::string business_name;
     std::string owner_name;
     std::string email;
@@ -66,22 +72,46 @@ public:
     ComplianceDocs compliance_docs;
 };
 
-class Admin : User
+class Admin : public User
 {
 public:
 };
 
-class Organizer : User
+class Operator : public User
 {
 public:
 };
 
-class ArtisanVendor : User
+class ArtisanVendor : public User
 {
 public:
 };
 
-class FoodVendor : User
+class FoodVendor : public User
 {
 public:
+};
+
+class Date
+{
+public:
+    uint64_t day;
+
+    static Date get_now() {
+        Date date;
+        date.day = (uint64_t)time(0) / 86400ull;
+        return date;
+    }
+};
+
+class Booking
+{
+public:
+    Date date;
+
+    std::vector<UserId> artisan_users;
+    std::vector<UserId> food_users;
+
+    uint64_t artisan_limit;
+    uint64_t food_limit;
 };

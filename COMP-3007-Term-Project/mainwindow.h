@@ -22,9 +22,9 @@ class MainWindow : public QMainWindow
 
 public:
     Ui::MainWindow *ui;
-    UserSystem user_system;
+    UserSystem *user_system;
 
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(UserSystem *user_system, QWidget *parent = nullptr);
     ~MainWindow();
 
 public slots:

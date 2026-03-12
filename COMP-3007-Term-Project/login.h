@@ -1,6 +1,7 @@
 #pragma once
 
 #include "hinton_market.h"
+#include "market.h"
 
 class LoginDialog : public QDialog
 {
@@ -11,7 +12,9 @@ public:
     QPushButton *login_button;
     QLineEdit *user_text_field;
 
-    LoginDialog(QWidget *parent = nullptr);
+    UserSystem *user_system;
+
+    LoginDialog(UserSystem *user_system, QWidget *parent = nullptr);
     ~LoginDialog();
 
 public slots:

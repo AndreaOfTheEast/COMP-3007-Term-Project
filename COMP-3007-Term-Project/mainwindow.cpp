@@ -6,9 +6,10 @@
 #include "ui_mainwindow.h"
 #pragma GCC diagnostic pop
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(UserSystem *user_system, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , user_system(user_system)
 {
     ui->setupUi(this);
 }

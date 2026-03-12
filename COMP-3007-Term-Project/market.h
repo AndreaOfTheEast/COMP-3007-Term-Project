@@ -8,13 +8,12 @@ public:
     std::vector<User> users;
 
     User *get_user(Credentials creds);
+    void add_user(User user);
 };
 
 //~ andwu: booking system
 class BookingSystem
 {
 public:
-    std::vector<User> users;
-
-    User *get_user(Credentials creds);
+    std::vector<Booking> bookings;
 };
