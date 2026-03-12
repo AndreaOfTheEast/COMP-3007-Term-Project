@@ -125,7 +125,6 @@ int main(int argc, char *argv[])
 
     if(login.exec() == QDialog::Accepted)
     {
-        login.exec();
         MainWindow w(&user_system);
         w.show();
         return a.exec();
