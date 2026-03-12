@@ -5,11 +5,11 @@
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <QMainWindow>
+#include "dashboard.h"
 #pragma GCC diagnostic pop
 
 #include "hinton_market.h"
 #include "login.h"
-#include "dashboard.h"
 #include "market.h"
 
 QT_BEGIN_NAMESPACE
@@ -22,6 +22,7 @@ class MainWindow : public QMainWindow
 
 public:
     Ui::MainWindow *ui;
+    Dashboard *dashboard;
     UserSystem user_system;
 
     MainWindow(QWidget *parent = nullptr);

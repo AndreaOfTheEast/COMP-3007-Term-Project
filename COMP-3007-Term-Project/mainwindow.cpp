@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "dashboard.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
@@ -11,6 +12,9 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    dashboard = new Dashboard(this);
+
+    this->setCentralWidget(dashboard);
 }
 
 MainWindow::~MainWindow()

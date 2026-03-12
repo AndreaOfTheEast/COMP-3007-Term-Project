@@ -25,6 +25,7 @@ HEADERS += \
     market.h
 
 FORMS += \
+    dashboard.ui \
     mainwindow.ui
 
 # Default rules for deployment.
