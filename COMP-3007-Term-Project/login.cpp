@@ -5,21 +5,16 @@ LoginDialog::LoginDialog(QWidget *parent)
     : QDialog(parent)
 {
     setWindowTitle("Hinton Market Login");
+    resize(400, 100);
 
     layout = new QVBoxLayout(this);
     login_button = new QPushButton("Login", this);
 
     user_text_field = new QLineEdit(this);
-    user_text_field->setPlaceholderText("Email");
+    user_text_field->setPlaceholderText("Username");
 
-    layout->addWidget(login_button);
     layout->addWidget(user_text_field);
-
-    /*
-    QObject::connect(login_button, &QPushButton::clicked, [=]() {
-        std::cout << "Text entered: " << textField->text();
-    });
-    */
+    layout->addWidget(login_button);
 
     connect(login_button, &QPushButton::clicked, this, &LoginDialog::attempt_login);
 }
