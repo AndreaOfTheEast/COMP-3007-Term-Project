@@ -25,16 +25,60 @@
 #define Assert(b,fmt,...) do { if(!(b)) { DebugLog(fmt __VA_OPT__(,) __VA_ARGS__); DebugTrap(); } } while(0)
 
 //~ andwu: user
+struct BusinessLicence
+{
+    std::string number;
+    std::string expiration_date;
+};
+
+struct LiabilityInsurance
+{
+    std::string policy_number;
+    std::string provider;
+    std::string expiration_date;
+};
+
+struct FoodHandler
+{
+    std::string certification_number;
+    std::string expiration_date;
+};
+
 class ComplianceDocs
 {
 public:
-    std::string information;
+    BusinessLicence business_licence;
+    LiabilityInsurance liability_insurance;
+    FoodHandler food_handler;
+};
+
+#define USER_TYPE_LIST(X) \
+    X(NULL) \
+    X(FOOD) \
+    X(ARTISAN) \
+    X(OPERATOR) \
+    X(ADMIN)
+
+typedef enum : int8_t
+{
+    #define X(n) USER_TYPE_##n,
+    USER_TYPE_LIST(X)
+    #undef X
+    USER_TYPE__COUNT,
+} USER_TYPE;
+
+static std::string user_type_strings[] =
+{
+    #define X(n) #n,
+    USER_TYPE_LIST(X)
+    #undef X
 };
 
 class Permissions
 {
 public:
     int32_t schedule_date_range;
+    USER_TYPE user_type;
     int8_t // andwu: TODO: idk what these should be
         stall_book : 1,
         stall_book_cancel : 1,
@@ -66,6 +110,7 @@ public:
     Permissions perms;
     Credentials creds;
     std::string business_name;
+    std::string phone_number;
     std::string owner_name;
     std::string email;
     std::string mail_address;
@@ -75,21 +120,33 @@ public:
 class Admin : public User
 {
 public:
+    Admin() {
+        perms.user_type = USER_TYPE_ADMIN;
+    }
 };
 
 class Operator : public User
 {
 public:
+    Operator() {
+        perms.user_type = USER_TYPE_OPERATOR;
+    }
 };
 
 class ArtisanVendor : public User
 {
 public:
+    ArtisanVendor() {
+        perms.user_type = USER_TYPE_ARTISAN;
+    }
 };
 
 class FoodVendor : public User
 {
 public:
+    FoodVendor() {
+        perms.user_type = USER_TYPE_FOOD;
+    }
 };
 
 class Date

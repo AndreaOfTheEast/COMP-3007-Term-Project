@@ -37,13 +37,6 @@
                </property>
               </widget>
              </item>
-             <item>
-              <widget class="QLabel" name="label">
-               <property name="text">
-                <string>Logged in as: USERNAME</string>
-               </property>
-              </widget>
-             </item>
             </layout>
            </item>
            <item>
@@ -51,18 +44,39 @@
              <item>
               <layout class="QHBoxLayout" name="horizontalLayout_2">
                <item>
-                <widget class="QListView" name="listView"/>
+                <widget class="QListWidget" name="list_user_information"/>
                </item>
                <item>
                 <layout class="QVBoxLayout" name="verticalLayout_7">
                  <item>
-                  <widget class="QListView" name="listView_4"/>
+                  <widget class="QLabel" name="label">
+                   <property name="text">
+                    <string>Notifications</string>
+                   </property>
+                  </widget>
                  </item>
                  <item>
-                  <widget class="QListView" name="listView_2"/>
+                  <widget class="QListWidget" name="list_notifications"/>
                  </item>
                  <item>
-                  <widget class="QListView" name="listView_3"/>
+                  <widget class="QLabel" name="label_4">
+                   <property name="text">
+                    <string>Active Bookings</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QListWidget" name="list_active_bookings"/>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="label_5">
+                   <property name="text">
+                    <string>Active Waitlists</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QListWidget" name="list_waitlist"/>
                  </item>
                 </layout>
                </item>
@@ -127,10 +141,10 @@
              <item>
               <layout class="QHBoxLayout" name="horizontalLayout_5">
                <item>
-                <widget class="QListView" name="listView_5"/>
+                <widget class="QListWidget" name="list_booking_dates"/>
                </item>
                <item>
-                <widget class="QListView" name="listView_6"/>
+                <widget class="QListView" name="list_booking_information"/>
                </item>
               </layout>
              </item>

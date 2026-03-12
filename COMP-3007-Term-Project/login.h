@@ -13,6 +13,7 @@ public:
     QLineEdit *user_text_field;
 
     UserSystem *user_system;
+    User *current_user;
 
     LoginDialog(UserSystem *user_system, QWidget *parent = nullptr);
     ~LoginDialog();

@@ -56,6 +56,7 @@ LoginDialog::attempt_login(void)
 
     if(user != nullptr)
     {
+        current_user = user;
         QString qs = QString("Logged in as %1")
                 .arg(username);
 

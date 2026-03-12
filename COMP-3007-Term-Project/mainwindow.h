@@ -25,9 +25,15 @@ class MainWindow : public QMainWindow
 public:
     Ui::MainWindow *ui;
     UserSystem *user_system;
+    BookingSystem *booking_system;
 
-    MainWindow(UserSystem *user_system, QWidget *parent = nullptr);
+    User *current_user;
+
+    MainWindow(UserSystem *user_system, BookingSystem *booking_system, QWidget *parent = nullptr);
     ~MainWindow();
+
+    void handle_dashboard();
+    void handle_market_schedule();
 
 public slots:
 public emit:
