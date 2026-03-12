@@ -16,6 +16,5 @@ class BookingSystem
 {
 public:
     std::vector<Booking> bookings;
-
     void add_booking(Booking booking);
 };

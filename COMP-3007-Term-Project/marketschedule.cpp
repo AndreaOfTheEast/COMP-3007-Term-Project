@@ -10,6 +10,11 @@ MarketSchedule::MarketSchedule(QWidget *parent) :
     ui(new Ui::MarketSchedule)
 {
     ui->setupUi(this);
+//    connect(ui->make_booking, &QPushButton::clicked, this, [=]{add_booking();});
+}
+
+void MarketSchedule::add_booking(){
+    std::cout<<"hi"<<std::endl;
 }
 
 MarketSchedule::~MarketSchedule()

@@ -6,6 +6,8 @@
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <QWidget>
 #include "ui_marketschedule.h"
+#include "hinton_market.h"
+#include "market.h"
 #pragma GCC diagnostic pop
 
 namespace Ui {
@@ -20,6 +22,9 @@ public:
     explicit MarketSchedule(QWidget *parent = nullptr);
     ~MarketSchedule();
     Ui::MarketSchedule *ui;
+
+public slots:
+    void add_booking();
 };
 
 #endif // MARKETSCHEDULE_H

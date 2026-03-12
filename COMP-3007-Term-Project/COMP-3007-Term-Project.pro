@@ -27,7 +27,9 @@ HEADERS += \
     marketschedule.h
 
 FORMS += \
-    mainwindow.ui
+    dashboard.ui \
+    mainwindow.ui \
+    marketschedule.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
