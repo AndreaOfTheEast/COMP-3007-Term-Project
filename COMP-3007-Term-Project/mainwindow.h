@@ -5,7 +5,9 @@
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <QMainWindow>
+#include <QStackedWidget>
 #include "dashboard.h"
+#include "marketschedule.h"
 #pragma GCC diagnostic pop
 
 #include "hinton_market.h"
@@ -22,8 +24,6 @@ class MainWindow : public QMainWindow
 
 public:
     Ui::MainWindow *ui;
-
-    Dashboard *dashboard;
     UserSystem *user_system;
 
     MainWindow(UserSystem *user_system, QWidget *parent = nullptr);

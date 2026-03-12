@@ -56,7 +56,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QListView" name="listView_2"/>
+        <widget class="QListView" name="user_information"/>
        </item>
       </layout>
      </item>
@@ -70,7 +70,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QListView" name="listView"/>
+        <widget class="QListView" name="notifications"/>
        </item>
        <item>
         <widget class="QLabel" name="label_3">
@@ -80,17 +80,17 @@
         </widget>
        </item>
        <item>
-        <widget class="QListWidget" name="listWidget"/>
+        <widget class="QListWidget" name="active_bookings"/>
        </item>
        <item>
-        <widget class="QLabel" name="label_2">
+        <widget class="QLabel" name="label_1">
          <property name="text">
           <string>Active Waitlists</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QListView" name="listView_3"/>
+        <widget class="QListView" name="active_waitlists"/>
        </item>
       </layout>
      </item>
@@ -99,14 +99,14 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QPushButton" name="pushButton_2">
+      <widget class="QPushButton" name="edit_information">
        <property name="text">
         <string>Edit Information</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="browse_market">
        <property name="text">
         <string>Browse Market Schedule</string>
        </property>

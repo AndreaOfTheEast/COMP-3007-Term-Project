@@ -13,9 +13,13 @@ MainWindow::MainWindow(UserSystem *user_system, QWidget *parent)
     , user_system(user_system)
 {
     ui->setupUi(this);
-    dashboard = new Dashboard(this);
 
-    this->setCentralWidget(dashboard);
+    connect(ui->browse_market, &QPushButton::clicked, this, [=]{
+        ui->stackedWidget->setCurrentIndex(1);
+    });
+    connect(ui->back_to_dashboard, &QPushButton::clicked, this, [=]{
+        ui->stackedWidget->setCurrentIndex(0);
+    });
 }
 
 MainWindow::~MainWindow()

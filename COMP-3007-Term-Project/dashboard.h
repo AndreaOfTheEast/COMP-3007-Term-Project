@@ -5,6 +5,7 @@
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <QWidget>
+#include "ui_dashboard.h"
 #pragma GCC diagnostic pop
 
 namespace Ui {
@@ -18,8 +19,6 @@ class Dashboard : public QWidget
 public:
     explicit Dashboard(QWidget *parent = nullptr);
     ~Dashboard();
-
-private:
     Ui::Dashboard *ui;
 };
 
