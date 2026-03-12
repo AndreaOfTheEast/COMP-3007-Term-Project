@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
 
     LoginDialog login(&user_system);
 
-    if(1)
+    if(login.exec() == QDialog::Accepted)
     {
         login.exec();
         MainWindow w(&user_system);
