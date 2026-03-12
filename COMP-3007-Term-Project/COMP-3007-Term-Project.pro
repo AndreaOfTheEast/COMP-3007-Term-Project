@@ -11,16 +11,20 @@ CONFIG += c++23
 QMAKE_CXXFLAGS_WARN_ON += -Wall -Wextra -Wpedantic -Wconversion -Wfloat-conversion -Wsign-conversion -Wdouble-promotion -Wshadow -Wcast-align -Wdeprecated-declarations -Wmissing-field-initializers -Wfloat-equal -Wpointer-arith -Wtautological-compare -Wno-missing-braces -Wno-unused-function -Wno-unused-value -Wno-unused-variable -Wno-unused-local-typedef -Wno-unused-but-set-variable -Wno-initializer-overrides
 
 SOURCES += \
+    dashboard.cpp \
     login.cpp \
     main.cpp \
     mainwindow.cpp \
-    market.cpp
+    market.cpp \
+    marketschedule.cpp
 
 HEADERS += \
+    dashboard.h \
     hinton_market.h \
     login.h \
     mainwindow.h \
-    market.h
+    market.h \
+    marketschedule.h
 
 FORMS += \
     mainwindow.ui
