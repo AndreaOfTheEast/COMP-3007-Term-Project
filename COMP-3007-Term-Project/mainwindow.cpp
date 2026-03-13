@@ -80,6 +80,45 @@ MainWindow::MainWindow(UserSystem *in_user_system, MarketDateSystem *in_market_d
 
         handle_market_schedule();
     });
+
+    connect(ui->cancel_booking, &QPushButton::clicked, this, [=]{
+        uint64_t index = (uint64_t)ui->table_market_dates->currentRow();
+
+        // if nothing is selected than just exit
+        if (ui->table_market_dates->selectedItems().isEmpty())
+        {
+            return;
+        }
+
+        // Remove
+        // TODO: add notifications
+        MarketDate &market_date = market_date_system->market_dates[index];
+        if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_ARTISAN)
+        {
+            for (uint32_t i = 0; i < market_date.artisan_users.size(); i++)
+            {
+                if (market_date.artisan_users[i] == current_user->id)
+                {
+                    market_date.artisan_users.erase(market_date.artisan_users.begin() + i);
+                    handle_market_schedule();
+                    return;
+                }
+            }
+        }
+
+        if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_FOOD)
+        {
+            for (uint32_t i = 0; i < market_date.food_users.size(); i++)
+            {
+                if (market_date.food_users[i] == current_user->id)
+                {
+                    market_date.food_users.erase(market_date.food_users.begin() + i);
+                    handle_market_schedule();
+                    return;
+                }
+            }
+        }
+    });
 }
 
 MainWindow::~MainWindow()
