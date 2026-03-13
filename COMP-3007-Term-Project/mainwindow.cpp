@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include <sstream>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
@@ -6,11 +7,12 @@
 #include "ui_mainwindow.h"
 #pragma GCC diagnostic pop
 
-MainWindow::MainWindow(UserSystem *in_user_system, MarketDateSystem *in_market_date_system, QWidget *parent)
+MainWindow::MainWindow(UserSystem *in_user_system, MarketDateSystem *in_market_date_system, NotificationSystem *in_notification_system, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , user_system(in_user_system)
     , market_date_system(in_market_date_system)
+    , notification_system(in_notification_system)
 {
     ui->setupUi(this);
 
@@ -99,8 +101,19 @@ MainWindow::MainWindow(UserSystem *in_user_system, MarketDateSystem *in_market_d
             {
                 if (market_date.artisan_users[i] == current_user->id)
                 {
+                    QMessageBox::StandardButton question;
+                    question = QMessageBox::question(this, "Confirm Action", "Are you sure you want to cancel your booking for this date?", QMessageBox::Yes | QMessageBox::No);
+
+                    if (question == QMessageBox::No)
+                    {
+                        return;
+                    }
+
                     market_date.artisan_users.erase(market_date.artisan_users.begin() + i);
                     handle_market_schedule();
+                    std::stringstream s;
+                    s << "[Action] Cancelled booking for " << market_date.date.to_string() << ".";
+                    notification_system->add_notification(current_user->id, s.str());
                     return;
                 }
             }
@@ -112,8 +125,19 @@ MainWindow::MainWindow(UserSystem *in_user_system, MarketDateSystem *in_market_d
             {
                 if (market_date.food_users[i] == current_user->id)
                 {
+                    QMessageBox::StandardButton question;
+                    question = QMessageBox::question(this, "Confirm Action", "Are you sure you want to cancel your booking for this date?", QMessageBox::Yes | QMessageBox::No);
+
+                    if (question == QMessageBox::No)
+                    {
+                        return;
+                    }
+
                     market_date.food_users.erase(market_date.food_users.begin() + i);
                     handle_market_schedule();
+                    std::stringstream s;
+                    s << "[Action] Cancelled booking for " << market_date.date.to_string() << ".";
+                    notification_system->add_notification(current_user->id, s.str());
                     return;
                 }
             }
@@ -180,7 +204,12 @@ void MainWindow::handle_dashboard()
     snprintf(buff, sizeof(buff),"Food Handler Expiration Date %s", current_user->compliance_docs.food_handler.expiration_date.c_str());
     ui->list_user_information->addItem(buff);
 
-    // TODO: notifications
+    // notifications
+    ui->list_notifications->clear();
+    std::vector<std::string> notifications = notification_system->get_notifications(current_user->id);
+    for (uint64_t i = 0; i < notifications.size(); i++) {
+        ui->list_notifications->addItem(QString(notifications[i].c_str()));
+    }
 
     // active bookings
     ui->list_active_bookings->clear();

@@ -4,8 +4,11 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
+    NotificationSystem notification_system;
     UserSystem user_system;
+    user_system.notification_system = &notification_system;
     MarketDateSystem market_date_system;
+    market_date_system.notification_system = &notification_system;
 
     uint64_t i;
 
@@ -55,7 +58,7 @@ int main(int argc, char *argv[])
     }
 
     LoginDialog login(&user_system);
-    MainWindow w(&user_system, &market_date_system);
+    MainWindow w(&user_system, &market_date_system, &notification_system);
 
     while (login.exec() == QDialog::Accepted)
     {

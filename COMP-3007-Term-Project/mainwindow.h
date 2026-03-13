@@ -18,11 +18,12 @@ public:
 
     UserSystem *user_system;
     MarketDateSystem *market_date_system;
+    NotificationSystem *notification_system;
 
     User *current_user;
     Date current_date;
 
-    MainWindow(UserSystem *user_system, MarketDateSystem *booking_system, QWidget *parent = nullptr);
+    MainWindow(UserSystem *user_system, MarketDateSystem *booking_system, NotificationSystem *notification_system, QWidget *parent = nullptr);
     ~MainWindow();
 
     void handle_dashboard();

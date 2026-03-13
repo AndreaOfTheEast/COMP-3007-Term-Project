@@ -1,9 +1,19 @@
 #pragma once
 #include "hinton_market.h"
 
+class NotificationSystem
+{
+public:
+    std::vector<Notification> notifications;
+
+    std::vector<std::string> get_notifications(UserId id);
+    void add_notification(UserId id, std::string content);
+};
+
 class UserSystem
 {
 public:
+    NotificationSystem *notification_system;
     std::vector<User> users;
 
     User *get_user(Credentials creds);
@@ -13,6 +23,7 @@ public:
 class MarketDateSystem
 {
 public:
+    NotificationSystem *notification_system;
     std::vector<MarketDate> market_dates;
     void add_market_date(MarketDate market_date);
     void make_booking(User *user, uint64_t market_date_index);

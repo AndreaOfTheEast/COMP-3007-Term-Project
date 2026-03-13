@@ -189,3 +189,11 @@ public:
     uint64_t artisan_limit;
     uint64_t food_limit;
 };
+
+class Notification
+{
+public:
+    UserId id;
+    std::string content;
+};
+

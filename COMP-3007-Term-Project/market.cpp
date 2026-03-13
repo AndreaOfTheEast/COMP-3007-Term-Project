@@ -1,6 +1,8 @@
 #include "hinton_market.h"
 #include "market.h"
 
+#include <sstream>
+
 //~ andwu: user system
 User *UserSystem::get_user(Credentials creds)
 {
@@ -64,12 +66,39 @@ void MarketDateSystem::make_booking(User *user, uint64_t market_date_index)
     }
 
     // TODO: add date to the message
-    // set up waitlist message
-    QString qs = QString("You have been put on a waitlist. You are in position %1.")
+    if (waitlisted == 1)
+    {
+        // set up waitlist message
+        QString qs = QString("You have been put on a waitlist. You are in position %1.")
             .arg(waitlist_position);
-
-    if (waitlisted == 1) {
         msgBox.setText(qs);
         msgBox.exec();
+
+        std::stringstream s;
+        s << "[Action] Waitlisted in position " << waitlist_position << "for " << market_dates[market_date_index].date.to_string() << ".";
+        notification_system->add_notification(user->id, s.str());
+    } else {
+        std::stringstream s;
+        s << "[Action] Booked for " << market_dates[market_date_index].date.to_string() << ".";
+        notification_system->add_notification(user->id, s.str());
     }
+}
+
+std::vector<std::string> NotificationSystem::get_notifications(UserId id) {
+    std::vector<std::string> user_notifs;
+
+    for (uint64_t i = 0; i < notifications.size(); i++) {
+        if (notifications[i].id == id) {
+            user_notifs.push_back(notifications[i].content);
+        }
+    }
+
+    return user_notifs;
+}
+
+void NotificationSystem::add_notification(UserId id, std::string content) {
+    Notification notification;
+    notification.id = id;
+    notification.content = content;
+    notifications.push_back(notification);
 }
