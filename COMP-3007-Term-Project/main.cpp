@@ -40,14 +40,37 @@ int main(int argc, char *argv[])
     }
 
     // HARD CODED MARKET DATES
-    for (i = 0; i < 4; i++) {
+    time_t now =  std::time(NULL);
+    struct tm *tdy = localtime(&now);
+    std::cout<<tdy->tm_mday<<std::endl;
+
+    int daysToAdd = 7 - tdy->tm_wday;
+    now+=86400*daysToAdd;
+    tdy = localtime(&now);
+    std::cout<<tdy->tm_mday<<std::endl;
+    MarketDate market_date;
+    market_date.artisan_limit = 2;
+    market_date.food_limit = 2;
+    market_date.date.day = tdy->tm_mday;
+    market_date.date.month = tdy->tm_mon;
+
+    booking_system.add_market_date(market_date);
+
+    for(int i = 0; i < 3; i++){
+        now+=86400*7;
+        tdy = localtime(&now);
+        std::cout<<tdy->tm_mday<<std::endl;
         MarketDate market_date;
         market_date.artisan_limit = 2;
         market_date.food_limit = 2;
-        market_date.date.day = i;
+        market_date.date.day = tdy->tm_mday;
+        market_date.date.month = tdy->tm_mon;
 
         booking_system.add_market_date(market_date);
     }
+
+    now =  std::time(NULL);
+    localtime(&now);
 
     LoginDialog login(&user_system);
     MainWindow w(&user_system, &booking_system);

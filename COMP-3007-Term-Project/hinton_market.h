@@ -158,7 +158,7 @@ class Date
 {
 public:
     uint64_t day;
-
+    uint64_t month;
     static Date get_now() {
         Date date;
         date.day = (uint64_t)time(0) / 86400ull;
