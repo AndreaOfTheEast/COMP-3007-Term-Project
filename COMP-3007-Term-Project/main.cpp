@@ -52,6 +52,10 @@ int main(int argc, char *argv[])
         market_date.date.day = (uint64_t)sunday->tm_mday;
         market_date.date.month = (uint64_t)sunday->tm_mon;
         market_date.date.year = (uint64_t)sunday->tm_year;
+
+        market_date.artisan_limit = 2;
+        market_date.food_limit = 2;
+
         market_date_system.add_market_date(market_date);
         now += 86400 * 7;
     }
@@ -65,6 +69,7 @@ int main(int argc, char *argv[])
         w.handle_dashboard();
         w.show();
         a.exec();
+        login.user_text_field->clear();
     }
     return 0;
 }
