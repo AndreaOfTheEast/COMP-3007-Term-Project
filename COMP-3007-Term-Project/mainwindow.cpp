@@ -46,13 +46,11 @@ MainWindow::MainWindow(UserSystem *user_system, MarketDateSystem *market_date_sy
 
     // Navigate to the Market Schedule
     connect(ui->browse_market, &QPushButton::clicked, this, [=]{
-        ui->stackedWidget->setCurrentIndex(1);
         handle_market_schedule();
     });
 
     // Navigate to the dashboard
     connect(ui->back_to_dashboard, &QPushButton::clicked, this, [=]{
-        ui->stackedWidget->setCurrentIndex(0);
         handle_dashboard();
     });
 
@@ -178,6 +176,7 @@ void MainWindow::handle_dashboard()
 
 void MainWindow::handle_market_schedule()
 {
+    ui->stackedWidget->setCurrentIndex(1);
     ui->list_market_dates->clear();
     ui->list_booking_information->clear();
 
