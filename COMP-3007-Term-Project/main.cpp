@@ -45,9 +45,11 @@ int main(int argc, char *argv[])
     std::cout<<tdy->tm_mday<<std::endl;
 
     int daysToAdd = 7 - tdy->tm_wday;
-    now+=86400*daysToAdd;
+    now += 86400 * daysToAdd;
+
     tdy = localtime(&now);
     std::cout<<tdy->tm_mday<<std::endl;
+
     MarketDate market_date;
     market_date.artisan_limit = 2;
     market_date.food_limit = 2;
