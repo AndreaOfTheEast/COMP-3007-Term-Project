@@ -5,10 +5,14 @@
 #include <string>
 #include <cstdint>
 #include <time.h>
+#include <algorithm>
+#include <stdio.h>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
+#include <QMainWindow>
+#include <QStackedWidget>
 #include <QDialog>
 #include <QPushButton>
 #include <QLineEdit>
@@ -18,6 +22,7 @@
 #include <QWidget>
 #include <QDialog>
 #include <QMessageBox>
+#include <QApplication>
 #pragma GCC diagnostic pop
 
 #define DebugTrap() __builtin_trap()

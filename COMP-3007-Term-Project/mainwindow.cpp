@@ -1,8 +1,5 @@
 #include "mainwindow.h"
 
-#include <stdio.h>
-#include <algorithm>
-
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"

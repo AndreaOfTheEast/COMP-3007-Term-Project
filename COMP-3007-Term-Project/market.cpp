@@ -1,10 +1,6 @@
 #include "hinton_market.h"
 #include "market.h"
 
-#include <algorithm>
-
-#include <stdio.h>
-
 //~ andwu: user system
 User *UserSystem::get_user(Credentials creds)
 {

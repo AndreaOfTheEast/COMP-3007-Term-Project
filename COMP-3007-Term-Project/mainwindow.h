@@ -1,13 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#include <QMainWindow>
-#include <QStackedWidget>
-#pragma GCC diagnostic pop
-
 #include "hinton_market.h"
 #include "login.h"
 #include "market.h"
