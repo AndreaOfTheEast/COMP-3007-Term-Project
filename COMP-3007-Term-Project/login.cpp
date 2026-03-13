@@ -1,9 +1,9 @@
 #include "hinton_market.h"
 #include "login.h"
 
-LoginDialog::LoginDialog(UserSystem *user_system, QWidget *parent)
+LoginDialog::LoginDialog(UserSystem *in_user_system, QWidget *parent)
     : QDialog(parent)
-    , user_system(user_system)
+    , user_system(in_user_system)
 {
     setWindowTitle("Hinton Market Login");
     resize(400, 100);

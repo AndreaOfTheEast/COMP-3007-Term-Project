@@ -1,5 +1,4 @@
 #include "mainwindow.h"
-#include "dashboard.h"
 
 #include <stdio.h>
 #include <algorithm>
@@ -10,11 +9,11 @@
 #include "ui_mainwindow.h"
 #pragma GCC diagnostic pop
 
-MainWindow::MainWindow(UserSystem *user_system, MarketDateSystem *market_date_system, QWidget *parent)
+MainWindow::MainWindow(UserSystem *in_user_system, MarketDateSystem *in_market_date_system, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , user_system(user_system)
-    , market_date_system(market_date_system)
+    , user_system(in_user_system)
+    , market_date_system(in_market_date_system)
 {
     ui->setupUi(this);
 
@@ -212,21 +211,21 @@ void MainWindow::handle_market_schedule()
 
 
     for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++) {
-        int64_t availability = 0;
+        uint64_t availability = 0;
         int64_t book_or_wait = -1;
-        int64_t waitlist_position;
+        uint64_t waitlist_position;
 
         MarketDate *market_date = &market_date_system->market_dates[i];
 
         // get availability
         if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_ARTISAN)
         {
-            availability = (int64_t)(market_date->artisan_limit - market_date->artisan_users.size());
+            availability = market_date->artisan_limit - market_date->artisan_users.size();
         }
 
         if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_FOOD)
         {
-            availability = (int64_t)(market_date->food_limit - market_date->food_users.size());
+            availability = market_date->food_limit - market_date->food_users.size();
         }
 
         // check if booked or on waitlist
@@ -257,7 +256,7 @@ void MainWindow::handle_market_schedule()
             }
         }
 
-        QString availability_str = QString("Stalls available: %1").arg(std::max(0l, availability));
+        QString availability_str = QString("Stalls available: %1").arg(std::max(0lu, availability));
         QString date_str = QString(market_date_system->market_dates[i].date.to_string().c_str());
         QString status_str;
 
@@ -270,8 +269,8 @@ void MainWindow::handle_market_schedule()
             status_str = QString("-");
         }
 
-        ui->table_market_dates->setItem(i, 0, new QTableWidgetItem(date_str));
-        ui->table_market_dates->setItem(i, 1, new QTableWidgetItem(availability_str));
-        ui->table_market_dates->setItem(i, 2, new QTableWidgetItem(status_str));
+        ui->table_market_dates->setItem((int)i, 0, new QTableWidgetItem(date_str));
+        ui->table_market_dates->setItem((int)i, 1, new QTableWidgetItem(availability_str));
+        ui->table_market_dates->setItem((int)i, 2, new QTableWidgetItem(status_str));
     }
 }

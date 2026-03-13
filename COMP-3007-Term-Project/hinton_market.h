@@ -166,9 +166,9 @@ public:
         struct tm *today = localtime(&now);
 
         Date date;
-        date.day = today->tm_mday;
-        date.month = today->tm_mon;
-        date.year = today->tm_year;
+        date.day = (uint64_t)today->tm_mday;
+        date.month = (uint64_t)today->tm_mon;
+        date.year = (uint64_t)today->tm_year;
         return date;
     }
 

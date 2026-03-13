@@ -6,8 +6,6 @@
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <QMainWindow>
 #include <QStackedWidget>
-#include "dashboard.h"
-#include "marketschedule.h"
 #pragma GCC diagnostic pop
 
 #include "hinton_market.h"
