@@ -36,7 +36,6 @@ public:
 
     void handle_dashboard();
     void handle_market_schedule();
-    void handle_market_date_information();
 
 public slots:
 public emit:

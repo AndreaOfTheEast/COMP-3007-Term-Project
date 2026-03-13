@@ -2,35 +2,13 @@
 #include "dashboard.h"
 
 #include <stdio.h>
+#include <algorithm>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #include "ui_mainwindow.h"
 #pragma GCC diagnostic pop
-
-void
-MainWindow::handle_market_date_information()
-{
-    int64_t availability = 0;
-    uint64_t index = (uint64_t)ui->list_market_dates->currentRow();
-    MarketDate *market_date = &market_date_system->market_dates[index];
-
-    if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_ARTISAN)
-    {
-        availability = (int64_t)(market_date->artisan_limit - market_date->artisan_users.size());
-    }
-
-    if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_FOOD)
-    {
-        availability = (int64_t)(market_date->food_limit - market_date->food_users.size());
-    }
-
-    QString availability_str = QString("Stalls available: %1").arg(std::max(0l, availability));
-
-    ui->list_booking_information->clear();
-    ui->list_booking_information->addItem(availability_str);
-}
 
 MainWindow::MainWindow(UserSystem *user_system, MarketDateSystem *market_date_system, QWidget *parent)
     : QMainWindow(parent)
@@ -53,16 +31,11 @@ MainWindow::MainWindow(UserSystem *user_system, MarketDateSystem *market_date_sy
         handle_dashboard();
     });
 
-    // Show Market Date information (availability)
-    connect(ui->list_market_dates, &QListWidget::itemClicked, this, [=] {
-        handle_market_date_information();
-    });
-
     // Make a booking
     connect(ui->make_booking, &QPushButton::clicked, this, [=]{
-        uint64_t index = (uint64_t)ui->list_market_dates->currentRow();
+        uint64_t index = (uint64_t)ui->table_market_dates->currentRow();
         // if nothing is selected than just exit
-        if (ui->list_market_dates->selectedItems().isEmpty())
+        if (ui->table_market_dates->selectedItems().isEmpty())
         {
             return;
         }
@@ -107,10 +80,9 @@ MainWindow::MainWindow(UserSystem *user_system, MarketDateSystem *market_date_sy
         if (question == QMessageBox::Yes)
         {
             market_date_system->make_booking(current_user, index);
-            handle_market_date_information();
         }
 
-
+        handle_market_schedule();
     });
 }
 
@@ -206,7 +178,10 @@ void MainWindow::handle_dashboard()
         {
             if (market_date.artisan_users[j].id == current_user->id.id)
             {
-                ui->list_active_waitlists->addItem(market_date.date.to_string().c_str());
+                QString s = QString("%1 (queue position: %2)")
+                        .arg(QString(market_date.date.to_string().c_str()))
+                        .arg(j - market_date.artisan_limit + 1);
+                ui->list_active_waitlists->addItem(s);
             }
         }
         for (uint64_t j = market_date.food_limit; j < market_date.food_users.size(); j++)
@@ -226,10 +201,77 @@ void MainWindow::handle_dashboard()
 void MainWindow::handle_market_schedule()
 {
     ui->stackedWidget->setCurrentIndex(1);
-    ui->list_market_dates->clear();
-    ui->list_booking_information->clear();
+    ui->table_market_dates->clear();
+    ui->table_market_dates->setColumnCount(3);
+    ui->table_market_dates->setRowCount(5);
+    ui->table_market_dates->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->table_market_dates->verticalHeader()->setVisible(false);
+    ui->table_market_dates->setSelectionBehavior(QAbstractItemView::SelectRows);
+    QStringList headers = {"Date", "Availability", "Status"};
+    ui->table_market_dates->setHorizontalHeaderLabels(headers);
+
 
     for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++) {
-        ui->list_market_dates->addItem(QString((market_date_system->market_dates[i].date.to_string()).c_str()));
+        int64_t availability = 0;
+        int64_t book_or_wait = -1;
+        int64_t waitlist_position;
+
+        MarketDate *market_date = &market_date_system->market_dates[i];
+
+        // get availability
+        if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_ARTISAN)
+        {
+            availability = (int64_t)(market_date->artisan_limit - market_date->artisan_users.size());
+        }
+
+        if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_FOOD)
+        {
+            availability = (int64_t)(market_date->food_limit - market_date->food_users.size());
+        }
+
+        // check if booked or on waitlist
+
+        if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_ARTISAN)
+        {
+            for (uint64_t j = 0; j < market_date->artisan_users.size(); j++) {
+                if (market_date->artisan_users[j] == current_user->id) {
+                    book_or_wait = 0;
+                    if (j > market_date->artisan_limit - 1) {
+                        book_or_wait = 1;
+                        waitlist_position = j - market_date->artisan_limit + 1;
+                    }
+                }
+            }
+        }
+
+        if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_FOOD)
+        {
+            for (uint64_t j = 0; j < market_date->food_users.size(); j++) {
+                if (market_date->food_users[j] == current_user->id) {
+                    book_or_wait = 0;
+                    if (j > market_date->food_limit - 1) {
+                        book_or_wait = 1;
+                        waitlist_position = j - market_date->food_limit + 1;
+                    }
+                }
+            }
+        }
+
+        QString availability_str = QString("Stalls available: %1").arg(std::max(0l, availability));
+        QString date_str = QString(market_date_system->market_dates[i].date.to_string().c_str());
+        QString status_str;
+
+        if (book_or_wait == 0)
+        {
+            status_str = QString("Booked");
+        } else if (book_or_wait == 1){
+            status_str = QString("Waitlisted (queue position: %1)").arg(waitlist_position);
+        } else {
+            status_str = QString("-");
+        }
+
+        ui->table_market_dates->setItem(i, 0, new QTableWidgetItem(date_str));
+        ui->table_market_dates->setItem(i, 1, new QTableWidgetItem(availability_str));
+        ui->table_market_dates->setItem(i, 2, new QTableWidgetItem(status_str));
     }
 }

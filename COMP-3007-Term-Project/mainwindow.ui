@@ -24,7 +24,7 @@
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="dashboard">
        <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -158,35 +158,14 @@
                 </widget>
                </item>
                <item>
-                <widget class="QListWidget" name="list_market_dates"/>
+                <widget class="QTableWidget" name="table_market_dates"/>
                </item>
               </layout>
              </item>
              <item>
-              <layout class="QVBoxLayout" name="verticalLayout_8">
-               <item>
-                <widget class="QLabel" name="label_7">
-                 <property name="text">
-                  <string>Booked Market Dates</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QListWidget" name="listWidget_2"/>
-               </item>
-              </layout>
+              <layout class="QVBoxLayout" name="verticalLayout_8"/>
              </item>
             </layout>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_6">
-             <property name="text">
-              <string>Booking Information</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QListWidget" name="list_booking_information"/>
            </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_7">
