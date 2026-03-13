@@ -25,6 +25,7 @@ class MarketDateSystem
 public:
     NotificationSystem *notification_system;
     std::vector<MarketDate> market_dates;
+
     void add_market_date(MarketDate market_date);
     void make_booking(User *user, uint64_t market_date_index);
 };

@@ -3,7 +3,9 @@
 
 #include <sstream>
 
-//~ andwu: user system
+// ------------------------
+// ----- USER SYSTEM ------
+// ------------------------
 User *UserSystem::get_user(Credentials creds)
 {
     User *user = 0;
@@ -32,7 +34,9 @@ std::string Date::to_string()
     return std::string(buff);
 }
 
-// ~nico: booking system
+// ------------------------
+// -- MARKET DATE SYSTEM --
+// ------------------------
 void MarketDateSystem::add_market_date(MarketDate market_date)
 {
     market_dates.push_back(market_date);
@@ -75,7 +79,7 @@ void MarketDateSystem::make_booking(User *user, uint64_t market_date_index)
         msgBox.exec();
 
         std::stringstream s;
-        s << "[Action] Waitlisted in position " << waitlist_position << "for " << market_dates[market_date_index].date.to_string() << ".";
+        s << "[Action] Waitlisted in position " << waitlist_position << " for " << market_dates[market_date_index].date.to_string() << ".";
         notification_system->add_notification(user->id, s.str());
     } else {
         std::stringstream s;
@@ -84,6 +88,9 @@ void MarketDateSystem::make_booking(User *user, uint64_t market_date_index)
     }
 }
 
+// -------------------------
+// -- NOTIFICATION SYSTEM --
+// -------------------------
 std::vector<std::string> NotificationSystem::get_notifications(UserId id) {
     std::vector<std::string> user_notifs;
 
