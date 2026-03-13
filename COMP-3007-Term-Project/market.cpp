@@ -1,6 +1,8 @@
 #include "hinton_market.h"
 #include "market.h"
 
+#include <stdio.h>
+
 //~ andwu: user system
 User *UserSystem::get_user(Credentials creds)
 {
@@ -21,6 +23,13 @@ User *UserSystem::get_user(Credentials creds)
 void UserSystem::add_user(User user)
 {
     users.push_back(user);
+}
+
+std::string Date::to_string()
+{
+    char buff[1024];
+    snprintf(buff, sizeof(buff), "%02lu/%02lu/%lu", day, (month + 1), (year + 1900));
+    return std::string(buff);
 }
 
 // ~nico: booking system

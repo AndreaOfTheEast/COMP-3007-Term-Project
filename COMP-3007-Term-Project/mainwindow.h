@@ -24,10 +24,12 @@ class MainWindow : public QMainWindow
 
 public:
     Ui::MainWindow *ui;
+
     UserSystem *user_system;
     MarketDateSystem *market_date_system;
 
     User *current_user;
+    Date current_date;
 
     MainWindow(UserSystem *user_system, MarketDateSystem *booking_system, QWidget *parent = nullptr);
     ~MainWindow();

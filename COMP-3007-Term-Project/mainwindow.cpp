@@ -41,6 +41,9 @@ MainWindow::MainWindow(UserSystem *user_system, MarketDateSystem *market_date_sy
 {
     ui->setupUi(this);
 
+    // set up date
+    current_date = Date::get_now();
+
     // Navigate to the Market Schedule
     connect(ui->browse_market, &QPushButton::clicked, this, [=]{
         ui->stackedWidget->setCurrentIndex(1);
@@ -124,6 +127,8 @@ void MainWindow::handle_dashboard()
     char buff[2048];
     ui->stackedWidget->setCurrentIndex(0);
 
+    ui->dashboard_date->setText(QString(("Today's Date: " + current_date.to_string()).c_str()));
+
     ui->list_user_information->clear();
 
     snprintf(buff, sizeof(buff),"User ID: %lu", current_user->id.id);
@@ -173,12 +178,10 @@ void MainWindow::handle_dashboard()
 
 void MainWindow::handle_market_schedule()
 {
-    char buff[2048];
     ui->list_market_dates->clear();
     ui->list_booking_information->clear();
 
     for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++) {
-        snprintf(buff, sizeof(buff),"%lu", market_date_system->market_dates[i].date.day);
-        ui->list_market_dates->addItem(buff);
+        ui->list_market_dates->addItem(QString((market_date_system->market_dates[i].date.to_string()).c_str()));
     }
 }

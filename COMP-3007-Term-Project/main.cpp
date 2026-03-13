@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     UserSystem user_system;
-    MarketDateSystem booking_system;
+    MarketDateSystem market_date_system;
 
     uint64_t i;
 
@@ -40,42 +40,24 @@ int main(int argc, char *argv[])
     }
 
     // HARD CODED MARKET DATES
-    time_t now =  std::time(NULL);
-    struct tm *tdy = localtime(&now);
-    std::cout<<tdy->tm_mday<<std::endl;
+    time_t now = std::time(NULL);
+    struct tm *sunday = localtime(&now);
 
-    int daysToAdd = 7 - tdy->tm_wday;
-    now += 86400 * daysToAdd;
+    int nearest_sunday = 7 - sunday->tm_wday;
+    now += 86400 * nearest_sunday;
 
-    tdy = localtime(&now);
-    std::cout<<tdy->tm_mday<<std::endl;
-
-    MarketDate market_date;
-    market_date.artisan_limit = 2;
-    market_date.food_limit = 2;
-    market_date.date.day = tdy->tm_mday;
-    market_date.date.month = tdy->tm_mon;
-
-    booking_system.add_market_date(market_date);
-
-    for(int i = 0; i < 3; i++){
-        now+=86400*7;
-        tdy = localtime(&now);
-        std::cout<<tdy->tm_mday<<std::endl;
+    for (i = 0; i < 4; i++) {
+        sunday = localtime(&now);
         MarketDate market_date;
-        market_date.artisan_limit = 2;
-        market_date.food_limit = 2;
-        market_date.date.day = tdy->tm_mday;
-        market_date.date.month = tdy->tm_mon;
-
-        booking_system.add_market_date(market_date);
+        market_date.date.day = (uint64_t)sunday->tm_mday;
+        market_date.date.month = (uint64_t)sunday->tm_mon;
+        market_date.date.year = (uint64_t)sunday->tm_year;
+        market_date_system.add_market_date(market_date);
+        now += 86400 * 7;
     }
 
-    now =  std::time(NULL);
-    localtime(&now);
-
     LoginDialog login(&user_system);
-    MainWindow w(&user_system, &booking_system);
+    MainWindow w(&user_system, &market_date_system);
 
     while (login.exec() == QDialog::Accepted)
     {

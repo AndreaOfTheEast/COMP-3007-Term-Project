@@ -159,12 +159,20 @@ class Date
 public:
     uint64_t day;
     uint64_t month;
+    uint64_t year;
 
     static Date get_now() {
+        time_t now = std::time(NULL);
+        struct tm *today = localtime(&now);
+
         Date date;
-        date.day = (uint64_t)time(0) / 86400ull;
+        date.day = today->tm_mday;
+        date.month = today->tm_mon;
+        date.year = today->tm_year;
         return date;
     }
+
+    std::string to_string();
 };
 
 class MarketDate

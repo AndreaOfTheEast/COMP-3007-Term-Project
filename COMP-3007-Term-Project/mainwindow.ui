@@ -37,6 +37,13 @@
                </property>
               </widget>
              </item>
+             <item>
+              <widget class="QLabel" name="dashboard_date">
+               <property name="text">
+                <string>Date: --/--/--</string>
+               </property>
+              </widget>
+             </item>
             </layout>
            </item>
            <item>
