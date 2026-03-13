@@ -24,7 +24,45 @@ void UserSystem::add_user(User user)
 }
 
 // ~nico: booking system
-void BookingSystem::add_booking(Booking booking)
+void MarketDateSystem::add_market_date(MarketDate market_date)
 {
-    bookings.push_back(booking);
+    market_dates.push_back(market_date);
+}
+
+void MarketDateSystem::make_booking(User *user, uint64_t market_date_index)
+{
+    uint8_t waitlisted = 0;
+    uint64_t waitlist_position = 0;
+
+    QMessageBox msgBox;
+
+    // handle artisan vendor booking
+    if (user->perms.user_type == USER_TYPE_ARTISAN)
+    {
+        market_dates[market_date_index].artisan_users.push_back(user->id);
+        if (market_dates[market_date_index].artisan_users.size() > market_dates[market_date_index].artisan_limit) {
+            waitlisted = 1;
+            waitlist_position = market_dates[market_date_index].artisan_users.size() - market_dates[market_date_index].artisan_limit;
+        }
+
+    }
+    // handle food vendors booking
+    else if (user->perms.user_type == USER_TYPE_FOOD)
+    {
+        market_dates[market_date_index].food_users.push_back(user->id);
+        if (market_dates[market_date_index].food_users.size() > market_dates[market_date_index].food_limit) {
+            waitlisted = 1;
+            waitlist_position = market_dates[market_date_index].food_users.size() - market_dates[market_date_index].food_limit;
+        }
+    }
+
+    // TODO: add date to the message
+    // set up waitlist message
+    QString qs = QString("You have been put on a waitlist. You are in position %1.")
+            .arg(waitlist_position);
+
+    if (waitlisted == 1) {
+        msgBox.setText(qs);
+        msgBox.exec();
+    }
 }

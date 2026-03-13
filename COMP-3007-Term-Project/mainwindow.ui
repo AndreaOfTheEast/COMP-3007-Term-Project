@@ -137,30 +137,58 @@
             </layout>
            </item>
            <item>
-            <layout class="QVBoxLayout" name="verticalLayout_8">
+            <layout class="QHBoxLayout" name="horizontalLayout">
              <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_5">
+              <layout class="QVBoxLayout" name="verticalLayout_10">
                <item>
-                <widget class="QListWidget" name="list_booking_dates"/>
+                <widget class="QLabel" name="label_8">
+                 <property name="text">
+                  <string>Available Market Dates</string>
+                 </property>
+                </widget>
                </item>
                <item>
-                <widget class="QListView" name="list_booking_information"/>
+                <widget class="QListWidget" name="list_market_dates"/>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_8">
+               <item>
+                <widget class="QLabel" name="label_7">
+                 <property name="text">
+                  <string>Booked Market Dates</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QListWidget" name="listWidget_2"/>
                </item>
               </layout>
              </item>
             </layout>
            </item>
            <item>
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>Booking Information</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QListWidget" name="list_booking_information"/>
+           </item>
+           <item>
             <layout class="QHBoxLayout" name="horizontalLayout_7">
              <item>
-              <widget class="QPushButton" name="pushButton_5">
+              <widget class="QPushButton" name="make_booking">
                <property name="text">
                 <string>Make Booking</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton_4">
+              <widget class="QPushButton" name="cancel_booking">
                <property name="text">
                 <string>Cancel Booking</string>
                </property>

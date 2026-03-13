@@ -101,6 +101,11 @@ public:
 class UserId {
 public:
     uint64_t id;
+    bool operator==(const UserId user_id)
+    {
+        bool b = id == user_id.id;
+        return b;
+    }
 };
 
 class User
@@ -161,14 +166,12 @@ public:
     }
 };
 
-class Booking
+class MarketDate
 {
 public:
     Date date;
-
     std::vector<UserId> artisan_users;
     std::vector<UserId> food_users;
-
     uint64_t artisan_limit;
     uint64_t food_limit;
 };

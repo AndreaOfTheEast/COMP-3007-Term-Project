@@ -1,7 +1,6 @@
 #pragma once
 #include "hinton_market.h"
 
-//~ andwu: user system
 class UserSystem
 {
 public:
@@ -11,10 +10,10 @@ public:
     void add_user(User user);
 };
 
-//~ andwu: booking system
-class BookingSystem
+class MarketDateSystem
 {
 public:
-    std::vector<Booking> bookings;
-    void add_booking(Booking booking);
+    std::vector<MarketDate> market_dates;
+    void add_market_date(MarketDate market_date);
+    void make_booking(User *user, uint64_t market_date_index);
 };

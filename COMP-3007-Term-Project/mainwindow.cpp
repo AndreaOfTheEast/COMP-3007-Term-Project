@@ -9,21 +9,108 @@
 #include "ui_mainwindow.h"
 #pragma GCC diagnostic pop
 
-MainWindow::MainWindow(UserSystem *user_system, BookingSystem *booking_system, QWidget *parent)
+void
+MainWindow::handle_market_date_information()
+{
+    int64_t availability = 0;
+    uint64_t index = (uint64_t)ui->list_market_dates->currentRow();
+    MarketDate *market_date = &market_date_system->market_dates[index];
+
+    if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_ARTISAN)
+    {
+        availability = (int64_t)(market_date->artisan_limit - market_date->artisan_users.size());
+    }
+
+    if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_FOOD)
+    {
+        availability = (int64_t)(market_date->food_limit - market_date->food_users.size());
+    }
+
+    // TODO: display date
+    QString availability_str = QString("Stalls available: %1").arg(availability);
+
+    ui->list_booking_information->clear();
+    ui->list_booking_information->addItem(availability_str);
+}
+
+MainWindow::MainWindow(UserSystem *user_system, MarketDateSystem *market_date_system, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , user_system(user_system)
-    , booking_system(booking_system)
+    , market_date_system(market_date_system)
 {
     ui->setupUi(this);
 
+    // Navigate to the Market Schedule
     connect(ui->browse_market, &QPushButton::clicked, this, [=]{
         ui->stackedWidget->setCurrentIndex(1);
         handle_market_schedule();
     });
+
+    // Navigate to the dashboard
     connect(ui->back_to_dashboard, &QPushButton::clicked, this, [=]{
         ui->stackedWidget->setCurrentIndex(0);
         handle_dashboard();
+    });
+
+    // Show Market Date information (availability)
+    connect(ui->list_market_dates, &QListWidget::itemClicked, this, [=] {
+        handle_market_date_information();
+    });
+
+    // Make a booking
+    connect(ui->make_booking, &QPushButton::clicked, this, [=]{
+        uint64_t index = (uint64_t)ui->list_market_dates->currentRow();
+        // if nothing is selected than just exit
+        if (ui->list_market_dates->selectedItems().isEmpty())
+        {
+            return;
+        }
+
+        std::vector<UserId> *vector = nullptr;
+
+        QMessageBox msgBox;
+
+        // TODO: check if user is already inside the booking
+        if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_ARTISAN)
+        {
+            vector = &market_date_system->market_dates[index].artisan_users;
+
+        }
+        if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_FOOD)
+        {
+            vector = &market_date_system->market_dates[index].food_users;
+        }
+
+        if (vector != nullptr)
+        {
+            auto it = std::find(vector->begin(), vector->end(), current_user->id);
+            if (it != vector->end())
+            {
+                msgBox.setText(QString("You are already booked for that date."));
+                msgBox.exec();
+                return;
+            }
+        }
+        else
+        {
+            msgBox.setText(QString("Your account type prohibits booking directly."));
+            msgBox.exec();
+            return;
+        }
+
+        // TODO: Need to show what date the user selected for confirmation.
+
+        QMessageBox::StandardButton question;
+        question = QMessageBox::question(this, "Confirm Action", "Are you sure you want to book this date?", QMessageBox::Yes | QMessageBox::No);
+
+        if (question == QMessageBox::Yes)
+        {
+            market_date_system->make_booking(current_user, index);
+            handle_market_date_information();
+        }
+
+
     });
 }
 
@@ -35,6 +122,9 @@ MainWindow::~MainWindow()
 void MainWindow::handle_dashboard()
 {
     char buff[2048];
+    ui->stackedWidget->setCurrentIndex(0);
+
+    ui->list_user_information->clear();
 
     snprintf(buff, sizeof(buff),"User ID: %lu", current_user->id.id);
     ui->list_user_information->addItem(buff);
@@ -84,8 +174,11 @@ void MainWindow::handle_dashboard()
 void MainWindow::handle_market_schedule()
 {
     char buff[2048];
-    for (uint64_t i = 0; i < booking_system->bookings.size(); i++) {
-        snprintf(buff, sizeof(buff),"%lu", booking_system->bookings[i].date.day);
-        ui->list_booking_dates->addItem(buff);
+    ui->list_market_dates->clear();
+    ui->list_booking_information->clear();
+
+    for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++) {
+        snprintf(buff, sizeof(buff),"%lu", market_date_system->market_dates[i].date.day);
+        ui->list_market_dates->addItem(buff);
     }
 }
