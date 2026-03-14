@@ -99,17 +99,9 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         // operator book for vendors
 
         int64_t is_booked = market_date_system->is_user_booked(current_user, index);
-        if (is_booked == -1) {
-            msg = QString("You do not have a booking for this date (%1).")
-                    .arg(date.c_str());
-            QMessageBox::warning(
-                        this,
-                        "Cancellation Failed",
-                        msg);
-            return;
-        }
+
         // TODO: remove this once implemented properly
-        else if (is_booked == -2)
+        if (is_booked == -2)
         {
             QMessageBox::warning(
                         this,
