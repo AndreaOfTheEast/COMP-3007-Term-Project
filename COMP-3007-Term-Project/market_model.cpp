@@ -71,7 +71,7 @@ int MarketDateSystem::make_booking(User *user, uint64_t market_date_index)
 
     if (booking_list == nullptr) { return -1; }
 
-    for(int i = 0; i < booking_list->size(); i < booking_limit){
+    for(uint64_t i = 0; i < booking_list->size(); i++){
         if((*booking_list)[i] == user->id){
             return -2;
         }

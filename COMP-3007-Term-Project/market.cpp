@@ -5,7 +5,6 @@
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #include "ui_market.h"
-// TODO: Remove this
 #include <QDebug>
 #pragma GCC diagnostic pop
 
@@ -97,7 +96,6 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         date = market_date_system->market_dates[index].date.to_string();
 
         // Check if user is in booking list
-        // TODO: make sure the operator cant book one for themselves
         // operator book for vendors
 
         int64_t is_booked = market_date_system->is_user_booked(current_user, index);
