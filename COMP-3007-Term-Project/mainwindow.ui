@@ -24,7 +24,7 @@
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="dashboard">
        <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -212,12 +212,12 @@
              <number>3</number>
             </property>
             <property name="indent">
-             <number>5</number>
+             <number>0</number>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="back_button">
+           <widget class="QPushButton" name="operator_back_to_dashboard">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -291,6 +291,77 @@
             </item>
             <item>
              <widget class="QListView" name="user_list_view"/>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="operator_market_schedule">
+       <layout class="QVBoxLayout" name="verticalLayout_17">
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_20">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_11">
+            <item>
+             <widget class="QLabel" name="label_6">
+              <property name="text">
+               <string>Market Schedule</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton">
+              <property name="maximumSize">
+               <size>
+                <width>100</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Back</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_13">
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_22">
+              <item>
+               <widget class="QLabel" name="market_dates_label">
+                <property name="text">
+                 <string>Market Dates</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QTableView" name="market_dates_table"/>
+              </item>
+              <item>
+               <widget class="QPushButton" name="market_button">
+                <property name="text">
+                 <string>Make Booking / Add to Waitlist</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_21">
+              <item>
+               <widget class="QLabel" name="user_list_label_2">
+                <property name="text">
+                 <string>User List</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QListView" name="market_user_list_view"/>
+              </item>
+             </layout>
             </item>
            </layout>
           </item>
