@@ -179,21 +179,27 @@ public:
     std::string to_string();
 };
 
+class Booking
+{
+    public:
+        Date date;
+        std::vector<UserId> users;
+        uint64_t limit;
+        uint64_t booked;
+};
+
 class MarketDate
 {
 public:
     Date date;
-    std::vector<UserId> artisan_users;
-    std::vector<UserId> food_users;
-    uint64_t artisan_limit;
-    uint64_t food_limit;
-    uint64_t artisan_booked;
-    uint64_t food_booked;
+
+    Booking food_booking;
+    Booking artisan_booking;
 
     MarketDate()
     {
-        artisan_booked = 0;
-        food_booked = 0;
+//        Booking food_booking;
+//        Booking artisan_booking;
     }
 };
 

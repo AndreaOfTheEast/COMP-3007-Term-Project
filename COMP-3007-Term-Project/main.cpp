@@ -50,8 +50,8 @@ int main(int argc, char *argv[])
         market_date.date.month = (uint64_t)sunday->tm_mon;
         market_date.date.year = (uint64_t)sunday->tm_year;
 
-        market_date.artisan_limit = 2;
-        market_date.food_limit = 2;
+        market_date.artisan_booking.limit = 2;
+        market_date.food_booking.limit = 2;
 
         market_date_system.add_market_date(market_date);
         now += 86400 * 7;

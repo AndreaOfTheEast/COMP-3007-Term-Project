@@ -58,15 +58,15 @@ void MarketDateSystem::make_booking(User *user, uint64_t market_date_index)
     // handle artisan vendor booking
     if (user->perms.user_type == USER_TYPE_ARTISAN)
     {
-        booking_list = &market_dates[market_date_index].artisan_users;
-        booking_limit = market_dates[market_date_index].artisan_limit;
-        booked = &market_dates[market_date_index].artisan_booked;
+        booking_list = &market_dates[market_date_index].artisan_booking.users;
+        booking_limit = market_dates[market_date_index].artisan_booking.limit;
+        booked = &market_dates[market_date_index].artisan_booking.booked;
     }
     else if (user->perms.user_type == USER_TYPE_FOOD)
     {
-        booking_list = &market_dates[market_date_index].food_users;
-        booking_limit = market_dates[market_date_index].food_limit;
-        booked = &market_dates[market_date_index].food_booked;
+        booking_list = &market_dates[market_date_index].food_booking.users;
+        booking_limit = market_dates[market_date_index].food_booking.limit;
+        booked = &market_dates[market_date_index].food_booking.booked;
     }
 
     if (booking_list == nullptr) { return; }
@@ -107,13 +107,13 @@ void MarketDateSystem::cancel_booking(User *user, uint64_t market_date_index)
 
     if (user->perms.user_type == (USER_TYPE) USER_TYPE_ARTISAN)
     {
-        booking_list = &market_dates[market_date_index].artisan_users;
-        booked = &market_dates[market_date_index].artisan_booked;
+        booking_list = &market_dates[market_date_index].artisan_booking.users;
+        booked = &market_dates[market_date_index].artisan_booking.booked;
     }
     else if (user->perms.user_type == (USER_TYPE) USER_TYPE_FOOD)
     {
-        booking_list = &market_dates[market_date_index].food_users;
-        booked = &market_dates[market_date_index].food_booked;
+        booking_list = &market_dates[market_date_index].food_booking.users;
+        booked = &market_dates[market_date_index].food_booking.booked;
     }
 
     if (booking_list == nullptr) { return; }
@@ -152,13 +152,13 @@ int64_t MarketDateSystem::is_user_booked(User *user, uint64_t market_date_index)
 
     if (user->perms.user_type == (USER_TYPE) USER_TYPE_ARTISAN)
     {
-        booking_list = &market_dates[market_date_index].artisan_users;
-        booked =  (int64_t)market_dates[market_date_index].artisan_booked;
+        booking_list = &market_dates[market_date_index].artisan_booking.users;
+        booked =  (int64_t)market_dates[market_date_index].artisan_booking.booked;
     }
     else if (user->perms.user_type == (USER_TYPE) USER_TYPE_FOOD)
     {
-        booking_list = &market_dates[market_date_index].food_users;
-        booked =  (int64_t)market_dates[market_date_index].food_booked;
+        booking_list = &market_dates[market_date_index].food_booking.users;
+        booked =  (int64_t)market_dates[market_date_index].food_booking.booked;
     }
 
     if (booking_list == nullptr) { return -2; }

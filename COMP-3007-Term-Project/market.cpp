@@ -57,11 +57,11 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
         if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_ARTISAN)
         {
-            vector = &market_date_system->market_dates[index].artisan_users;
+            vector = &market_date_system->market_dates[index].artisan_booking.users;
         }
         if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_FOOD)
         {
-            vector = &market_date_system->market_dates[index].food_users;
+            vector = &market_date_system->market_dates[index].food_booking.users;
         }
 
         if (vector == nullptr)
@@ -76,6 +76,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
         if (question == QMessageBox::Yes)
         {
+            std::cout<<"hi"<<std::endl;
             market_date_system->make_booking(current_user, index);
         }
 
@@ -234,16 +235,16 @@ void Market::handle_dashboard()
     {
         MarketDate &market_date = market_date_system->market_dates[i];
 
-        for (uint64_t j = 0; j < std::min(market_date.artisan_users.size(), market_date.artisan_limit); j++)
+        for (uint64_t j = 0; j < std::min(market_date.artisan_booking.users.size(), market_date.artisan_booking.limit); j++)
         {
-            if (market_date.artisan_users[j].id == current_user->id.id)
+            if (market_date.artisan_booking.users[j].id == current_user->id.id)
             {
                 ui->list_active_bookings->addItem(market_date.date.to_string().c_str());
             }
         }
-        for (uint64_t j = 0; j < std::min(market_date.food_users.size(), market_date.food_limit); j++)
+        for (uint64_t j = 0; j < std::min(market_date.food_booking.users.size(), market_date.food_booking.limit); j++)
         {
-            if (market_date.food_users[j].id == current_user->id.id)
+            if (market_date.food_booking.users[j].id == current_user->id.id)
             {
                 ui->list_active_bookings->addItem(market_date.date.to_string().c_str());
             }
@@ -256,23 +257,23 @@ void Market::handle_dashboard()
     {
         MarketDate &market_date = market_date_system->market_dates[i];
 
-        for (uint64_t j = market_date.artisan_limit; j < market_date.artisan_users.size(); j++)
+        for (uint64_t j = market_date.artisan_booking.limit; j < market_date.artisan_booking.users.size(); j++)
         {
-            if (market_date.artisan_users[j].id == current_user->id.id)
+            if (market_date.artisan_booking.users[j].id == current_user->id.id)
             {
                 QString s = QString("%1 (queue position: %2)")
                         .arg(QString(market_date.date.to_string().c_str()))
-                        .arg(j - market_date.artisan_limit + 1);
+                        .arg(j - market_date.artisan_booking.limit + 1);
                 ui->list_active_waitlists->addItem(s);
             }
         }
-        for (uint64_t j = market_date.food_limit; j < market_date.food_users.size(); j++)
+        for (uint64_t j = market_date.food_booking.limit; j < market_date.food_booking.users.size(); j++)
         {
-            if (market_date.food_users[j].id == current_user->id.id)
+            if (market_date.food_booking.users[j].id == current_user->id.id)
             {
                 QString s = QString("%1 (queue position: %2)")
                         .arg(QString(market_date.date.to_string().c_str()))
-                        .arg(j - market_date.food_limit + 1);
+                        .arg(j - market_date.food_booking.limit + 1);
                 ui->list_active_waitlists->addItem(s);
             }
         }
@@ -303,23 +304,23 @@ void Market::handle_market_schedule()
         // Get availability
         if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_ARTISAN)
         {
-            availability = market_date->artisan_limit - market_date->artisan_booked;
+            availability = market_date->artisan_booking.limit - market_date->artisan_booking.booked;
         }
 
         if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_FOOD)
         {
-            availability = market_date->food_limit - market_date->food_booked;
+            availability = market_date->food_booking.limit - market_date->food_booking.booked;
         }
 
         // Check if booked or on waitlist
         if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_ARTISAN)
         {
-            for (uint64_t j = 0; j < market_date->artisan_users.size(); j++) {
-                if (market_date->artisan_users[j] == current_user->id) {
+            for (uint64_t j = 0; j < market_date->artisan_booking.users.size(); j++) {
+                if (market_date->artisan_booking.users[j] == current_user->id) {
                     book_or_wait = 0;
-                    if (j > market_date->artisan_limit - 1) {
+                    if (j > market_date->artisan_booking.limit - 1) {
                         book_or_wait = 1;
-                        waitlist_position = j - market_date->artisan_limit + 1;
+                        waitlist_position = j - market_date->artisan_booking.limit + 1;
                     }
                 }
             }
@@ -327,12 +328,12 @@ void Market::handle_market_schedule()
 
         if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_FOOD)
         {
-            for (uint64_t j = 0; j < market_date->food_users.size(); j++) {
-                if (market_date->food_users[j] == current_user->id) {
+            for (uint64_t j = 0; j < market_date->food_booking.users.size(); j++) {
+                if (market_date->food_booking.users[j] == current_user->id) {
                     book_or_wait = 0;
-                    if (j > market_date->food_limit - 1) {
+                    if (j > market_date->food_booking.limit - 1) {
                         book_or_wait = 1;
-                        waitlist_position = j - market_date->food_limit + 1;
+                        waitlist_position = j - market_date->food_booking.limit + 1;
                     }
                 }
             }
