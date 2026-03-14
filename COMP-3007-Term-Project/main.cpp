@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+#include "market.h"
 
 int main(int argc, char *argv[])
 {
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     }
 
     LoginDialog login(&user_system);
-    MainWindow w(&user_system, &market_date_system, &notification_system);
+    Market w(&user_system, &market_date_system, &notification_system);
 
     while (login.exec() == QDialog::Accepted)
     {

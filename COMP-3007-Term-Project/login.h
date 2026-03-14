@@ -1,7 +1,7 @@
 #pragma once
 
 #include "hinton_market.h"
-#include "market.h"
+#include "market_model.h"
 
 class LoginDialog : public QDialog
 {

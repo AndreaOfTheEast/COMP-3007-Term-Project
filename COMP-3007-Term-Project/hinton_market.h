@@ -16,7 +16,6 @@
 #include <QDialog>
 #include <QPushButton>
 #include <QLineEdit>
-#include <QMainWindow>
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QWidget>

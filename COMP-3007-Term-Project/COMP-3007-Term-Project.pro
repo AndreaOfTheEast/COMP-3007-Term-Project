@@ -13,17 +13,17 @@ QMAKE_CXXFLAGS_WARN_ON += -Wall -Wextra -Wpedantic -Wconversion -Wfloat-conversi
 SOURCES += \
     login.cpp \
     main.cpp \
-    mainwindow.cpp \
-    market.cpp
+    market.cpp \
+    market_model.cpp
 
 HEADERS += \
     hinton_market.h \
     login.h \
-    mainwindow.h \
-    market.h
+    market.h \
+    market_model.h
 
 FORMS += \
-    mainwindow.ui
+    market.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
