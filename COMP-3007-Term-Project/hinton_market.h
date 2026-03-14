@@ -186,6 +186,10 @@ class Booking
         std::vector<UserId> users;
         uint64_t limit;
         uint64_t booked;
+        Booking(){
+            limit = 0;
+            booked = 0;
+        }
 };
 
 class MarketDate
