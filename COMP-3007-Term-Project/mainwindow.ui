@@ -24,7 +24,7 @@
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="dashboard">
        <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -190,19 +190,46 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="operator_view">
+      <widget class="QWidget" name="operator_user_information">
        <layout class="QVBoxLayout" name="verticalLayout_13">
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_5">
           <item>
-           <widget class="QLabel" name="label_9">
+           <widget class="QLabel" name="user_information_label">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>25</height>
+             </size>
+            </property>
+            <property name="lineWidth">
+             <number>0</number>
+            </property>
             <property name="text">
-             <string>TextLabel</string>
+             <string>User Information</string>
+            </property>
+            <property name="margin">
+             <number>3</number>
+            </property>
+            <property name="indent">
+             <number>5</number>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton">
+           <widget class="QPushButton" name="back_button">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>25</height>
+             </size>
+            </property>
             <property name="text">
              <string>Back</string>
             </property>
@@ -211,9 +238,61 @@
          </layout>
         </item>
         <item>
-         <layout class="QVBoxLayout" name="verticalLayout_14">
+         <layout class="QHBoxLayout" name="horizontalLayout_9">
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_15"/>
+           <layout class="QVBoxLayout" name="verticalLayout_12">
+            <item>
+             <widget class="QLabel" name="user_display">
+              <property name="text">
+               <string>User: USERNAME</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QListWidget" name="user_information_view"/>
+            </item>
+            <item>
+             <widget class="QLabel" name="user_booking_label">
+              <property name="text">
+               <string>User's Active Bookings</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QListView" name="user_booking_list"/>
+            </item>
+            <item>
+             <widget class="QLabel" name="user_waitlist_label">
+              <property name="text">
+               <string>User's Active Waitlists</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QListView" name="user_waitlist_list"/>
+            </item>
+            <item>
+             <widget class="QPushButton" name="action_button">
+              <property name="text">
+               <string>Cancel Booking / Waitlist</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_11">
+            <item>
+             <widget class="QLabel" name="user_list_label">
+              <property name="text">
+               <string>User List</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QListView" name="user_list_view"/>
+            </item>
+           </layout>
           </item>
          </layout>
         </item>

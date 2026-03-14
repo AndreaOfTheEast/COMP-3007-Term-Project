@@ -28,4 +28,6 @@ public:
 
     void add_market_date(MarketDate market_date);
     void make_booking(User *user, uint64_t market_date_index);
+    void cancel_booking(User *user, uint64_t market_date_index);
+    int64_t is_user_booked(User *user, uint64_t market_date_index);
 };
