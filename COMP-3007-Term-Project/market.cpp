@@ -76,7 +76,6 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
         if (question == QMessageBox::Yes)
         {
-            std::cout<<"hi"<<std::endl;
             market_date_system->make_booking(current_user, index);
         }
 

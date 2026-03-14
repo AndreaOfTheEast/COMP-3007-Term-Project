@@ -43,7 +43,7 @@ void MarketDateSystem::add_market_date(MarketDate market_date)
     market_dates.push_back(market_date);
 }
 
-void MarketDateSystem::make_booking(User *user, uint64_t market_date_index)
+int MarketDateSystem::make_booking(User *user, uint64_t market_date_index)
 {
     uint8_t waitlisted = 0;
     uint64_t waitlist_position = 0;
@@ -69,7 +69,13 @@ void MarketDateSystem::make_booking(User *user, uint64_t market_date_index)
         booked = &market_dates[market_date_index].food_booking.booked;
     }
 
-    if (booking_list == nullptr) { return; }
+    if (booking_list == nullptr) { return -1; }
+
+    for(int i = 0; i < booking_list->size(); i < booking_limit){
+        if((*booking_list)[i] == user->id){
+            return -2;
+        }
+    }
 
     booking_list->push_back(user->id);
     if (booking_list->size() > booking_limit)
