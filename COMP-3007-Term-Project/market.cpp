@@ -292,7 +292,7 @@ void Market::handle_market_schedule()
 
 
     for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++) {
-        uint64_t availability = 0;
+        int64_t availability = 0;
         int64_t book_or_wait = -1;
         uint64_t waitlist_position;
 
@@ -301,12 +301,12 @@ void Market::handle_market_schedule()
         // Get availability
         if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_ARTISAN)
         {
-            availability = market_date->artisan_booking.limit - market_date->artisan_booking.booked;
+            availability = (int64_t)market_date->artisan_booking.limit - (int64_t)market_date->artisan_booking.users.size();
         }
 
         if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_FOOD)
         {
-            availability = market_date->food_booking.limit - market_date->food_booking.booked;
+            availability = (int64_t)market_date->food_booking.limit - (int64_t)market_date->food_booking.users.size();
         }
 
         // Check if booked or on waitlist
@@ -336,7 +336,7 @@ void Market::handle_market_schedule()
             }
         }
 
-        QString availability_str = QString("Stalls available: %1").arg(std::max(0lu, availability));
+        QString availability_str = QString("Stalls available: %1").arg(std::max(0l, availability));
         QString date_str = QString(market_date_system->market_dates[i].date.to_string().c_str());
         QString status_str;
 
