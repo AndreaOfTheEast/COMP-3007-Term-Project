@@ -21,6 +21,39 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
     // Set up date
     current_date = Date::get_now();
+    connect(ui->edit_user_information, &QPushButton::clicked, this, [=]{
+        handle_edit_information();
+    });
+
+    //Edit User Info
+    connect(ui->save_user_info, &QPushButton::clicked, this, [=]{
+        save_user_information();
+    });
+
+    connect(ui->return_user_info, &QPushButton::clicked, this, [=]{
+        handle_dashboard();
+        ui->edit_email->clear();
+        ui->edit_mailing->clear();
+        ui->edit_phone->clear();
+        ui->edit_owner->clear();
+        ui->edit_business->clear();
+
+        ui->business_exp->clear();
+
+        ui->business_number->clear();
+
+        ui->liability_number->clear();
+
+        ui->liability_exp->clear();
+
+        ui->liability_provider->clear();
+
+        ui->business_number->clear();
+
+        ui->food_number->clear();
+
+        ui->food_exp->clear();
+    });
 
     // Navigate to the Market Schedule
     connect(ui->browse_market, &QPushButton::clicked, this, [=]{
@@ -337,4 +370,63 @@ void Market::handle_market_schedule()
         ui->table_market_dates->setItem((int)i, 1, new QTableWidgetItem(availability_str));
         ui->table_market_dates->setItem((int)i, 2, new QTableWidgetItem(status_str));
     }
+}
+
+void Market::handle_edit_information(){
+    ui->stackedWidget->setCurrentIndex(4);
+}
+
+void Market::save_user_information(){
+    if(ui->edit_business->text() != ""){
+        current_user->business_name = ui->edit_business->text().toStdString();
+        ui->edit_business->clear();
+    }
+    if(ui->edit_owner->text() != ""){
+        current_user->owner_name = ui->edit_owner->text().toStdString();
+        ui->edit_owner->clear();
+    }
+    if(ui->edit_phone->text() != ""){
+        current_user->phone_number = ui->edit_phone->text().toStdString();
+        ui->edit_phone->clear();
+    }
+    if(ui->edit_email->text() != ""){
+        current_user->email = ui->edit_email->text().toStdString();
+        ui->edit_email->clear();
+    }
+    if(ui->edit_mailing->text() != ""){
+        current_user->mail_address = ui->edit_mailing->text().toStdString();
+        ui->edit_mailing->clear();
+    }
+
+    //Documentation Edit
+    if(ui->business_exp->text() != ""){
+        current_user->compliance_docs.business_licence.expiration_date = ui->business_exp->text().toStdString();
+        ui->business_exp->clear();
+    }
+    if(ui->business_number->text() != ""){
+        current_user->compliance_docs.business_licence.number = ui->business_number->text().toStdString();
+        ui->business_number->clear();
+    }
+    if(ui->liability_number->text() != ""){
+        current_user->compliance_docs.liability_insurance.policy_number = ui->liability_number->text().toStdString();
+        ui->liability_number->clear();
+    }
+    if(ui->liability_exp->text() != ""){
+        current_user->compliance_docs.liability_insurance.expiration_date = ui->liability_exp->text().toStdString();
+        ui->liability_exp->clear();
+    }
+    if(ui->liability_provider->text() != ""){
+        current_user->compliance_docs.liability_insurance.provider = ui->liability_provider->text().toStdString();
+        ui->liability_provider->clear();
+    }
+
+    if(ui->food_number->text() != ""){
+        current_user->compliance_docs.food_handler.certification_number = ui->food_number->text().toStdString();
+        ui->food_number->clear();
+    }
+    if(ui->food_exp->text() != ""){
+        current_user->compliance_docs.food_handler.expiration_date = ui->food_exp->text().toStdString();
+        ui->food_exp->clear();
+    }
+    handle_dashboard();
 }
