@@ -414,6 +414,13 @@
           </layout>
          </item>
          <item>
+          <widget class="QLabel" name="label_23">
+           <property name="text">
+            <string>Business:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <layout class="QHBoxLayout" name="horizontalLayout_12">
            <property name="bottomMargin">
             <number>0</number>

@@ -374,6 +374,24 @@ void Market::handle_market_schedule()
 
 void Market::handle_edit_information(){
     ui->stackedWidget->setCurrentIndex(4);
+
+
+    ui->edit_business->setText(QString::fromStdString(current_user->business_name));
+    ui->edit_owner->setText(QString::fromStdString(current_user->owner_name));
+    ui->edit_phone->setText(QString::fromStdString(current_user->phone_number));
+    ui->edit_email->setText(QString::fromStdString(current_user->email));
+    ui->edit_mailing->setText(QString::fromStdString(current_user->mail_address));
+
+    //Documentation Edit
+    ui->business_exp->setText(QString::fromStdString(current_user->compliance_docs.business_licence.expiration_date));
+    ui->business_number->setText(QString::fromStdString(current_user->compliance_docs.business_licence.number));
+
+    ui->liability_exp->setText(QString::fromStdString(current_user->compliance_docs.liability_insurance.expiration_date));
+    ui->liability_number->setText(QString::fromStdString(current_user->compliance_docs.liability_insurance.policy_number));
+    ui->liability_provider->setText(QString::fromStdString(current_user->compliance_docs.liability_insurance.provider));
+
+    ui->food_exp->setText(QString::fromStdString(current_user->compliance_docs.food_handler.expiration_date));
+    ui->food_number->setText(QString::fromStdString(current_user->compliance_docs.food_handler.certification_number));
 }
 
 void Market::save_user_information(){
