@@ -222,20 +222,24 @@ void Market::handle_dashboard()
     ui->list_active_bookings->clear();
     for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++)
     {
-        MarketDate &market_date = market_date_system->market_dates[i];
+        MarketDate *market_date = &market_date_system->market_dates[i];
 
-        for (uint64_t j = 0; j < std::min(market_date.artisan_booking.users.size(), market_date.artisan_booking.limit); j++)
+        Booking *booking = 0;
+        if(current_user->perms.user_type == USER_TYPE_ARTISAN)
         {
-            if (market_date.artisan_booking.users[j].id == current_user->id.id)
-            {
-                ui->list_active_bookings->addItem(market_date.date.to_string().c_str());
-            }
+            booking = &market_date->artisan_booking;
         }
-        for (uint64_t j = 0; j < std::min(market_date.food_booking.users.size(), market_date.food_booking.limit); j++)
+        if(current_user->perms.user_type == USER_TYPE_FOOD)
         {
-            if (market_date.food_booking.users[j].id == current_user->id.id)
+            booking = &market_date->food_booking;
+        }
+        if(booking == 0) { break; }
+
+        for (uint64_t j = 0; j < std::min(booking->users.size(), booking->limit); j++)
+        {
+            if (booking->users[j].id == current_user->id.id)
             {
-                ui->list_active_bookings->addItem(market_date.date.to_string().c_str());
+                ui->list_active_bookings->addItem(market_date->date.to_string().c_str());
             }
         }
     }
@@ -244,25 +248,26 @@ void Market::handle_dashboard()
     ui->list_active_waitlists->clear();
     for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++)
     {
-        MarketDate &market_date = market_date_system->market_dates[i];
+        MarketDate *market_date = &market_date_system->market_dates[i];
 
-        for (uint64_t j = market_date.artisan_booking.limit; j < market_date.artisan_booking.users.size(); j++)
+        Booking *booking = 0;
+        if(current_user->perms.user_type == USER_TYPE_ARTISAN)
         {
-            if (market_date.artisan_booking.users[j].id == current_user->id.id)
-            {
-                QString s = QString("%1 (queue position: %2)")
-                        .arg(QString(market_date.date.to_string().c_str()))
-                        .arg(j - market_date.artisan_booking.limit + 1);
-                ui->list_active_waitlists->addItem(s);
-            }
+            booking = &market_date->artisan_booking;
         }
-        for (uint64_t j = market_date.food_booking.limit; j < market_date.food_booking.users.size(); j++)
+        if(current_user->perms.user_type == USER_TYPE_FOOD)
         {
-            if (market_date.food_booking.users[j].id == current_user->id.id)
+            booking = &market_date->food_booking;
+        }
+        if(booking == 0) { break; }
+
+        for (uint64_t j = booking->limit; j < booking->users.size(); j++)
+        {
+            if (booking->users[j].id == current_user->id.id)
             {
                 QString s = QString("%1 (queue position: %2)")
-                        .arg(QString(market_date.date.to_string().c_str()))
-                        .arg(j - market_date.food_booking.limit + 1);
+                        .arg(QString(market_date->date.to_string().c_str()))
+                        .arg(j - booking->limit + 1);
                 ui->list_active_waitlists->addItem(s);
             }
         }
@@ -290,40 +295,27 @@ void Market::handle_market_schedule()
 
         MarketDate *market_date = &market_date_system->market_dates[i];
 
-        // Get availability
-        if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_ARTISAN)
+        Booking *booking = 0;
+        if(current_user->perms.user_type == USER_TYPE_ARTISAN)
         {
-            availability = (int64_t)market_date->artisan_booking.limit - (int64_t)market_date->artisan_booking.users.size();
+            booking = &market_date->artisan_booking;
         }
+        if(current_user->perms.user_type == USER_TYPE_FOOD)
+        {
+            booking = &market_date->food_booking;
+        }
+        if(booking == 0) { break; }
 
-        if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_FOOD)
-        {
-            availability = (int64_t)market_date->food_booking.limit - (int64_t)market_date->food_booking.users.size();
-        }
+        // Get availability
+        availability = (int64_t)booking->limit - (int64_t)booking->users.size();
 
         // Check if booked or on waitlist
-        if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_ARTISAN)
-        {
-            for (uint64_t j = 0; j < market_date->artisan_booking.users.size(); j++) {
-                if (market_date->artisan_booking.users[j] == current_user->id) {
-                    book_or_wait = 0;
-                    if (j > market_date->artisan_booking.limit - 1) {
-                        book_or_wait = 1;
-                        waitlist_position = j - market_date->artisan_booking.limit + 1;
-                    }
-                }
-            }
-        }
-
-        if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_FOOD)
-        {
-            for (uint64_t j = 0; j < market_date->food_booking.users.size(); j++) {
-                if (market_date->food_booking.users[j] == current_user->id) {
-                    book_or_wait = 0;
-                    if (j > market_date->food_booking.limit - 1) {
-                        book_or_wait = 1;
-                        waitlist_position = j - market_date->food_booking.limit + 1;
-                    }
+        for (uint64_t j = 0; j < booking->users.size(); j++) {
+            if (booking->users[j] == current_user->id) {
+                book_or_wait = 0;
+                if (j > booking->limit - 1) {
+                    book_or_wait = 1;
+                    waitlist_position = j - booking->limit + 1;
                 }
             }
         }
