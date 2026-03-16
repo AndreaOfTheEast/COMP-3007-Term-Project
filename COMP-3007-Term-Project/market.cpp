@@ -56,15 +56,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
     // Navigate to the Market Schedule
     connect(ui->browse_market, &QPushButton::clicked, this, [=]{
-        if (current_user->perms.user_type == (USER_TYPE) USER_TYPE_FOOD ||
-            current_user->perms.user_type == (USER_TYPE) USER_TYPE_ARTISAN)
-        {
-            handle_market_schedule();
-        }
-        else
-        {
-            handle_operator_market_schedule();
-        }
+        handle_market_schedule();
     });
 
     // Navigate to the dashboard
@@ -100,11 +92,27 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
             return;
         }
 
-        if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_ARTISAN)
+        User *user = current_user;
+
+        if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_ADMIN)
+        {
+            QMessageBox::warning(
+                        this,
+                        "Booking Failed",
+                        "Your account prohibits booking directly.",
+                        QMessageBox::Ok);
+        }
+        if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_OPERATOR)
+        {
+            std::string username = ui->user_list_market->currentItem()->text().toStdString();
+            Credentials creds = { username };
+            user = user_system->get_user(creds);
+        }
+        if (user->perms.user_type == (USER_TYPE)USER_TYPE_ARTISAN)
         {
             vector = &market_date_system->market_dates[index].artisan_booking.users;
         }
-        if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_FOOD)
+        if (user->perms.user_type == (USER_TYPE)USER_TYPE_FOOD)
         {
             vector = &market_date_system->market_dates[index].food_booking.users;
         }
@@ -121,12 +129,41 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
         if (question == QMessageBox::Yes)
         {
-            market_date_system->make_booking(current_user, index);
+            if (current_user->perms.user_type == USER_TYPE_OPERATOR)
+            {
+                std::string username = ui->user_list_market->currentItem()->text().toStdString();
+
+                if (ui->user_list_market->currentItem() != nullptr)
+                {
+                    username = ui->user_list_market->currentItem()->text().toStdString();
+                }
+                else
+                {
+                    QMessageBox::warning(
+                                this,
+                                "Booking Failed",
+                                "No selected user.",
+                                QMessageBox::Ok);
+                }
+
+                market_date_system->make_booking(user, index);
+
+                std::stringstream notification_msg;
+                notification_msg << "[Action] Booked "
+                                 << ui->table_market_dates->item((int32_t)index, 0)->text().toStdString()
+                                 << " for " << user->creds.username << ".";
+                notification_system->add_notification(current_user->id, notification_msg.str());
+            }
+            else
+            {
+                market_date_system->make_booking(user, index);
+            }
         }
 
-        handle_market_schedule();
+        display_market_information(ui->table_market_dates, user);
     });
 
+    // Cancel booking
     connect(ui->cancel_booking, &QPushButton::clicked, this, [=]{
         uint64_t index = (uint64_t)ui->table_market_dates->currentRow();
         QMessageBox::StandardButton question;
@@ -146,7 +183,6 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
         int64_t is_booked = market_date_system->is_user_booked(current_user, index);
 
-        // TODO: remove this once implemented properly
         if (is_booked == -2)
         {
             QMessageBox::warning(
@@ -192,6 +228,8 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         ui->cancel_booking_waitlist->setText("Cancel Waitlist");
     });
 
+
+    // OPERATOR - See selected user information
     connect(ui->user_list, &QListWidget::itemClicked, this, [=] {
 
         // Clear Information
@@ -276,6 +314,16 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         std::string username;
         uint8_t is_waitlist = 0;
         std::vector<std::string> str = { "booking", "waitlist" };
+
+        if (current_user->perms.user_type != USER_TYPE_OPERATOR)
+        {
+            QMessageBox::warning(
+                        this,
+                        "Cancellation Failed",
+                        "Your account prohibits booking cancellation.",
+                        QMessageBox::Ok);
+            return;
+        }
 
         // Get username
         if (QListWidgetItem *item = ui->user_list->currentItem())
@@ -363,6 +411,13 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
                          << date.toStdString() << " for " << username << ".";
         notification_system->add_notification(current_user->id, notification_msg.str());
     });
+
+    // OPERATOR - Display user's market schedule view
+    connect(ui->user_list_market, &QListWidget::itemClicked, this, [=]{
+        std::string username = ui->user_list_market->currentItem()->text().toStdString();
+        Credentials creds = { username };
+        display_market_information(ui->table_market_dates, user_system->get_user(creds));
+    });
 }
 
 Market::~Market()
@@ -385,8 +440,6 @@ void Market::handle_dashboard()
     snprintf(buff, sizeof(buff),"Username: %s", current_user->creds.username.c_str());
     ui->list_user_information->addItem(buff);
 
-
-
     if (current_user->perms.user_type == (USER_TYPE) USER_TYPE_ARTISAN ||
         current_user->perms.user_type == (USER_TYPE) USER_TYPE_FOOD)
     {
@@ -404,7 +457,7 @@ void Market::handle_dashboard()
         ui->edit_user_information->setText("View Users");
     }
 
-    // notifications
+    // Notifications
     ui->list_notifications->clear();
     std::vector<std::string> notifications = notification_system->get_notifications(current_user->id);
     for (uint64_t i = 0; i < notifications.size(); i++)
@@ -489,71 +542,45 @@ void Market::handle_dashboard()
 
 void Market::handle_market_schedule()
 {
-    ui->stackedWidget->setCurrentIndex(1);
-    ui->table_market_dates->clear();
-    ui->table_market_dates->setColumnCount(3);
-    ui->table_market_dates->setRowCount(5);
-    ui->table_market_dates->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->table_market_dates->verticalHeader()->setVisible(false);
-    ui->table_market_dates->setSelectionBehavior(QAbstractItemView::SelectRows);
-    QStringList headers = {"Date", "Availability", "Status"};
-    ui->table_market_dates->setHorizontalHeaderLabels(headers);
-
-
-    for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++) {
-        int64_t availability = 0;
-        int64_t book_or_wait = -1;
-        uint64_t waitlist_position;
-
-        MarketDate *market_date = &market_date_system->market_dates[i];
-
-        Booking *booking = 0;
-        if(current_user->perms.user_type == USER_TYPE_ARTISAN)
-        {
-            booking = &market_date->artisan_booking;
-        }
-        if(current_user->perms.user_type == USER_TYPE_FOOD)
-        {
-            booking = &market_date->food_booking;
-        }
-        if(booking == 0) { break; }
-
-        // Get availability
-        availability = (int64_t)booking->limit - (int64_t)booking->users.size();
-
-        // Check if booked or on waitlist
-        for (uint64_t j = 0; j < booking->users.size(); j++) {
-            if (booking->users[j] == current_user->id) {
-                book_or_wait = 0;
-                if (j > booking->limit - 1) {
-                    book_or_wait = 1;
-                    waitlist_position = j - booking->limit + 1;
-                }
-            }
-        }
-
-        QString availability_str = QString("Stalls available: %1").arg(std::max(0l, availability));
-        QString date_str = QString(market_date_system->market_dates[i].date.to_string().c_str());
-        QString status_str;
-
-        if (book_or_wait == 0)
-        {
-            status_str = QString("Booked");
-        } else if (book_or_wait == 1){
-            status_str = QString("Waitlisted (queue position: %1)").arg(waitlist_position);
-        } else {
-            status_str = QString("-");
-        }
-
-        ui->table_market_dates->setItem((int)i, 0, new QTableWidgetItem(date_str));
-        ui->table_market_dates->setItem((int)i, 1, new QTableWidgetItem(availability_str));
-        ui->table_market_dates->setItem((int)i, 2, new QTableWidgetItem(status_str));
+    if (current_user->perms.user_type == USER_TYPE_FOOD ||
+        current_user->perms.user_type == USER_TYPE_ARTISAN)
+    {
+        ui->user_list_market->hide();
+        ui->label_24->hide();
+        ui->cancel_booking->show();
     }
-}
+    else
+    {
+        ui->user_list_market->show();
+        ui->label_24->show();
+        ui->cancel_booking->hide();
+    }
 
-void Market::handle_operator_market_schedule() {
+    ui->stackedWidget->setCurrentIndex(1);
 
+    // User list
+    std::vector<User> users = user_system->get_user_list();
+    ui->user_list_market->clear();
+    for (uint64_t i = 0; i < users.size(); i++)
+    {
+        if (users[i].perms.user_type == USER_TYPE_FOOD ||
+            users[i].perms.user_type == USER_TYPE_ARTISAN)
+        {
+            ui->user_list_market->addItem(users[i].creds.username.c_str());
+        }
+    }
 
+    // Display market dates
+    if (ui->user_list_market->currentItem() != nullptr)
+    {
+        std::string username = ui->user_list_market->currentItem()->text().toStdString();
+        Credentials creds = { username };
+        display_market_information(ui->table_market_dates, user_system->get_user(creds));
+    }
+    else
+    {
+        display_market_information(ui->table_market_dates, current_user);
+    }
 }
 
 void Market::handle_edit_information(){
@@ -570,7 +597,7 @@ void Market::handle_edit_information(){
         ui->edit_email->setText(QString::fromStdString(current_user->email));
         ui->edit_mailing->setText(QString::fromStdString(current_user->mail_address));
 
-        //Documentation Edit
+        // Documentation Edit
         ui->business_exp->setText(QString::fromStdString(current_user->compliance_docs.business_licence.expiration_date));
         ui->business_number->setText(QString::fromStdString(current_user->compliance_docs.business_licence.number));
 
@@ -580,7 +607,6 @@ void Market::handle_edit_information(){
 
         ui->food_exp->setText(QString::fromStdString(current_user->compliance_docs.food_handler.expiration_date));
         ui->food_number->setText(QString::fromStdString(current_user->compliance_docs.food_handler.certification_number));
-
     }
     else
     {
@@ -603,11 +629,6 @@ void Market::handle_edit_information(){
         ui->user_booking_list->clear();
         ui->user_waitlist_list->clear();
         ui->user_information_view->clear();
-
-        // Allow selection
-        // Display the active bookings and waitlists
-        // Display account information
-        // allow removal of booking and waitlist
     }
 }
 
@@ -633,7 +654,7 @@ void Market::save_user_information(){
         ui->edit_mailing->clear();
     }
 
-    //Documentation Edit
+    // Documentation Edit
     if(ui->business_exp->text() != ""){
         current_user->compliance_docs.business_licence.expiration_date = ui->business_exp->text().toStdString();
         ui->business_exp->clear();
@@ -663,6 +684,7 @@ void Market::save_user_information(){
         current_user->compliance_docs.food_handler.expiration_date = ui->food_exp->text().toStdString();
         ui->food_exp->clear();
     }
+
     handle_dashboard();
 }
 
@@ -710,5 +732,103 @@ void Market::display_account_information(QListWidget *list, User *user)
         list->addItem(buff);
         snprintf(buff, sizeof(buff),"Food Handler Expiration Date %s", user->compliance_docs.food_handler.expiration_date.c_str());
         list->addItem(buff);
+    }
+}
+
+void Market::display_market_information(QTableWidget *table, User *user)
+{
+    table->clear();
+    table->setColumnCount(3);
+    table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    table->verticalHeader()->setVisible(false);
+    table->setSelectionBehavior(QAbstractItemView::SelectRows);
+    QStringList headers = {"Date", "Availability", "Status"};
+    table->setHorizontalHeaderLabels(headers);
+
+    if (user->perms.user_type == USER_TYPE_OPERATOR ||
+        user->perms.user_type == USER_TYPE_ADMIN)
+    {
+        table->setRowCount(8);
+    }
+    else
+    {
+        table->setRowCount(4);
+    }
+
+    for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++) {
+        int64_t availability = 0;
+        int64_t book_or_wait = -1;
+        uint64_t waitlist_position;
+
+        MarketDate *market_date = &market_date_system->market_dates[i];
+
+        Booking *booking = 0;
+        if(user->perms.user_type == USER_TYPE_ARTISAN)
+        {
+            booking = &market_date->artisan_booking;
+        }
+        if(user->perms.user_type == USER_TYPE_FOOD)
+        {
+            booking = &market_date->food_booking;
+        }
+        if(booking == 0)
+        {
+            booking = &market_date->food_booking;
+        }
+
+        // Get availability
+        availability = (int64_t)booking->limit - (int64_t)booking->users.size();
+
+        // OPERATOR - Show overall availability
+        if (user->perms.user_type == USER_TYPE_OPERATOR ||
+            user->perms.user_type == USER_TYPE_ADMIN)
+        {
+            booking = &market_date->artisan_booking;
+            availability += (int64_t)booking->limit - (int64_t)booking->users.size();
+        }
+
+        // Check if booked or on waitlist
+        for (uint64_t j = 0; j < booking->users.size(); j++) {
+            if (booking->users[j] == user->id) {
+                book_or_wait = 0;
+                if (j > booking->limit - 1) {
+                    book_or_wait = 1;
+                    waitlist_position = j - booking->limit + 1;
+                }
+            }
+        }
+
+        QString availability_str = QString("Stalls available: %1").arg(std::max(0l, availability));
+        QString date_str = QString(market_date_system->market_dates[i].date.to_string().c_str());
+        QString status_str;
+
+        if (current_user->perms.user_type == USER_TYPE_OPERATOR ||
+            current_user->perms.user_type == USER_TYPE_ADMIN)
+        {
+            if (availability == 0)
+            {
+                status_str = QString("Unavailable");
+            }
+            else
+            {
+                status_str = QString("-");
+            }
+        }
+        else
+        {
+            if (book_or_wait == 0)
+            {
+                status_str = QString("Booked");
+            } else if (book_or_wait == 1){
+                status_str = QString("Waitlisted (queue position: %1)").arg(waitlist_position);
+            } else {
+                status_str = QString("-");
+            }
+        }
+
+
+        table->setItem((int)i, 0, new QTableWidgetItem(date_str));
+        table->setItem((int)i, 1, new QTableWidgetItem(availability_str));
+        table->setItem((int)i, 2, new QTableWidgetItem(status_str));
     }
 }

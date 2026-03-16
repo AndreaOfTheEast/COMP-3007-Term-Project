@@ -24,7 +24,7 @@
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="dashboard">
        <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -160,10 +160,17 @@
                <item>
                 <widget class="QTableWidget" name="table_market_dates"/>
                </item>
+               <item>
+                <widget class="QLabel" name="label_24">
+                 <property name="text">
+                  <string>Users</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QListWidget" name="user_list_market"/>
+               </item>
               </layout>
-             </item>
-             <item>
-              <layout class="QVBoxLayout" name="verticalLayout_8"/>
              </item>
             </layout>
            </item>

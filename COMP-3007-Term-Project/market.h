@@ -27,10 +27,10 @@ public:
 
     void handle_dashboard();
     void handle_market_schedule();
-    void handle_operator_market_schedule();
     void handle_edit_information();
     void save_user_information();
     void display_account_information(QListWidget * list, User * user);
+    void display_market_information(QTableWidget * table, User * user);
 
 public slots:
 public emit:

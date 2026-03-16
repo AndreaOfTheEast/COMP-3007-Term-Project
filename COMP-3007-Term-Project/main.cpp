@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     int nearest_sunday = 7 - sunday->tm_wday;
     now += 86400 * nearest_sunday;
 
-    for (i = 0; i < 4; i++) {
+    for (i = 0; i < 8; i++) {
         sunday = localtime(&now);
         MarketDate market_date;
         market_date.date.day = (uint64_t)sunday->tm_mday;
