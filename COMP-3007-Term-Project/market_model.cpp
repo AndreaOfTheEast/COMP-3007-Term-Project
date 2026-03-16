@@ -27,6 +27,10 @@ void UserSystem::add_user(User user)
     users.push_back(user);
 }
 
+std::vector<User> UserSystem::get_user_list() {
+    return(users);
+}
+
 std::string Date::to_string()
 {
     char buff[1024];
@@ -103,11 +107,14 @@ int MarketDateSystem::make_booking(User *user, uint64_t market_date_index)
         s << "[Action] Booked for " << date << ".";
         notification_system->add_notification(user->id, s.str());
     }
+
+    return 0;
 }
 
 void MarketDateSystem::cancel_booking(User *user, uint64_t market_date_index)
 {
     uint64_t *booked = nullptr;
+    uint64_t *limit = nullptr;
     std::vector<UserId> *booking_list = nullptr;
     std::stringstream notification_msg;
 
@@ -115,11 +122,13 @@ void MarketDateSystem::cancel_booking(User *user, uint64_t market_date_index)
     {
         booking_list = &market_dates[market_date_index].artisan_booking.users;
         booked = &market_dates[market_date_index].artisan_booking.booked;
+        limit = &market_dates[market_date_index].artisan_booking.limit;
     }
     else if (user->perms.user_type == (USER_TYPE) USER_TYPE_FOOD)
     {
         booking_list = &market_dates[market_date_index].food_booking.users;
         booked = &market_dates[market_date_index].food_booking.booked;
+        limit = &market_dates[market_date_index].food_booking.limit;
     }
 
     if (booking_list == nullptr) { return; }
@@ -129,21 +138,35 @@ void MarketDateSystem::cancel_booking(User *user, uint64_t market_date_index)
         if (user->id == (*booking_list)[i])
         {
             booking_list->erase(booking_list->begin() + i);
-            (*booked)--;
-            notification_msg << "[Action] Cancelled booking for " <<
-                                market_dates[market_date_index].date.to_string() << ".";
-            notification_system->add_notification(user->id, notification_msg.str());
 
-            // Notify waitlist
-            notification_msg.str("");
-            notification_msg.clear();
 
-            if (booking_list->size() > 0)
+            // Check if it's a waitlist position
+            if (i > *limit)
             {
-                notification_msg << "[Alert] Available spot for " <<
-                                    market_dates[market_date_index].date.to_string() << "." <<
-                                    " Please respond to waitlist offer.";
-                notification_system->add_notification((*booking_list)[*booked], notification_msg.str());
+                // WAITLIST
+                notification_msg << "[Action] Cancelled waitlist for " <<
+                                    market_dates[market_date_index].date.to_string() << ".";
+                notification_system->add_notification(user->id, notification_msg.str());
+            }
+            else
+            {
+                // BOOKING
+                notification_msg << "[Action] Cancelled booking for " <<
+                                    market_dates[market_date_index].date.to_string() << ".";
+                notification_system->add_notification(user->id, notification_msg.str());
+                (*booked)--;
+
+                // Notify waitlist
+                notification_msg.str("");
+                notification_msg.clear();
+
+                if (booking_list->size() > 0)
+                {
+                    notification_msg << "[Alert] Available spot for " <<
+                                        market_dates[market_date_index].date.to_string() << "." <<
+                                        " Please respond to waitlist offer.";
+                    notification_system->add_notification((*booking_list)[*booked], notification_msg.str());
+                }
             }
 
             break;

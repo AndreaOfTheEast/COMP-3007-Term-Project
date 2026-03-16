@@ -22,6 +22,7 @@
 #include <QDialog>
 #include <QMessageBox>
 #include <QApplication>
+#include <QListWidget>
 #pragma GCC diagnostic pop
 
 #define DebugTrap() __builtin_trap()

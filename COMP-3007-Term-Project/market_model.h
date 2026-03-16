@@ -18,6 +18,7 @@ public:
 
     User *get_user(Credentials creds);
     void add_user(User user);
+    std::vector<User> get_user_list();
 };
 
 class MarketDateSystem

@@ -25,7 +25,6 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         handle_edit_information();
     });
 
-    //Edit User Info
     connect(ui->save_user_info, &QPushButton::clicked, this, [=]{
         save_user_information();
     });
@@ -57,11 +56,25 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
     // Navigate to the Market Schedule
     connect(ui->browse_market, &QPushButton::clicked, this, [=]{
-        handle_market_schedule();
+        if (current_user->perms.user_type == (USER_TYPE) USER_TYPE_FOOD ||
+            current_user->perms.user_type == (USER_TYPE) USER_TYPE_ARTISAN)
+        {
+            handle_market_schedule();
+        }
+        else
+        {
+            handle_operator_market_schedule();
+        }
     });
 
     // Navigate to the dashboard
     connect(ui->back_to_dashboard, &QPushButton::clicked, this, [=]{
+        handle_dashboard();
+    });
+    connect(ui->operator_back_to_dashboard, &QPushButton::clicked, this, [=] {
+        handle_dashboard();
+    });
+    connect(ui->operator_back_to_dashboard_2, &QPushButton::clicked, this, [=] {
         handle_dashboard();
     });
 
@@ -166,6 +179,190 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
         handle_market_schedule();
     });
+
+    // Add selection exclusion
+    connect(ui->user_booking_list, &QListWidget::itemClicked, this, [=] {
+        ui->user_waitlist_list->clearSelection();
+        ui->user_waitlist_list->setCurrentItem(nullptr);
+        ui->cancel_booking_waitlist->setText("Cancel Booking");
+    });
+    connect(ui->user_waitlist_list, &QListWidget::itemClicked, this, [=] {
+        ui->user_booking_list->clearSelection();
+        ui->user_booking_list->setCurrentItem(nullptr);
+        ui->cancel_booking_waitlist->setText("Cancel Waitlist");
+    });
+
+    connect(ui->user_list, &QListWidget::itemClicked, this, [=] {
+
+        // Clear Information
+        ui->user_information_view->clear();
+        ui->user_booking_list->clear();
+        ui->user_waitlist_list->clear();
+
+
+        std::string username;
+
+        if (QListWidgetItem *item = ui->user_list->currentItem())
+        {
+            username = item->text().toStdString();
+        }
+        else
+        {
+            return;
+        }
+
+        Credentials creds = { username };
+        User *user = in_user_system->get_user(creds);
+
+        // Display account information
+        display_account_information(ui->user_information_view, in_user_system->get_user(creds));
+
+        // Active bookings
+        for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++)
+        {
+            MarketDate *market_date = &market_date_system->market_dates[i];
+
+            Booking *booking = 0;
+            if(user->perms.user_type == USER_TYPE_ARTISAN)
+            {
+                booking = &market_date->artisan_booking;
+            }
+            if(user->perms.user_type == USER_TYPE_FOOD)
+            {
+                booking = &market_date->food_booking;
+            }
+            if(booking == 0) { break; }
+
+            for (uint64_t j = 0; j < std::min(booking->users.size(), booking->limit); j++)
+            {
+                if (booking->users[j].id == user->id.id)
+                {
+                    ui->user_booking_list->addItem(market_date->date.to_string().c_str());
+                }
+            }
+        }
+
+        // Active waitlists
+        for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++)
+        {
+            MarketDate *market_date = &market_date_system->market_dates[i];
+
+            Booking *booking = 0;
+            if(user->perms.user_type == USER_TYPE_ARTISAN)
+            {
+                booking = &market_date->artisan_booking;
+            }
+            if(user->perms.user_type == USER_TYPE_FOOD)
+            {
+                booking = &market_date->food_booking;
+            }
+            if(booking == 0) { break; }
+
+            for (uint64_t j = booking->limit; j < booking->users.size(); j++)
+            {
+                if (booking->users[j].id == user->id.id)
+                {
+                    QString s = QString("%1 (queue position: %2)")
+                            .arg(QString(market_date->date.to_string().c_str()))
+                            .arg(j - booking->limit + 1);
+                    ui->user_waitlist_list->addItem(s);
+                }
+            }
+        }
+    });
+
+    // OPERATOR - Cancel a booking or waitlist position for a vendor
+    connect(ui->cancel_booking_waitlist, &QPushButton::clicked, this, [=] {
+        std::string username;
+        uint8_t is_waitlist = 0;
+        std::vector<std::string> str = { "booking", "waitlist" };
+
+        // Get username
+        if (QListWidgetItem *item = ui->user_list->currentItem())
+        {
+            username = item->text().toStdString();
+        }
+        else
+        {
+            QMessageBox::warning(
+                        this,
+                        "Cancellation Failed",
+                        "This user does not exist.",
+                        QMessageBox::Ok);
+            return;
+        }
+
+        QString date;
+        Credentials creds = { username };
+        User *user = in_user_system->get_user(creds);
+
+        // Check if the user has selected a booking or a waitlist
+        if (!ui->user_booking_list->selectedItems().isEmpty())
+        {
+            date = ui->user_booking_list->currentItem()->text();
+        }
+        else if (!ui->user_waitlist_list->selectedItems().isEmpty())
+        {
+            date = ui->user_waitlist_list->currentItem()->text().left(10);
+            is_waitlist = 1;
+        }
+        else
+        {
+            return;
+        }
+
+        uint64_t index = 0;
+
+        for (; index < market_date_system->market_dates.size(); index++)
+        {
+            if (market_date_system->market_dates[index].date.to_string() == date.toStdString())
+            {
+                break;
+            }
+        }
+
+        // User's booking is not found
+        if (index >= market_date_system->market_dates.size()) {
+            QMessageBox::warning(
+                        this,
+                        "Cancellation Failed",
+                        QString("This booking/waitlist (%1) does not exist.")
+                            .arg(date),
+                        QMessageBox::Ok);
+            return;
+        }
+
+        // Cancel booking
+        market_date_system->cancel_booking(user, index);
+
+        QMessageBox::information(
+                    this,
+                    "Cancellation Sucess",
+                    QString("Cancelled %1 on %2 for %3.")
+                        .arg(str[is_waitlist].c_str())
+                        .arg(date)
+                        .arg(username.c_str()),
+                    QMessageBox::Ok);
+
+        // Remove the item from the list.
+        QListWidgetItem *item;
+        if (is_waitlist == 1)
+        {
+            item = ui->user_waitlist_list->currentItem();
+            delete ui->user_waitlist_list->takeItem(ui->user_waitlist_list->row(item));
+        }
+        else
+        {
+            item = ui->user_booking_list->currentItem();
+            delete ui->user_booking_list->takeItem(ui->user_booking_list->row(item));
+        }
+
+        // Notification for the operator
+        std::stringstream notification_msg;
+        notification_msg << "[Action] Cancelled " << str[is_waitlist] << " on "
+                         << date.toStdString() << " for " << username << ".";
+        notification_system->add_notification(current_user->id, notification_msg.str());
+    });
 }
 
 Market::~Market()
@@ -176,71 +373,35 @@ Market::~Market()
 void Market::handle_dashboard()
 {
     char buff[2048];
+
     ui->stackedWidget->setCurrentIndex(0);
 
     ui->dashboard_date->setText(QString(("Today's Date: " + current_date.to_string()).c_str()));
     ui->list_user_information->clear();
-
 
     // USER INFORMATION
     snprintf(buff, sizeof(buff),"User ID: %lu", current_user->id.id);
     ui->list_user_information->addItem(buff);
     snprintf(buff, sizeof(buff),"Username: %s", current_user->creds.username.c_str());
     ui->list_user_information->addItem(buff);
-    if (current_user->perms.user_type == (USER_TYPE) USER_TYPE_ADMIN ||
-        current_user->perms.user_type == (USER_TYPE) USER_TYPE_OPERATOR)
-    {
-        snprintf(buff, sizeof(buff),
-                 "Account Type: %s",
-                 user_type_strings[current_user->perms.user_type].c_str());
-        ui->list_user_information->addItem("");
-        ui->list_user_information->addItem(buff);
-    }
+
+
 
     if (current_user->perms.user_type == (USER_TYPE) USER_TYPE_ARTISAN ||
         current_user->perms.user_type == (USER_TYPE) USER_TYPE_FOOD)
     {
-        snprintf(buff, sizeof(buff),"Business Name: %s", current_user->business_name.c_str());
-        ui->list_user_information->addItem(buff);
+        ui->edit_user_information->setText("Edit Information");
 
-        ui->list_user_information->addItem("");
-        ui->list_user_information->addItem("Contact Information");
-
-        snprintf(buff, sizeof(buff),"Email: %s", current_user->email.c_str());
-        ui->list_user_information->addItem(buff);
-        snprintf(buff, sizeof(buff),"Phone Number: %s", current_user->phone_number.c_str());
-        ui->list_user_information->addItem(buff);
-        snprintf(buff, sizeof(buff),"Mailing Address: %s", current_user->mail_address.c_str());
-        ui->list_user_information->addItem(buff);
-
-        ui->list_user_information->addItem("");
-        snprintf(buff, sizeof(buff),"Vendor Category: %s", user_type_strings[current_user->perms.user_type].c_str());
-        ui->list_user_information->addItem(buff);
-
-        ui->list_user_information->addItem("");
-        ui->list_user_information->addItem("Compliance Documentation");
-
-        snprintf(buff, sizeof(buff),"Business Licence Number %s", current_user->compliance_docs.business_licence.number.c_str());
-        ui->list_user_information->addItem(buff);
-        snprintf(buff, sizeof(buff),"Business Licence Expiration Date %s", current_user->compliance_docs.business_licence.expiration_date.c_str());
-        ui->list_user_information->addItem(buff);
-
-        ui->list_user_information->addItem("");
-        snprintf(buff, sizeof(buff),"Liability Insurance Policy Number %s", current_user->compliance_docs.liability_insurance.policy_number.c_str());
-        ui->list_user_information->addItem(buff);
-        snprintf(buff, sizeof(buff),"Liability Insurance Provider %s", current_user->compliance_docs.liability_insurance.provider.c_str());
-        ui->list_user_information->addItem(buff);
-        snprintf(buff, sizeof(buff),"Liability Insurance Expiration Date %s", current_user->compliance_docs.liability_insurance.expiration_date.c_str());
-        ui->list_user_information->addItem(buff);
+        display_account_information(ui->list_user_information, current_user);
     }
 
-    if (current_user->perms.user_type == (USER_TYPE) USER_TYPE_FOOD)
+    if (current_user->perms.user_type == (USER_TYPE) USER_TYPE_ADMIN ||
+        current_user->perms.user_type == (USER_TYPE) USER_TYPE_OPERATOR)
     {
-        ui->list_user_information->addItem("");
-        snprintf(buff, sizeof(buff),"Food Handler Certification Number %s", current_user->compliance_docs.food_handler.certification_number.c_str());
+        snprintf(buff, sizeof(buff), "Account Type: %s", user_type_strings[current_user->perms.user_type].c_str());
         ui->list_user_information->addItem(buff);
-        snprintf(buff, sizeof(buff),"Food Handler Expiration Date %s", current_user->compliance_docs.food_handler.expiration_date.c_str());
-        ui->list_user_information->addItem(buff);
+
+        ui->edit_user_information->setText("View Users");
     }
 
     // notifications
@@ -251,61 +412,79 @@ void Market::handle_dashboard()
         ui->list_notifications->addItem(QString(notifications[i].c_str()));
     }
 
-    // active bookings
-    ui->list_active_bookings->clear();
-    for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++)
+    // Only show active bookings and waitlists for vendors
+    if (current_user->perms.user_type == (USER_TYPE) USER_TYPE_ARTISAN ||
+        current_user->perms.user_type == (USER_TYPE) USER_TYPE_FOOD)
     {
-        MarketDate *market_date = &market_date_system->market_dates[i];
+        ui->label_4->show();
+        ui->label_5->show();
+        ui->list_active_bookings->show();
+        ui->list_active_waitlists->show();
 
-        Booking *booking = 0;
-        if(current_user->perms.user_type == USER_TYPE_ARTISAN)
+        // active bookings
+        ui->list_active_bookings->clear();
+        for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++)
         {
-            booking = &market_date->artisan_booking;
-        }
-        if(current_user->perms.user_type == USER_TYPE_FOOD)
-        {
-            booking = &market_date->food_booking;
-        }
-        if(booking == 0) { break; }
+            MarketDate *market_date = &market_date_system->market_dates[i];
 
-        for (uint64_t j = 0; j < std::min(booking->users.size(), booking->limit); j++)
-        {
-            if (booking->users[j].id == current_user->id.id)
+            Booking *booking = 0;
+            if(current_user->perms.user_type == USER_TYPE_ARTISAN)
             {
-                ui->list_active_bookings->addItem(market_date->date.to_string().c_str());
+                booking = &market_date->artisan_booking;
+            }
+            if(current_user->perms.user_type == USER_TYPE_FOOD)
+            {
+                booking = &market_date->food_booking;
+            }
+            if(booking == 0) { break; }
+
+            for (uint64_t j = 0; j < std::min(booking->users.size(), booking->limit); j++)
+            {
+                if (booking->users[j].id == current_user->id.id)
+                {
+                    ui->list_active_bookings->addItem(market_date->date.to_string().c_str());
+                }
+            }
+        }
+
+        // active waitlists
+        ui->list_active_waitlists->clear();
+        for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++)
+        {
+            MarketDate *market_date = &market_date_system->market_dates[i];
+
+            Booking *booking = 0;
+            if(current_user->perms.user_type == USER_TYPE_ARTISAN)
+            {
+                booking = &market_date->artisan_booking;
+            }
+            if(current_user->perms.user_type == USER_TYPE_FOOD)
+            {
+                booking = &market_date->food_booking;
+            }
+            if(booking == 0) { break; }
+
+            for (uint64_t j = booking->limit; j < booking->users.size(); j++)
+            {
+                if (booking->users[j].id == current_user->id.id)
+                {
+                    QString s = QString("%1 (queue position: %2)")
+                            .arg(QString(market_date->date.to_string().c_str()))
+                            .arg(j - booking->limit + 1);
+                    ui->list_active_waitlists->addItem(s);
+                }
             }
         }
     }
-
-    // active waitlists
-    ui->list_active_waitlists->clear();
-    for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++)
+    else
     {
-        MarketDate *market_date = &market_date_system->market_dates[i];
-
-        Booking *booking = 0;
-        if(current_user->perms.user_type == USER_TYPE_ARTISAN)
-        {
-            booking = &market_date->artisan_booking;
-        }
-        if(current_user->perms.user_type == USER_TYPE_FOOD)
-        {
-            booking = &market_date->food_booking;
-        }
-        if(booking == 0) { break; }
-
-        for (uint64_t j = booking->limit; j < booking->users.size(); j++)
-        {
-            if (booking->users[j].id == current_user->id.id)
-            {
-                QString s = QString("%1 (queue position: %2)")
-                        .arg(QString(market_date->date.to_string().c_str()))
-                        .arg(j - booking->limit + 1);
-                ui->list_active_waitlists->addItem(s);
-            }
-        }
+        // Do not show active bookings and waitlists for
+        // operators or system administrators
+        ui->label_4->hide();
+        ui->label_5->hide();
+        ui->list_active_bookings->hide();
+        ui->list_active_waitlists->hide();
     }
-
 }
 
 void Market::handle_market_schedule()
@@ -372,26 +551,64 @@ void Market::handle_market_schedule()
     }
 }
 
+void Market::handle_operator_market_schedule() {
+
+
+}
+
 void Market::handle_edit_information(){
-    ui->stackedWidget->setCurrentIndex(4);
 
+    if (current_user->perms.user_type == (USER_TYPE) USER_TYPE_FOOD ||
+        current_user->perms.user_type == (USER_TYPE) USER_TYPE_ARTISAN)
+    {
+        // EDIT INFORMATION VIEW
+        ui->stackedWidget->setCurrentIndex(4);
 
-    ui->edit_business->setText(QString::fromStdString(current_user->business_name));
-    ui->edit_owner->setText(QString::fromStdString(current_user->owner_name));
-    ui->edit_phone->setText(QString::fromStdString(current_user->phone_number));
-    ui->edit_email->setText(QString::fromStdString(current_user->email));
-    ui->edit_mailing->setText(QString::fromStdString(current_user->mail_address));
+        ui->edit_business->setText(QString::fromStdString(current_user->business_name));
+        ui->edit_owner->setText(QString::fromStdString(current_user->owner_name));
+        ui->edit_phone->setText(QString::fromStdString(current_user->phone_number));
+        ui->edit_email->setText(QString::fromStdString(current_user->email));
+        ui->edit_mailing->setText(QString::fromStdString(current_user->mail_address));
 
-    //Documentation Edit
-    ui->business_exp->setText(QString::fromStdString(current_user->compliance_docs.business_licence.expiration_date));
-    ui->business_number->setText(QString::fromStdString(current_user->compliance_docs.business_licence.number));
+        //Documentation Edit
+        ui->business_exp->setText(QString::fromStdString(current_user->compliance_docs.business_licence.expiration_date));
+        ui->business_number->setText(QString::fromStdString(current_user->compliance_docs.business_licence.number));
 
-    ui->liability_exp->setText(QString::fromStdString(current_user->compliance_docs.liability_insurance.expiration_date));
-    ui->liability_number->setText(QString::fromStdString(current_user->compliance_docs.liability_insurance.policy_number));
-    ui->liability_provider->setText(QString::fromStdString(current_user->compliance_docs.liability_insurance.provider));
+        ui->liability_exp->setText(QString::fromStdString(current_user->compliance_docs.liability_insurance.expiration_date));
+        ui->liability_number->setText(QString::fromStdString(current_user->compliance_docs.liability_insurance.policy_number));
+        ui->liability_provider->setText(QString::fromStdString(current_user->compliance_docs.liability_insurance.provider));
 
-    ui->food_exp->setText(QString::fromStdString(current_user->compliance_docs.food_handler.expiration_date));
-    ui->food_number->setText(QString::fromStdString(current_user->compliance_docs.food_handler.certification_number));
+        ui->food_exp->setText(QString::fromStdString(current_user->compliance_docs.food_handler.expiration_date));
+        ui->food_number->setText(QString::fromStdString(current_user->compliance_docs.food_handler.certification_number));
+
+    }
+    else
+    {
+        // USER LIST VIEW
+        ui->stackedWidget->setCurrentIndex(2);
+        std::vector<User> users = user_system->get_user_list();
+
+        // Display all vendors
+        ui->user_list->clear();
+        for (uint64_t i = 0; i < users.size(); i++)
+        {
+            if (users[i].perms.user_type == (USER_TYPE) USER_TYPE_FOOD ||
+                users[i].perms.user_type == (USER_TYPE) USER_TYPE_ARTISAN)
+            {
+                ui->user_list->addItem(QString::fromStdString(users[i].creds.username));
+            }
+        }
+
+        // Active bookings of user
+        ui->user_booking_list->clear();
+        ui->user_waitlist_list->clear();
+        ui->user_information_view->clear();
+
+        // Allow selection
+        // Display the active bookings and waitlists
+        // Display account information
+        // allow removal of booking and waitlist
+    }
 }
 
 void Market::save_user_information(){
@@ -447,4 +664,51 @@ void Market::save_user_information(){
         ui->food_exp->clear();
     }
     handle_dashboard();
+}
+
+void Market::display_account_information(QListWidget *list, User *user)
+{
+    char buff[2048];
+
+    snprintf(buff, sizeof(buff),"Business Name: %s", user->business_name.c_str());
+    list->addItem(buff);
+
+    list->addItem("");
+    list->addItem("Contact Information");
+
+    snprintf(buff, sizeof(buff),"Email: %s", user->email.c_str());
+    list->addItem(buff);
+    snprintf(buff, sizeof(buff),"Phone Number: %s", user->phone_number.c_str());
+    list->addItem(buff);
+    snprintf(buff, sizeof(buff),"Mailing Address: %s", user->mail_address.c_str());
+    list->addItem(buff);
+
+    list->addItem("");
+    snprintf(buff, sizeof(buff),"Vendor Category: %s", user_type_strings[user->perms.user_type].c_str());
+    list->addItem(buff);
+
+    list->addItem("");
+    list->addItem("Compliance Documentation");
+
+    snprintf(buff, sizeof(buff),"Business Licence Number %s", user->compliance_docs.business_licence.number.c_str());
+    list->addItem(buff);
+    snprintf(buff, sizeof(buff),"Business Licence Expiration Date %s", user->compliance_docs.business_licence.expiration_date.c_str());
+    list->addItem(buff);
+
+    list->addItem("");
+    snprintf(buff, sizeof(buff),"Liability Insurance Policy Number %s", user->compliance_docs.liability_insurance.policy_number.c_str());
+    list->addItem(buff);
+    snprintf(buff, sizeof(buff),"Liability Insurance Provider %s", user->compliance_docs.liability_insurance.provider.c_str());
+    list->addItem(buff);
+    snprintf(buff, sizeof(buff),"Liability Insurance Expiration Date %s", user->compliance_docs.liability_insurance.expiration_date.c_str());
+    list->addItem(buff);
+
+    if (user->perms.user_type == (USER_TYPE) USER_TYPE_FOOD)
+    {
+        list->addItem("");
+        snprintf(buff, sizeof(buff),"Food Handler Certification Number %s", user->compliance_docs.food_handler.certification_number.c_str());
+        list->addItem(buff);
+        snprintf(buff, sizeof(buff),"Food Handler Expiration Date %s", user->compliance_docs.food_handler.expiration_date.c_str());
+        list->addItem(buff);
+    }
 }
