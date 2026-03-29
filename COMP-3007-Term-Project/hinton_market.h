@@ -30,7 +30,12 @@
 #define DebugTrap() __builtin_trap()
 #define DebugLog(fmt,...) fprintf(stderr, fmt __VA_OPT__(,) __VA_ARGS__)
 #define Assert(b,fmt,...) do { if(!(b)) { DebugLog(fmt __VA_OPT__(,) __VA_ARGS__); DebugTrap(); } } while(0)
-#define StaticAssert static_assert
+#define CompileTimeError(s) __attribute__((error(s)))
+#define StaticAssertTopLevel(b,id) global U8 id##_##__LINE__[(b) ? 1 : -1]
+#define StaticAssert(b,msg) do { \
+    extern void CompileTimeError(msg) _static_compile_time_error_(void); \
+    if(!(b)) { _static_compile_time_error_(); }\
+} while(0)
 
 //~ andwu: user
 struct BusinessLicence
