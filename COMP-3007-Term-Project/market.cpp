@@ -72,7 +72,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
     // Make a booking
     connect(ui->make_booking, &QPushButton::clicked, this, [=]{
-        StaticAssert(0, "TODO: really bad, we use the UI, instead of a authority of truth.."
+        StaticAssert(0, "TODO: really bad, we use the UI, instead of a authority of truth.. "
                 "The marketdate should use an ID, NOT a index");
 #if 0
         uint64_t index = (uint64_t)ui->table_market_dates->currentRow();
@@ -169,7 +169,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
     // Cancel booking
     connect(ui->cancel_booking, &QPushButton::clicked, this, [=]{
-        StaticAssert(0, "TODO: remove the booking id from the table, notify the booker;"
+        StaticAssert(0, "TODO: remove the booking id from the table, notify the booker; "
                 "i have a note on this in the implementation as well.");
 #if 0
         uint64_t index = (uint64_t)ui->table_market_dates->currentRow();
@@ -493,6 +493,9 @@ void Market::handle_dashboard()
 
         // active bookings
         ui->list_active_bookings->clear();
+        StaticAssert(0, "TODO: query all the market dates for the user, "
+                "take into account the range limit");
+#if 0
         for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++)
         {
             MarketDate *market_date = &market_date_system->market_dates[i];
@@ -545,6 +548,7 @@ void Market::handle_dashboard()
                 }
             }
         }
+#endif
     }
     else
     {
@@ -576,7 +580,7 @@ void Market::handle_market_schedule()
     ui->stackedWidget->setCurrentIndex(1);
 
     // User list
-    StaticAssert(0, "TODO: i have no idea what this means.."
+    StaticAssert(0, "TODO: i have no idea what this means.. "
             "but we can query from the db all the users if we want to");
 #if 0
     std::vector<User> users = user_system->get_user_list();
@@ -779,6 +783,8 @@ void Market::display_market_information(QTableWidget *table, User *user)
         table->setRowCount(4);
     }
 
+    StaticAssert(0, "TODO: query all the market dates again");
+#if 0
     for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++) {
         int64_t availability = 0;
         int64_t book_or_wait = -1;
@@ -855,4 +861,5 @@ void Market::display_market_information(QTableWidget *table, User *user)
         table->setItem((int)i, 1, new QTableWidgetItem(availability_str));
         table->setItem((int)i, 2, new QTableWidgetItem(status_str));
     }
+#endif
 }
