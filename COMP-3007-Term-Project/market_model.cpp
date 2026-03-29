@@ -9,16 +9,29 @@
 User *UserSystem::get_user(Credentials creds)
 {
     Assert(0, "TODO: select from the database");
+        User *user = 0;
+#if 0
+    for(uint64_t ui = 0;
+            ui < users.size();
+            ui += 1)
+    {
+        if(users[ui].creds == creds)
+        {
+            user = &users[ui];
+            break;
+        }
+    }
+    return(user);
+#endif
     return(0);
 }
 
 void UserSystem::add_user(User user)
 {
     Assert(0, "TODO: insert to the database");
-}
-
-std::vector<User> UserSystem::get_user_list() {
-    return(users);
+#if 0
+    users.push_back(user);
+#endif
 }
 
 std::string Date::to_string()
@@ -36,6 +49,9 @@ void MarketDateSystem::add_market_date(MarketDate market_date)
 {
     // andwu: TODO: maybe the booking table should be: booking_id, date, create_timestamp, user_id
     Assert(0, "TODO: insert a booking");
+#if 0
+    market_dates.push_back(market_date);
+#endif
 }
 
 int MarketDateSystem::make_booking(UserId user, uint64_t market_date_index)
@@ -44,17 +60,163 @@ int MarketDateSystem::make_booking(UserId user, uint64_t market_date_index)
             "for this date and type."
             "Then query what that position is and the limit,"
             "so that we can have a popup about being waitlist/booked");
+#if 0
+    uint8_t waitlisted = 0;
+    uint64_t waitlist_position = 0;
+    std::stringstream s;
+    std::string date = market_dates[market_date_index].date.to_string();
+
+    QMessageBox msgBox;
+    std::vector<UserId> *booking_list = nullptr;
+    uint64_t booking_limit = 0;
+    uint64_t *booked = nullptr;
+
+    // handle artisan vendor booking
+    if (user->perms.user_type == USER_TYPE_ARTISAN)
+    {
+        booking_list = &market_dates[market_date_index].artisan_booking.users;
+        booking_limit = market_dates[market_date_index].artisan_booking.limit;
+        booked = &market_dates[market_date_index].artisan_booking.booked;
+    }
+    else if (user->perms.user_type == USER_TYPE_FOOD)
+    {
+        booking_list = &market_dates[market_date_index].food_booking.users;
+        booking_limit = market_dates[market_date_index].food_booking.limit;
+        booked = &market_dates[market_date_index].food_booking.booked;
+    }
+
+    if (booking_list == nullptr) { return -1; }
+
+    for(uint64_t i = 0; i < booking_list->size(); i++){
+        if((*booking_list)[i] == user->id){
+            return -2;
+        }
+    }
+
+    booking_list->push_back(user->id);
+    if (booking_list->size() > booking_limit)
+    {
+        waitlisted = 1;
+        waitlist_position = booking_list->size() - booking_limit;
+    }
+    else
+    {
+        (*booked)++;
+    }
+
+    if (waitlisted == 1)
+    {
+        // Set up waitlist message
+        QString qs = QString("You have been put on a waitlist for. You are in position %1.")
+            .arg(waitlist_position);
+        msgBox.setText(qs);
+        msgBox.exec();
+        s << "[Action] Waitlisted in position " << waitlist_position << " for " << date << ".";
+        notification_system->add_notification(user->id, s.str());
+    }
+    else
+    {
+        s << "[Action] Booked for " << date << ".";
+        notification_system->add_notification(user->id, s.str());
+    }
+#endif
     return(0);
 }
 
 void MarketDateSystem::cancel_booking(UserId user, uint64_t market_date_index)
 {
     Assert(0, "TODO: we want to remove a booking, add a notification for waitlister that are ready");
+#if 0
+    uint64_t *booked = nullptr;
+    uint64_t *limit = nullptr;
+    std::vector<UserId> *booking_list = nullptr;
+    std::stringstream notification_msg;
+
+    if (user->perms.user_type == (USER_TYPE) USER_TYPE_ARTISAN)
+    {
+        booking_list = &market_dates[market_date_index].artisan_booking.users;
+        booked = &market_dates[market_date_index].artisan_booking.booked;
+        limit = &market_dates[market_date_index].artisan_booking.limit;
+    }
+    else if (user->perms.user_type == (USER_TYPE) USER_TYPE_FOOD)
+    {
+        booking_list = &market_dates[market_date_index].food_booking.users;
+        booked = &market_dates[market_date_index].food_booking.booked;
+        limit = &market_dates[market_date_index].food_booking.limit;
+    }
+
+    if (booking_list == nullptr) { return; }
+
+    for (uint32_t i = 0; i < booking_list->size(); i++)
+    {
+        if (user->id == (*booking_list)[i])
+        {
+            booking_list->erase(booking_list->begin() + i);
+
+
+            // Check if it's a waitlist position
+            if (i > *limit)
+            {
+                // WAITLIST
+                notification_msg << "[Action] Cancelled waitlist for " <<
+                                    market_dates[market_date_index].date.to_string() << ".";
+                notification_system->add_notification(user->id, notification_msg.str());
+            }
+            else
+            {
+                // BOOKING
+                notification_msg << "[Action] Cancelled booking for " <<
+                                    market_dates[market_date_index].date.to_string() << ".";
+                notification_system->add_notification(user->id, notification_msg.str());
+                (*booked)--;
+
+                // Notify waitlist
+                notification_msg.str("");
+                notification_msg.clear();
+
+                if (booking_list->size() > 0)
+                {
+                    notification_msg << "[Alert] Available spot for " <<
+                                        market_dates[market_date_index].date.to_string() << "." <<
+                                        " Please respond to waitlist offer.";
+                    notification_system->add_notification((*booking_list)[*booked], notification_msg.str());
+                }
+            }
+
+            break;
+        }
+    }
+#endif
 }
 
 int64_t MarketDateSystem::is_user_booked(UserId user, uint64_t market_date_index)
 {
     Assert(0, "TODO: check if this market date is booked by the user");
+#if 0
+    std::vector<UserId> *booking_list = nullptr;
+    int64_t booked = 0;
+
+    if (user->perms.user_type == (USER_TYPE) USER_TYPE_ARTISAN)
+    {
+        booking_list = &market_dates[market_date_index].artisan_booking.users;
+        booked =  (int64_t)market_dates[market_date_index].artisan_booking.booked;
+    }
+    else if (user->perms.user_type == (USER_TYPE) USER_TYPE_FOOD)
+    {
+        booking_list = &market_dates[market_date_index].food_booking.users;
+        booked =  (int64_t)market_dates[market_date_index].food_booking.booked;
+    }
+
+    if (booking_list == nullptr) { return -2; }
+
+    for (uint32_t i = 0; i < booked; i++)
+    {
+        if (user->id == (*booking_list)[i])
+        {
+            return i;
+        }
+    }
+#endif
     return(-1);
 }
 
@@ -63,9 +225,26 @@ int64_t MarketDateSystem::is_user_booked(UserId user, uint64_t market_date_index
 // -------------------------
 std::vector<std::string> NotificationSystem::get_notifications(UserId id) {
     Assert(0, "TODO: query for notifications");
+#if 0
+    std::vector<std::string> user_notifs;
+
+    for (uint64_t i = 0; i < notifications.size(); i++) {
+        if (notifications[i].id == id) {
+            user_notifs.push_back(notifications[i].content);
+        }
+    }
+
+    return user_notifs;
+#endif
     return(std::vector<std::string>{});
 }
 
 void NotificationSystem::add_notification(UserId id, std::string content) {
     Assert(0, "TODO: insert notification");
+#if 0
+    Notification notification;
+    notification.id = id;
+    notification.content = content;
+    notifications.push_back(notification);
+#endif
 }

@@ -194,6 +194,16 @@ class Booking
         }
 };
 
+class MarketDateId {
+public:
+    uint64_t id;
+    bool operator==(const UserId user_id)
+    {
+        bool b = id == user_id.id;
+        return b;
+    }
+};
+
 class MarketDate
 {
 public:
@@ -201,12 +211,6 @@ public:
 
     Booking food_booking;
     Booking artisan_booking;
-
-    MarketDate()
-    {
-//        Booking food_booking;
-//        Booking artisan_booking;
-    }
 };
 
 class Notification

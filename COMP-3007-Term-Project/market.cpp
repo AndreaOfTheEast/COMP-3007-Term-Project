@@ -72,6 +72,9 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
     // Make a booking
     connect(ui->make_booking, &QPushButton::clicked, this, [=]{
+        Assert(0, "TODO: really bad, we use the UI, instead of a authority of truth.."
+                "The marketdate should use an ID, NOT a index");
+#if 0
         uint64_t index = (uint64_t)ui->table_market_dates->currentRow();
         std::vector<UserId> *vector = nullptr;
         QMessageBox msgBox;
@@ -161,6 +164,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         }
 
         display_market_information(ui->table_market_dates, user);
+#endif
     });
 
     // Cancel booking
@@ -381,7 +385,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         }
 
         // Cancel booking
-        market_date_system->cancel_booking(user, index);
+        market_date_system->cancel_booking(user->id, index);
 
         QMessageBox::information(
                     this,
@@ -559,6 +563,9 @@ void Market::handle_market_schedule()
     ui->stackedWidget->setCurrentIndex(1);
 
     // User list
+    Assert(0, "TODO: i have no idea what this means.."
+            "but we can query from the db all the users if we want to");
+#if 0
     std::vector<User> users = user_system->get_user_list();
     ui->user_list_market->clear();
     for (uint64_t i = 0; i < users.size(); i++)
@@ -569,6 +576,7 @@ void Market::handle_market_schedule()
             ui->user_list_market->addItem(users[i].creds.username.c_str());
         }
     }
+#endif
 
     // Display market dates
     if (ui->user_list_market->currentItem() != nullptr)
@@ -612,6 +620,8 @@ void Market::handle_edit_information(){
     {
         // USER LIST VIEW
         ui->stackedWidget->setCurrentIndex(2);
+        Assert(0, "TODO: we need to query from the db all the users");
+#if 0
         std::vector<User> users = user_system->get_user_list();
 
         // Display all vendors
@@ -624,6 +634,7 @@ void Market::handle_edit_information(){
                 ui->user_list->addItem(QString::fromStdString(users[i].creds.username));
             }
         }
+#endif
 
         // Active bookings of user
         ui->user_booking_list->clear();
