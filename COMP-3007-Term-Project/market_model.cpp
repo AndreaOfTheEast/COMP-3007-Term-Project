@@ -8,7 +8,7 @@
 // ------------------------
 User *UserSystem::get_user(Credentials creds)
 {
-    Assert(0, "TODO: select from the database");
+    StaticAssert(0, "TODO: select from the database");
         User *user = 0;
 #if 0
     for(uint64_t ui = 0;
@@ -28,7 +28,7 @@ User *UserSystem::get_user(Credentials creds)
 
 void UserSystem::add_user(User user)
 {
-    Assert(0, "TODO: insert to the database");
+    StaticAssert(0, "TODO: insert to the database");
 #if 0
     users.push_back(user);
 #endif
@@ -48,7 +48,7 @@ std::string Date::to_string()
 void MarketDateSystem::add_market_date(MarketDate market_date)
 {
     // andwu: TODO: maybe the booking table should be: booking_id, date, create_timestamp, user_id
-    Assert(0, "TODO: insert a booking");
+    StaticAssert(0, "TODO: insert a booking");
 #if 0
     market_dates.push_back(market_date);
 #endif
@@ -56,7 +56,7 @@ void MarketDateSystem::add_market_date(MarketDate market_date)
 
 int MarketDateSystem::make_booking(UserId user, uint64_t market_date_index)
 {
-    Assert(0, "TODO: we want to insert a booking into the booking list"
+    StaticAssert(0, "TODO: we want to insert a booking into the booking list"
             "for this date and type."
             "Then query what that position is and the limit,"
             "so that we can have a popup about being waitlist/booked");
@@ -125,7 +125,7 @@ int MarketDateSystem::make_booking(UserId user, uint64_t market_date_index)
 
 void MarketDateSystem::cancel_booking(UserId user, uint64_t market_date_index)
 {
-    Assert(0, "TODO: we want to remove a booking, add a notification for waitlister that are ready");
+    StaticAssert(0, "TODO: we want to remove a booking, add a notification for waitlister that are ready");
 #if 0
     uint64_t *booked = nullptr;
     uint64_t *limit = nullptr;
@@ -191,7 +191,7 @@ void MarketDateSystem::cancel_booking(UserId user, uint64_t market_date_index)
 
 int64_t MarketDateSystem::is_user_booked(UserId user, uint64_t market_date_index)
 {
-    Assert(0, "TODO: check if this market date is booked by the user");
+    StaticAssert(0, "TODO: check if this market date is booked by the user");
 #if 0
     std::vector<UserId> *booking_list = nullptr;
     int64_t booked = 0;
@@ -224,7 +224,7 @@ int64_t MarketDateSystem::is_user_booked(UserId user, uint64_t market_date_index
 // -- NOTIFICATION SYSTEM --
 // -------------------------
 std::vector<std::string> NotificationSystem::get_notifications(UserId id) {
-    Assert(0, "TODO: query for notifications");
+    StaticAssert(0, "TODO: query for notifications");
 #if 0
     std::vector<std::string> user_notifs;
 
@@ -240,7 +240,7 @@ std::vector<std::string> NotificationSystem::get_notifications(UserId id) {
 }
 
 void NotificationSystem::add_notification(UserId id, std::string content) {
-    Assert(0, "TODO: insert notification");
+    StaticAssert(0, "TODO: insert notification");
 #if 0
     Notification notification;
     notification.id = id;

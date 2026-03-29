@@ -72,7 +72,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
     // Make a booking
     connect(ui->make_booking, &QPushButton::clicked, this, [=]{
-        Assert(0, "TODO: really bad, we use the UI, instead of a authority of truth.."
+        StaticAssert(0, "TODO: really bad, we use the UI, instead of a authority of truth.."
                 "The marketdate should use an ID, NOT a index");
 #if 0
         uint64_t index = (uint64_t)ui->table_market_dates->currentRow();
@@ -563,7 +563,7 @@ void Market::handle_market_schedule()
     ui->stackedWidget->setCurrentIndex(1);
 
     // User list
-    Assert(0, "TODO: i have no idea what this means.."
+    StaticAssert(0, "TODO: i have no idea what this means.."
             "but we can query from the db all the users if we want to");
 #if 0
     std::vector<User> users = user_system->get_user_list();
@@ -620,7 +620,7 @@ void Market::handle_edit_information(){
     {
         // USER LIST VIEW
         ui->stackedWidget->setCurrentIndex(2);
-        Assert(0, "TODO: we need to query from the db all the users");
+        StaticAssert(0, "TODO: we need to query from the db all the users");
 #if 0
         std::vector<User> users = user_system->get_user_list();
 

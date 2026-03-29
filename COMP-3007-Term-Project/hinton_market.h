@@ -7,6 +7,7 @@
 #include <time.h>
 #include <algorithm>
 #include <stdio.h>
+#include <assert.h>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
@@ -29,6 +30,7 @@
 #define DebugTrap() __builtin_trap()
 #define DebugLog(fmt,...) fprintf(stderr, fmt __VA_OPT__(,) __VA_ARGS__)
 #define Assert(b,fmt,...) do { if(!(b)) { DebugLog(fmt __VA_OPT__(,) __VA_ARGS__); DebugTrap(); } } while(0)
+#define StaticAssert static_assert
 
 //~ andwu: user
 struct BusinessLicence
