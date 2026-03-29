@@ -83,7 +83,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         }
 
         // Check if user is already inside the booking
-        if (market_date_system->is_user_booked(current_user, index) >= 0)
+        if (market_date_system->is_user_booked(current_user->id, index) >= 0)
         {
             QMessageBox::warning(
                         this,
@@ -181,7 +181,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         // Check if user is in booking list
         // operator book for vendors
 
-        int64_t is_booked = market_date_system->is_user_booked(current_user, index);
+        int64_t is_booked = market_date_system->is_user_booked(current_user->id, index);
 
         if (is_booked == -2)
         {
@@ -204,7 +204,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         if (question != QMessageBox::Yes) { return; }
 
         // Cancel booking
-        market_date_system->cancel_booking(current_user, index);
+        market_date_system->cancel_booking(current_user->id, index);
 
         msg = QString("Successfully cancelled booking for %1.")
                 .arg(date.c_str());

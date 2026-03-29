@@ -14,7 +14,6 @@ class UserSystem
 {
 public:
     NotificationSystem *notification_system;
-    std::vector<User> users;
 
     User *get_user(Credentials creds);
     void add_user(User user);
@@ -28,7 +27,7 @@ public:
     std::vector<MarketDate> market_dates;
 
     void add_market_date(MarketDate market_date);
-    int make_booking(User *user, uint64_t market_date_index);
-    void cancel_booking(User *user, uint64_t market_date_index);
-    int64_t is_user_booked(User *user, uint64_t market_date_index);
+    int make_booking(UserId user, uint64_t market_date_index);
+    void cancel_booking(UserId user, uint64_t market_date_index);
+    int64_t is_user_booked(UserId user, uint64_t market_date_index);
 };
