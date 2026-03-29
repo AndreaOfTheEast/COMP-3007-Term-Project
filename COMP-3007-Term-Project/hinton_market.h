@@ -33,8 +33,8 @@
 #define CompileTimeError(s) __attribute__((error(s)))
 #define StaticAssertTopLevel(b,id) global U8 id##_##__LINE__[(b) ? 1 : -1]
 #define StaticAssert(b,msg) do { \
-    extern void CompileTimeError(msg) _static_compile_time_error_(void); \
-    if(!(b)) { _static_compile_time_error_(); }\
+    extern void CompileTimeError(msg) _static_assert_error_(void); \
+    if(!(b)) { _static_assert_error_(); }\
 } while(0)
 
 //~ andwu: user

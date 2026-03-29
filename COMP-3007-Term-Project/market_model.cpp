@@ -54,7 +54,7 @@ void MarketDateSystem::add_market_date(MarketDate market_date)
 #endif
 }
 
-int MarketDateSystem::make_booking(UserId user, uint64_t market_date_index)
+int MarketDateSystem::make_booking(UserId user, MarketDateId market_date_id)
 {
     StaticAssert(0, "TODO: we want to insert a booking into the booking list"
             "for this date and type."
@@ -123,8 +123,9 @@ int MarketDateSystem::make_booking(UserId user, uint64_t market_date_index)
     return(0);
 }
 
-void MarketDateSystem::cancel_booking(UserId user, uint64_t market_date_index)
+void MarketDateSystem::cancel_booking(UserId user, MarketDateId market_date_id)
 {
+    // andwu: TODO: maybe we use a delete style of: booking_id, user_id
     StaticAssert(0, "TODO: we want to remove a booking, add a notification for waitlister that are ready");
 #if 0
     uint64_t *booked = nullptr;
@@ -189,7 +190,7 @@ void MarketDateSystem::cancel_booking(UserId user, uint64_t market_date_index)
 #endif
 }
 
-int64_t MarketDateSystem::is_user_booked(UserId user, uint64_t market_date_index)
+int64_t MarketDateSystem::is_user_booked(UserId user, MarketDateId market_date_id)
 {
     StaticAssert(0, "TODO: check if this market date is booked by the user");
 #if 0

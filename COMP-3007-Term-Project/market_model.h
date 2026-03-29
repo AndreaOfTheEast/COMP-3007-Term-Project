@@ -26,7 +26,7 @@ public:
     std::vector<MarketDate> market_dates;
 
     void add_market_date(MarketDate market_date);
-    int make_booking(UserId user, MarketDateId market_date_index);
-    void cancel_booking(UserId user, MarketDateId market_date_index);
-    int64_t is_user_booked(UserId user, MarketDateId market_date_index);
+    int make_booking(UserId user, MarketDateId market_date_id);
+    void cancel_booking(UserId user, MarketDateId market_date_id);
+    int64_t is_user_booked(UserId user, MarketDateId market_date_id);
 };

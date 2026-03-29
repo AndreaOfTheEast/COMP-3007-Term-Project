@@ -8,7 +8,7 @@ CONFIG += c++23
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-QMAKE_CXXFLAGS_WARN_ON += -Wall -Wextra -Wpedantic -Wconversion -Wfloat-conversion -Wsign-conversion -Wdouble-promotion -Wshadow -Wcast-align -Wdeprecated-declarations -Wmissing-field-initializers -Wfloat-equal -Wpointer-arith -Wtautological-compare -Wno-missing-braces -Wno-unused-parameter -Wno-unused-function -Wno-unused-value -Wno-unused-variable -Wno-unused-local-typedef -Wno-unused-but-set-variable -Wno-initializer-overrides -Wno-gnu-zero-variadic-macro-arguments
+QMAKE_CXXFLAGS_WARN_ON += -Wall -Wextra -Wpedantic -Wconversion -Wfloat-conversion -Wsign-conversion -Wdouble-promotion -Wshadow -Wcast-align -Wdeprecated-declarations -Wmissing-field-initializers -Wfloat-equal -Wpointer-arith -Wtautological-compare -Wno-missing-braces -Wno-unused-parameter -Wno-unused-function -Wno-unused-value -Wno-unused-variable -Wno-unused-local-typedef -Wno-unused-but-set-variable -Wno-initializer-overrides -Wno-gnu-zero-variadic-macro-arguments -fmax-errors=0
 
 SOURCES += \
     login.cpp \

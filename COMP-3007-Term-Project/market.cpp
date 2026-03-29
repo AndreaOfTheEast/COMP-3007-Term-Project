@@ -169,6 +169,9 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
     // Cancel booking
     connect(ui->cancel_booking, &QPushButton::clicked, this, [=]{
+        StaticAssert(0, "TODO: remove the booking id from the table, notify the booker;"
+                "i have a note on this in the implementation as well.");
+#if 0
         uint64_t index = (uint64_t)ui->table_market_dates->currentRow();
         QMessageBox::StandardButton question;
         QString msg;
@@ -218,6 +221,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
                     msg);
 
         handle_market_schedule();
+#endif
     });
 
     // Add selection exclusion
@@ -260,6 +264,8 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         display_account_information(ui->user_information_view, in_user_system->get_user(creds));
 
         // Active bookings
+        StaticAssert(0, "TODO: query all our bookings from the db");
+#if 0
         for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++)
         {
             MarketDate *market_date = &market_date_system->market_dates[i];
@@ -311,10 +317,13 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
                 }
             }
         }
+#endif
     });
 
     // OPERATOR - Cancel a booking or waitlist position for a vendor
     connect(ui->cancel_booking_waitlist, &QPushButton::clicked, this, [=] {
+        StaticAssert(0, "TODO: cancel booking for a vendor from operator, with booking id");
+#if 0
         std::string username;
         uint8_t is_waitlist = 0;
         std::vector<std::string> str = { "booking", "waitlist" };
@@ -414,6 +423,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         notification_msg << "[Action] Cancelled " << str[is_waitlist] << " on "
                          << date.toStdString() << " for " << username << ".";
         notification_system->add_notification(current_user->id, notification_msg.str());
+#endif
     });
 
     // OPERATOR - Display user's market schedule view
@@ -462,12 +472,15 @@ void Market::handle_dashboard()
     }
 
     // Notifications
+    StaticAssert(0, "TODO: query all notifications");
+#if 0
     ui->list_notifications->clear();
     std::vector<std::string> notifications = notification_system->get_notifications(current_user->id);
     for (uint64_t i = 0; i < notifications.size(); i++)
     {
         ui->list_notifications->addItem(QString(notifications[i].c_str()));
     }
+#endif
 
     // Only show active bookings and waitlists for vendors
     if (current_user->perms.user_type == (USER_TYPE) USER_TYPE_ARTISAN ||
