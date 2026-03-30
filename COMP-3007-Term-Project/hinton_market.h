@@ -38,7 +38,13 @@
     extern void CompileTimeError(m) id(void); \
     if(!(b)) { id(); }\
 } while(0)
-#define StaticAssert(b,m) StaticAssert(StringConcat(StringConcat(_static_assert_error_,__FILE__)##_,__LINE__),b,m)
+#define StaticAssert(b,m) StaticAssert( \
+        StringConcat( \
+            StringConcat( \
+                StringConcat(_static_assert_error_,__FILE__), \
+                _), \
+            __LINE__), \
+        b,m)
 
 //~ andwu: user
 struct BusinessLicence
