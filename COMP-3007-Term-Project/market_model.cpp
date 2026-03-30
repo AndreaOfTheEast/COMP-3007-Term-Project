@@ -8,7 +8,7 @@
 // ------------------------
 User *UserSystem::get_user(Credentials creds)
 {
-    Assert(0, "TODO: select from the database");
+    Assert(0, "TODO: select from the database, MUST HAVE ID");
         User *user = 0;
 #if 0
     for(uint64_t ui = 0;

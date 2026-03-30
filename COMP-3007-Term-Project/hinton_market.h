@@ -214,6 +214,7 @@ class MarketDate
 {
 public:
     Date date;
+    MarketDateId id; // TODO: add this to table row of date
 
     Booking food_booking;
     Booking artisan_booking;
