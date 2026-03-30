@@ -38,7 +38,7 @@
     extern void CompileTimeError(m) id(void); \
     if(!(b)) { id(); }\
 } while(0)
-#define StaticAssert(b,m) StaticAssert( \
+#define StaticAssert(b,m) StaticAssertHelper( \
         StringConcat( \
             StringConcat( \
                 StringConcat(_static_assert_error_,__FILE__), \
