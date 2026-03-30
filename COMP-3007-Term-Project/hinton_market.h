@@ -27,14 +27,16 @@
 #include <QTableWidget>
 #pragma GCC diagnostic pop
 
+#define StringConcatHelper(x,y) x##y
+#define StringConcat(x,y) StringConcatHelper(x,y)
 #define DebugTrap() __builtin_trap()
 #define DebugLog(fmt,...) fprintf(stderr, fmt __VA_OPT__(,) __VA_ARGS__)
 #define Assert(b,fmt,...) do { if(!(b)) { DebugLog(fmt __VA_OPT__(,) __VA_ARGS__); DebugTrap(); } } while(0)
 #define CompileTimeError(s) __attribute__((error(s)))
 #define StaticAssertTopLevel(b,id) global U8 id##_##__LINE__[(b) ? 1 : -1]
 #define StaticAssert(b,msg) do { \
-    extern void CompileTimeError(msg) _static_assert_error_(void); \
-    if(!(b)) { _static_assert_error_(); }\
+    extern void CompileTimeError(msg) StringConcat(_static_assert_error_,__LINE__)(void); \
+    if(!(b)) { StringConcat(_static_assert_error_,__LINE__)(); }\
 } while(0)
 
 //~ andwu: user
