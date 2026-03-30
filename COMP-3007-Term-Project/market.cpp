@@ -72,7 +72,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
     // Make a booking
     connect(ui->make_booking, &QPushButton::clicked, this, [=]{
-        StaticAssert(0, "TODO: really bad, we use the UI, instead of a authority of truth.. "
+        Assert(0, "TODO: really bad, we use the UI, instead of a authority of truth.. "
                 "The marketdate should use an ID, NOT a index");
 #if 0
         uint64_t index = (uint64_t)ui->table_market_dates->currentRow();
@@ -169,7 +169,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
     // Cancel booking
     connect(ui->cancel_booking, &QPushButton::clicked, this, [=]{
-        StaticAssert(0, "TODO: remove the booking id from the table, notify the booker; "
+        Assert(0, "TODO: remove the booking id from the table, notify the booker; "
                 "i have a note on this in the implementation as well.");
 #if 0
         uint64_t index = (uint64_t)ui->table_market_dates->currentRow();
@@ -264,7 +264,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         display_account_information(ui->user_information_view, in_user_system->get_user(creds));
 
         // Active bookings
-        StaticAssert(0, "TODO: query all our bookings from the db");
+        Assert(0, "TODO: query all our bookings from the db");
 #if 0
         for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++)
         {
@@ -322,7 +322,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
     // OPERATOR - Cancel a booking or waitlist position for a vendor
     connect(ui->cancel_booking_waitlist, &QPushButton::clicked, this, [=] {
-        StaticAssert(0, "TODO: cancel booking for a vendor from operator, with booking id");
+        Assert(0, "TODO: cancel booking for a vendor from operator, with booking id");
 #if 0
         std::string username;
         uint8_t is_waitlist = 0;
@@ -472,7 +472,7 @@ void Market::handle_dashboard()
     }
 
     // Notifications
-    StaticAssert(0, "TODO: query all notifications");
+    Assert(0, "TODO: query all notifications");
 #if 0
     ui->list_notifications->clear();
     std::vector<std::string> notifications = notification_system->get_notifications(current_user->id);
@@ -493,7 +493,7 @@ void Market::handle_dashboard()
 
         // active bookings
         ui->list_active_bookings->clear();
-        StaticAssert(0, "TODO: query all the market dates for the user, "
+        Assert(0, "TODO: query all the market dates for the user, "
                 "take into account the range limit");
 #if 0
         for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++)
@@ -580,7 +580,7 @@ void Market::handle_market_schedule()
     ui->stackedWidget->setCurrentIndex(1);
 
     // User list
-    StaticAssert(0, "TODO: i have no idea what this means.. "
+    Assert(0, "TODO: i have no idea what this means.. "
             "but we can query from the db all the users if we want to");
 #if 0
     std::vector<User> users = user_system->get_user_list();
@@ -637,7 +637,7 @@ void Market::handle_edit_information(){
     {
         // USER LIST VIEW
         ui->stackedWidget->setCurrentIndex(2);
-        StaticAssert(0, "TODO: we need to query from the db all the users");
+        Assert(0, "TODO: we need to query from the db all the users");
 #if 0
         std::vector<User> users = user_system->get_user_list();
 
@@ -783,7 +783,7 @@ void Market::display_market_information(QTableWidget *table, User *user)
         table->setRowCount(4);
     }
 
-    StaticAssert(0, "TODO: query all the market dates again");
+    Assert(0, "TODO: query all the market dates again");
 #if 0
     for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++) {
         int64_t availability = 0;
