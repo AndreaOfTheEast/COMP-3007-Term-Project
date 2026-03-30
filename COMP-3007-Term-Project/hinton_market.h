@@ -34,10 +34,11 @@
 #define Assert(b,fmt,...) do { if(!(b)) { DebugLog(fmt __VA_OPT__(,) __VA_ARGS__); DebugTrap(); } } while(0)
 #define CompileTimeError(s) __attribute__((error(s)))
 #define StaticAssertTopLevel(b,id) global U8 id##_##__LINE__[(b) ? 1 : -1]
-#define StaticAssert(b,msg) do { \
-    extern void CompileTimeError(msg) StringConcat(_static_assert_error_,__LINE__)(void); \
-    if(!(b)) { StringConcat(_static_assert_error_,__LINE__)(); }\
+#define StaticAssertHelper(id,b,m) do { \
+    extern void CompileTimeError(m) id(void); \
+    if(!(b)) { id(); }\
 } while(0)
+#define StaticAssert(b,m) StaticAssert(StringConcat(StringConcat(_static_assert_error_,__FILE__)##_,__LINE__),b,m)
 
 //~ andwu: user
 struct BusinessLicence
