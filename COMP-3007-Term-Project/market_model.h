@@ -1,5 +1,8 @@
 #pragma once
 #include "hinton_market.h"
+#include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlQuery>
+#include <QtSql/QSqlError>
 
 class NotificationSystem
 {
