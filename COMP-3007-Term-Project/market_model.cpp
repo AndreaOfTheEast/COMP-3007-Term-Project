@@ -20,20 +20,20 @@ bool UserSystem::get_user(Credentials creds, User *user)
         for(;query.next();)
         {
             user->id = UserId{ (uint64_t)query.value(0).toInt() };
-            user->creds.username = query.value(1).toString().toStdString();
-            user->email = query.value(2).toString().toStdString();
-            user->phone_number = query.value(3).toString().toStdString();
-            user->mail_address = query.value(4).toString().toStdString();
-            user->owner_name = query.value(5).toString().toStdString();
-            user->business_name = query.value(6).toString().toStdString();
-            user->perms.user_type = (USER_TYPE)query.value(7).toInt(); // andwu: TODO: SUS
-            user->compliance_docs.business_licence.number = query.value(8).toString().toStdString();
-            user->compliance_docs.business_licence.expiration_date = query.value(9).toString().toStdString();
-            user->compliance_docs.liability_insurance.policy_number = query.value(10).toString().toStdString();
-            user->compliance_docs.liability_insurance.provider = query.value(11).toString().toStdString();
+            user->creds.username                                      = query.value(1).toString().toStdString();
+            user->email                                               = query.value(2).toString().toStdString();
+            user->phone_number                                        = query.value(3).toString().toStdString();
+            user->mail_address                                        = query.value(4).toString().toStdString();
+            user->owner_name                                          = query.value(5).toString().toStdString();
+            user->business_name                                       = query.value(6).toString().toStdString();
+            user->perms.user_type                                     = (USER_TYPE)query.value(7).toInt(); // andwu: TODO: SUS
+            user->compliance_docs.business_licence.number             = query.value(8).toString().toStdString();
+            user->compliance_docs.business_licence.expiration_date    = query.value(9).toString().toStdString();
+            user->compliance_docs.liability_insurance.policy_number   = query.value(10).toString().toStdString();
+            user->compliance_docs.liability_insurance.provider        = query.value(11).toString().toStdString();
             user->compliance_docs.liability_insurance.expiration_date = query.value(12).toString().toStdString();
-            user->compliance_docs.food_handler.certification_number = query.value(13).toString().toStdString();
-            user->compliance_docs.food_handler.expiration_date = query.value(14).toString().toStdString();
+            user->compliance_docs.food_handler.certification_number   = query.value(13).toString().toStdString();
+            user->compliance_docs.food_handler.expiration_date        = query.value(14).toString().toStdString();
             return(1);
         }
     }
