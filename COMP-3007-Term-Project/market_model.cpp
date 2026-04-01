@@ -315,7 +315,6 @@ void NotificationSystem::add_notification(UserId id, std::string content) {
     query.prepare(QString(query_string.c_str()));
     // andwu: TODO: now();
     query.addBindValue(user.id.id);
-    // andwu: TODO: now
     query.addBindValue(date.year);
     query.addBindValue(date.month);
     query.addBindValue(date.day);
