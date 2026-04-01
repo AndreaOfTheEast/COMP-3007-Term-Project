@@ -270,7 +270,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         std::string date;
 
         MarketDateId market_date_id;
-        market_date_id.id = (uint64_t) ui->table_market_dates->item(index, 1); // COLUMN 1 = IDs
+        market_date_id.id = (uint64_t) ui->table_market_dates->item((int)index, 1); // COLUMN 1 = IDs
         if (ui->table_market_dates->selectedItems().isEmpty())
         {
             return;
