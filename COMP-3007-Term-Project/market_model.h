@@ -4,8 +4,6 @@
 class NotificationSystem
 {
 public:
-    std::vector<Notification> notifications;
-
     std::vector<std::string> get_notifications(UserId id);
     void add_notification(UserId id, std::string content);
 };

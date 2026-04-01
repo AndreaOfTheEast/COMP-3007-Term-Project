@@ -290,39 +290,35 @@ std::vector<std::string> NotificationSystem::get_notifications(UserId id) {
             " WHERE notifications.user_id = '?' OR notifications.for_all_users != 0";
     QSqlQuery query;
     query.prepare(QString(query_string.c_str()));
-    query.addBindValue(id);
+    query.addBindValue((int)id.id);
     {
         uint64_t qi = 0;
         for(;query.next();)
         {
-            user->id = UserId{ (uint64_t)query.value(0).toInt() };
-            user->creds.username = query.value(1).toString().toStdString();
-            user->email = query.value(2).toString().toStdString();
-            user->phone_number = query.value(3).toString().toStdString();
-            user->mail_address = query.value(4).toString().toStdString();
-            user->owner_name = query.value(5).toString().toStdString();
-            user->business_name = query.value(6).toString().toStdString();
-            user->perms.user_type = (USER_TYPE)query.value(7).toInt(); // andwu: TODO: SUS
-            user->compliance_docs.business_licence.number = query.value(8).toString().toStdString();
-            user->compliance_docs.business_licence.expiration_date = query.value(9).toString().toStdString();
-            user->compliance_docs.liability_insurance.policy_number = query.value(10).toString().toStdString();
-            user->compliance_docs.liability_insurance.provider = query.value(11).toString().toStdString();
-            user->compliance_docs.liability_insurance.expiration_date = query.value(12).toString().toStdString();
-            user->compliance_docs.food_handler.certification_number = query.value(13).toString().toStdString();
-            user->compliance_docs.food_handler.expiration_date = query.value(14).toString().toStdString();
+            UserId user_id = UserId{ (uint64_t)query.value(4).toInt() };
+            std::string content = query.value(/*TODO: missing content*/).toString().toStdString();
+            notifications.push_back(Notification(user_id, content));
             return(1);
         }
     }
 
-    return();
+    return(notifications);
 }
 
 void NotificationSystem::add_notification(UserId id, std::string content) {
     Assert(0, "TODO: insert notification");
-#if 0
-    Notification notification;
-    notification.id = id;
-    notification.content = content;
-    notifications.push_back(notification);
-#endif
+    #if 0
+    std::string query_string =
+        "INSERT INTO notifications ()"
+        " VALUES(?, ?, ?, ?, ?)";
+    QSqlQuery query;
+    query.prepare(QString(query_string.c_str()));
+    // andwu: TODO: now();
+    query.addBindValue(user.id.id);
+    // andwu: TODO: now
+    query.addBindValue(date.year);
+    query.addBindValue(date.month);
+    query.addBindValue(date.day);
+    // andwu: TODO: test for success
+    #endif
 }
