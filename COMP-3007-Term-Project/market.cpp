@@ -103,18 +103,22 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
                         "Your account prohibits booking directly.",
                         QMessageBox::Ok);
         }
-        if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_OPERATOR)
+        else if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_OPERATOR)
         {
             std::string username = ui->user_list_market->currentItem()->text().toStdString();
             Credentials creds = { username };
-            user = user_system->get_user(creds);
+            User temp_user;
+            bool ok = user_system->get_user(creds, &temp_user);
+            if(!ok) { user = 0; }
+            else { user = &temp_user; }
         }
+
         if (user->perms.user_type == (USER_TYPE)USER_TYPE_ARTISAN)
         {
             Assert(0, "TODO: ANDERWERWERWEWER database retrieve, artisan_booking for a market date");
             // vector = &market_date_system->market_dates[index].artisan_booking.users;
         }
-        if (user->perms.user_type == (USER_TYPE)USER_TYPE_FOOD)
+        else if (user->perms.user_type == (USER_TYPE)USER_TYPE_FOOD)
         {
             Assert(0, "TODO: ANDREWEWENEWWNENWE database retrieve, food_booking for a market date");
             // TODO: database retrieve andrew
@@ -167,97 +171,6 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         }
 
         display_market_information(ui->table_market_dates, user);
-#if 0
-        uint64_t index = (uint64_t)ui->table_market_dates->currentRow();
-        std::vector<UserId> *vector = nullptr;
-        QMessageBox msgBox;
-
-        // if nothing is selected than just exit
-        if (ui->table_market_dates->selectedItems().isEmpty())
-        {
-            return;
-        }
-
-        // Check if user is already inside the booking
-        if (market_date_system->is_user_booked(current_user->id, index) >= 0)
-        {
-            QMessageBox::warning(
-                        this,
-                        "Booking Failed",
-                        "You already booked for this date.");
-            return;
-        }
-
-        User *user = current_user;
-
-        if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_ADMIN)
-        {
-            QMessageBox::warning(
-                        this,
-                        "Booking Failed",
-                        "Your account prohibits booking directly.",
-                        QMessageBox::Ok);
-        }
-        if (current_user->perms.user_type == (USER_TYPE)USER_TYPE_OPERATOR)
-        {
-            std::string username = ui->user_list_market->currentItem()->text().toStdString();
-            Credentials creds = { username };
-            user = user_system->get_user(creds);
-        }
-        if (user->perms.user_type == (USER_TYPE)USER_TYPE_ARTISAN)
-        {
-            vector = &market_date_system->market_dates[index].artisan_booking.users;
-        }
-        if (user->perms.user_type == (USER_TYPE)USER_TYPE_FOOD)
-        {
-            vector = &market_date_system->market_dates[index].food_booking.users;
-        }
-
-        if (vector == nullptr)
-        {
-            msgBox.setText(QString("Your account type prohibits booking directly."));
-            msgBox.exec();
-            return;
-        }
-
-        QMessageBox::StandardButton question;
-        question = QMessageBox::question(this, "Confirm Action", "Are you sure you want to book this date?", QMessageBox::Yes | QMessageBox::No);
-
-        if (question == QMessageBox::Yes)
-        {
-            if (current_user->perms.user_type == USER_TYPE_OPERATOR)
-            {
-                std::string username = ui->user_list_market->currentItem()->text().toStdString();
-
-                if (ui->user_list_market->currentItem() != nullptr)
-                {
-                    username = ui->user_list_market->currentItem()->text().toStdString();
-                }
-                else
-                {
-                    QMessageBox::warning(
-                                this,
-                                "Booking Failed",
-                                "No selected user.",
-                                QMessageBox::Ok);
-                }
-
-                market_date_system->make_booking(user, index);
-
-                std::stringstream notification_msg;
-                notification_msg << "[Action] Booked "
-                                 << ui->table_market_dates->item((int32_t)index, 0)->text().toStdString()
-                                 << " for " << user->creds.username << ".";
-                notification_system->add_notification(current_user->id, notification_msg.str());
-            }
-            else
-            {
-                market_date_system->make_booking(user, index);
-            }
-        }
-
-        display_market_information(ui->table_market_dates, user);
-#endif
     });
 
     // Cancel booking
@@ -397,71 +310,20 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
             return;
         }
 
+        User *user = 0;
         Credentials creds = { username };
-        User *user = in_user_system->get_user(creds);
+        User temp_user;
+        bool ok = user_system->get_user(creds, &temp_user);
+        if(ok) { user = &temp_user; }
 
         // Display account information
-        display_account_information(ui->user_information_view, in_user_system->get_user(creds));
+        display_account_information(ui->user_information_view, user);
 
         // Active bookings
         Assert(0, "TODO: query all our bookings from the db");
 
         std::vector<std::string> selected_user_bookings; // dates
         std::vector<std::string> selected_user_waitlists; // dates
-
-#if 0
-        for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++)
-        {
-            MarketDate *market_date = &market_date_system->market_dates[i];
-
-            Booking *booking = 0;
-            if(user->perms.user_type == USER_TYPE_ARTISAN)
-            {
-                booking = &market_date->artisan_booking;
-            }
-            if(user->perms.user_type == USER_TYPE_FOOD)
-            {
-                booking = &market_date->food_booking;
-            }
-            if(booking == 0) { break; }
-
-            for (uint64_t j = 0; j < std::min(booking->users.size(), booking->limit); j++)
-            {
-                if (booking->users[j].id == user->id.id)
-                {
-                    ui->user_booking_list->addItem(market_date->date.to_string().c_str());
-                }
-            }
-        }
-
-        // Active waitlists
-        for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++)
-        {
-            MarketDate *market_date = &market_date_system->market_dates[i];
-
-            Booking *booking = 0;
-            if(user->perms.user_type == USER_TYPE_ARTISAN)
-            {
-                booking = &market_date->artisan_booking;
-            }
-            if(user->perms.user_type == USER_TYPE_FOOD)
-            {
-                booking = &market_date->food_booking;
-            }
-            if(booking == 0) { break; }
-
-            for (uint64_t j = booking->limit; j < booking->users.size(); j++)
-            {
-                if (booking->users[j].id == user->id.id)
-                {
-                    QString s = QString("%1 (queue position: %2)")
-                            .arg(QString(market_date->date.to_string().c_str()))
-                            .arg(j - booking->limit + 1);
-                    ui->user_waitlist_list->addItem(s);
-                }
-            }
-        }
-#endif
     });
 
     // OPERATOR - Cancel a booking or waitlist position for a vendor
@@ -496,8 +358,12 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         }
 
         QString date;
+
+        User *user = 0;
         Credentials creds = { username };
-        User *user = in_user_system->get_user(creds);
+        User temp_user;
+        bool ok = user_system->get_user(creds, &temp_user);
+        if(ok) { user = &temp_user; }
 
         if (!ui->user_booking_list->selectedItems().isEmpty())
         {
@@ -561,114 +427,26 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         notification_msg << "[Action] Cancelled " << str[is_waitlist] << " on "
                          << date.toStdString() << " for " << username << ".";
         notification_system->add_notification(current_user->id, notification_msg.str());
-#if 0
-        std::string username;
-        uint8_t is_waitlist = 0;
-        std::vector<std::string> str = { "booking", "waitlist" };
-
-        if (current_user->perms.user_type != USER_TYPE_OPERATOR)
-        {
-            QMessageBox::warning(
-                        this,
-                        "Cancellation Failed",
-                        "Your account prohibits booking cancellation.",
-                        QMessageBox::Ok);
-            return;
-        }
-
-        // Get username
-        if (QListWidgetItem *item = ui->user_list->currentItem())
-        {
-            username = item->text().toStdString();
-        }
-        else
-        {
-            QMessageBox::warning(
-                        this,
-                        "Cancellation Failed",
-                        "This user does not exist.",
-                        QMessageBox::Ok);
-            return;
-        }
-
-        QString date;
-        Credentials creds = { username };
-        User *user = in_user_system->get_user(creds);
-
-        // Check if the user has selected a booking or a waitlist
-        if (!ui->user_booking_list->selectedItems().isEmpty())
-        {
-            date = ui->user_booking_list->currentItem()->text();
-        }
-        else if (!ui->user_waitlist_list->selectedItems().isEmpty())
-        {
-            date = ui->user_waitlist_list->currentItem()->text().left(10);
-            is_waitlist = 1;
-        }
-        else
-        {
-            return;
-        }
-
-        uint64_t index = 0;
-
-        for (; index < market_date_system->market_dates.size(); index++)
-        {
-            if (market_date_system->market_dates[index].date.to_string() == date.toStdString())
-            {
-                break;
-            }
-        }
-
-        // User's booking is not found
-        if (index >= market_date_system->market_dates.size()) {
-            QMessageBox::warning(
-                        this,
-                        "Cancellation Failed",
-                        QString("This booking/waitlist (%1) does not exist.")
-                            .arg(date),
-                        QMessageBox::Ok);
-            return;
-        }
-
-        // Cancel booking
-        market_date_system->cancel_booking(user->id, index);
-
-        QMessageBox::information(
-                    this,
-                    "Cancellation Sucess",
-                    QString("Cancelled %1 on %2 for %3.")
-                        .arg(str[is_waitlist].c_str())
-                        .arg(date)
-                        .arg(username.c_str()),
-                    QMessageBox::Ok);
-
-        // Remove the item from the list.
-        QListWidgetItem *item;
-        if (is_waitlist == 1)
-        {
-            item = ui->user_waitlist_list->currentItem();
-            delete ui->user_waitlist_list->takeItem(ui->user_waitlist_list->row(item));
-        }
-        else
-        {
-            item = ui->user_booking_list->currentItem();
-            delete ui->user_booking_list->takeItem(ui->user_booking_list->row(item));
-        }
-
-        // Notification for the operator
-        std::stringstream notification_msg;
-        notification_msg << "[Action] Cancelled " << str[is_waitlist] << " on "
-                         << date.toStdString() << " for " << username << ".";
-        notification_system->add_notification(current_user->id, notification_msg.str());
-#endif
     });
 
     // OPERATOR - Display user's market schedule view
     connect(ui->user_list_market, &QListWidget::itemClicked, this, [=]{
         std::string username = ui->user_list_market->currentItem()->text().toStdString();
         Credentials creds = { username };
-        display_market_information(ui->table_market_dates, user_system->get_user(creds));
+        User temp_user;
+        bool ok = user_system->get_user(creds, &temp_user);
+        if(ok)
+        {
+            display_market_information(ui->table_market_dates, &temp_user);
+        }
+        else
+        {
+            QMessageBox::warning(
+                        this,
+                        "Failed to find user to display market",
+                        QString("The user did not seem to exist in the database"),
+                        QMessageBox::Ok);
+        }
     });
 }
 
@@ -838,7 +616,20 @@ void Market::handle_market_schedule()
     {
         std::string username = ui->user_list_market->currentItem()->text().toStdString();
         Credentials creds = { username };
-        display_market_information(ui->table_market_dates, user_system->get_user(creds));
+        User temp_user;
+        bool ok = user_system->get_user(creds, &temp_user);
+        if(ok)
+        {
+            display_market_information(ui->table_market_dates, &temp_user);
+        }
+        else
+        {
+            QMessageBox::warning(
+                        this,
+                        "Failed to find user to display market",
+                        QString("The user did not seem to exist in the database"),
+                        QMessageBox::Ok);
+        }
     }
     else
     {

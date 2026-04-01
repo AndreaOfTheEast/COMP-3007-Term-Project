@@ -25,6 +25,10 @@
 #include <QApplication>
 #include <QListWidget>
 #include <QTableWidget>
+
+#include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlQuery>
+#include <QtSql/QSqlError>
 #pragma GCC diagnostic pop
 
 #define StringConcatHelper(x,y) x##y

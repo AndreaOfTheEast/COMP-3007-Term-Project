@@ -45,15 +45,15 @@ int main(int argc, char *argv[])
 
     for (i = 0; i < 8; i++) {
         sunday = localtime(&now);
-        MarketDate market_date;
-        market_date.date.day = (uint64_t)sunday->tm_mday;
-        market_date.date.month = (uint64_t)sunday->tm_mon;
-        market_date.date.year = (uint64_t)sunday->tm_year;
+        Date date;
+        date.day = (uint64_t)sunday->tm_mday;
+        date.month = (uint64_t)sunday->tm_mon;
+        date.year = (uint64_t)sunday->tm_year;
 
-        market_date.artisan_booking.limit = 2;
-        market_date.food_booking.limit = 2;
+        uint64_t artisan_limit = 2;
+        uint64_t food_limit = 2;
 
-        market_date_system.add_market_date(market_date);
+        market_date_system.add_market_date(date, artisan_limit, food_limit);
         now += 86400 * 7;
     }
 

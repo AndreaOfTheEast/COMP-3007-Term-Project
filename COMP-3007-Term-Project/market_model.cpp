@@ -6,23 +6,39 @@
 // ------------------------
 // ----- USER SYSTEM ------
 // ------------------------
-User *UserSystem::get_user(Credentials creds)
+bool UserSystem::get_user(Credentials creds, User *user)
 {
-    Assert(0, "TODO: select from the database, MUST HAVE ID");
-        User *user = 0;
-#if 0
-    for(uint64_t ui = 0;
-            ui < users.size();
-            ui += 1)
+    user->perms.user_type = USER_TYPE_NULL;
+
+    std::string query_string =
+            "SELECT * FROM user"
+            " WHERE user.username = '?'";
+    QSqlQuery query;
+    query.prepare(QString(query_string.c_str()));
+    query.addBindValue(QString(creds.username.c_str()));
     {
-        if(users[ui].creds == creds)
+        uint64_t qi = 0;
+        for(;query.next();)
         {
-            user = &users[ui];
-            break;
+            user->id = UserId{ (uint64_t)query.value(0).toInt() };
+            user->creds.username = query.value(1).toString().toStdString();
+            user->email = query.value(2).toString().toStdString();
+            user->phone_number = query.value(3).toString().toStdString();
+            user->mail_address = query.value(4).toString().toStdString();
+            user->owner_name = query.value(5).toString().toStdString();
+            user->business_name = query.value(6).toString().toStdString();
+            user->perms.user_type = (USER_TYPE)query.value(7).toInt(); // andwu: TODO: SUS
+            user->compliance_docs.business_licence.number = query.value(8).toString().toStdString();
+            user->compliance_docs.business_licence.expiration_date = query.value(9).toString().toStdString();
+            user->compliance_docs.liability_insurance.policy_number = query.value(10).toString().toStdString();
+            user->compliance_docs.liability_insurance.provider = query.value(11).toString().toStdString();
+            user->compliance_docs.liability_insurance.expiration_date = query.value(12).toString().toStdString();
+            user->compliance_docs.food_handler.certification_number = query.value(13).toString().toStdString();
+            user->compliance_docs.food_handler.expiration_date = query.value(14).toString().toStdString();
+            return(1);
         }
     }
-    return(user);
-#endif
+
     return(0);
 }
 
@@ -30,7 +46,29 @@ void UserSystem::add_user(User user)
 {
     Assert(0, "TODO: insert to the database");
 #if 0
-    users.push_back(user);
+    std::string query_string =
+        "INSERT INTO user"
+        " (user_id, username, email, phone, mail_address, owner_name, business_name, user_type, bl_licence, bl_expiration_date, li_policy_number, li_provider, li_expiration_date, fh_certification_number, fh_expiration_date)"
+        " VALUES (" +
+        std::string(user.id) + "," // andwu: TODO: how do we convert??
+        user.creds.username + ","
+        user.email + ","
+        user.phone_number + ","
+        user.mail_address + ","
+        user.owner_name + ","
+        user.business_name + ","
+        user.perms.user_type + ","
+        user.compliance_docs.business_licence.number + ","
+        user.compliance_docs.business_licence.expiration_date + ","
+        user.compliance_docs.liability_insurance.policy_number + ","
+        user.compliance_docs.liability_insurance.provider + ","
+        user.compliance_docs.liability_insurance.expiration_date + ","
+        user.compliance_docs.food_handler.certification_number + ","
+        user.compliance_docs.food_handler.expiration_date
+        + ")";
+    QSqlQuery query(QString(query_string.c_str())); // andwu: what??
+    {
+    }
 #endif
 }
 
@@ -45,13 +83,17 @@ std::string Date::to_string()
 // -- MARKET DATE SYSTEM --
 // ------------------------
 
-void MarketDateSystem::add_market_date(MarketDate market_date)
+void MarketDateSystem::add_market_date(
+        Date date, uint64_t food_limit, uint64_t artisan_limit)
 {
-    // andwu: TODO: maybe the booking table should be: booking_id, date, create_timestamp, user_id
-    Assert(0, "TODO: insert a booking");
-#if 0
-    market_dates.push_back(market_date);
-#endif
+    std::string query_string =
+        "INSERT INTO market_dates (booking_id, food_limit, artisan_limit)"
+        " VALUES(?, ?, ?, ?, ?)";
+    QSqlQuery query;
+    query.prepare(QString(query_string.c_str()));
+    query.addBindValue((int)food_limit);
+    query.addBindValue((int)artisan_limit);
+    // andwu: TODO: test for success
 }
 
 int MarketDateSystem::make_booking(UserId user, MarketDateId market_date_id)
@@ -60,6 +102,20 @@ int MarketDateSystem::make_booking(UserId user, MarketDateId market_date_id)
             "for this date and type."
             "Then query what that position is and the limit,"
             "so that we can have a popup about being waitlist/booked");
+    #if 0
+    std::string query_string =
+        "INSERT INTO bookings (booking_id, year, month, day, user_id)"
+        " VALUES(?, ?, ?, ?, ?)";
+    QSqlQuery query;
+    query.prepare(QString(query_string.c_str()));
+    // andwu: TODO: now();
+    query.addBindValue(user.id.id);
+    query.addBindValue(date.year);
+    query.addBindValue(date.month);
+    query.addBindValue(date.day);
+    // andwu: TODO: test for success
+    #endif
+
 #if 0
     uint8_t waitlisted = 0;
     uint64_t waitlist_position = 0;
@@ -226,18 +282,39 @@ int64_t MarketDateSystem::is_user_booked(UserId user, MarketDateId market_date_i
 // -------------------------
 std::vector<std::string> NotificationSystem::get_notifications(UserId id) {
     Assert(0, "TODO: query for notifications");
-#if 0
-    std::vector<std::string> user_notifs;
 
-    for (uint64_t i = 0; i < notifications.size(); i++) {
-        if (notifications[i].id == id) {
-            user_notifs.push_back(notifications[i].content);
+    std::vector<std::string> notifications;
+
+    std::string query_string =
+            "SELECT * FROM notifications"
+            " WHERE notifications.user_id = '?' OR notifications.for_all_users != 0";
+    QSqlQuery query;
+    query.prepare(QString(query_string.c_str()));
+    query.addBindValue(id);
+    {
+        uint64_t qi = 0;
+        for(;query.next();)
+        {
+            user->id = UserId{ (uint64_t)query.value(0).toInt() };
+            user->creds.username = query.value(1).toString().toStdString();
+            user->email = query.value(2).toString().toStdString();
+            user->phone_number = query.value(3).toString().toStdString();
+            user->mail_address = query.value(4).toString().toStdString();
+            user->owner_name = query.value(5).toString().toStdString();
+            user->business_name = query.value(6).toString().toStdString();
+            user->perms.user_type = (USER_TYPE)query.value(7).toInt(); // andwu: TODO: SUS
+            user->compliance_docs.business_licence.number = query.value(8).toString().toStdString();
+            user->compliance_docs.business_licence.expiration_date = query.value(9).toString().toStdString();
+            user->compliance_docs.liability_insurance.policy_number = query.value(10).toString().toStdString();
+            user->compliance_docs.liability_insurance.provider = query.value(11).toString().toStdString();
+            user->compliance_docs.liability_insurance.expiration_date = query.value(12).toString().toStdString();
+            user->compliance_docs.food_handler.certification_number = query.value(13).toString().toStdString();
+            user->compliance_docs.food_handler.expiration_date = query.value(14).toString().toStdString();
+            return(1);
         }
     }
 
-    return user_notifs;
-#endif
-    return(std::vector<std::string>{});
+    return();
 }
 
 void NotificationSystem::add_notification(UserId id, std::string content) {

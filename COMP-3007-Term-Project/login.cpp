@@ -52,9 +52,10 @@ LoginDialog::attempt_login(void)
     Credentials credentials;
     credentials.username = username.toStdString();
 
-    User *user = user_system->get_user(credentials);
+    User *user = new User;
+    bool ok = user_system->get_user(credentials, user);
 
-    if(user != nullptr)
+    if(ok)
     {
         current_user = user;
         QString qs = QString("Logged in as %1")
@@ -65,6 +66,7 @@ LoginDialog::attempt_login(void)
     }
     else
     {
+        current_user->perms.user_type = USER_TYPE_NULL;
         QMessageBox::warning(this, "Login Failed", "Invalid credentials");
     }
 };
