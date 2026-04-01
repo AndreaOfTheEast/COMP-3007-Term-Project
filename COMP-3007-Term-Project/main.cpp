@@ -10,31 +10,7 @@ int main(int argc, char *argv[])
     MarketDateSystem market_date_system;
     market_date_system.notification_system = &notification_system;
 
-    uint64_t i;
-
-    // HARD CODED USERS
-    USER_TYPE user_types[] = {USER_TYPE_FOOD, USER_TYPE_FOOD, USER_TYPE_FOOD, USER_TYPE_FOOD, USER_TYPE_ARTISAN, USER_TYPE_ARTISAN, USER_TYPE_ARTISAN, USER_TYPE_ARTISAN, USER_TYPE_OPERATOR, USER_TYPE_ADMIN};
-    std::string usernames[] = {"burgers", "bubbletea", "jamsnhoney", "pancakes", "candles", "fiber", "computers", "artwork", "operator", "admin"};
-    std::string buisness_names[] = {"burgers", "bubbletea", "jamsnhoney", "pancakes", "candles", "fiber", "computers", "artwork", "", ""};
-    std::string phone_numbers[] = {"000-000-0000", "000-000-0000", "000-000-0000", "000-000-0000", "000-000-0000", "000-000-0000", "000-000-0000", "000-000-0000", "000-000-0000", "000-000-0000"};
-    std::string owner_names[] = {"John", "James", "Jo", "Anne", "Kirk", "David", "Marvin", "Abalone", "Bonnie", "Clyde"};
-    std::string emails[] = {"burgers@gmail.com", "bubbletea@gmail.com", "jamsnhoney@gmail.com", "pancakes@gmail.com", "candles@gmail.com", "fiber@gmail.com", "computers@gmail.com", "artwork@gmail.com", "bonnie.op@gmail.com", "clyde.ad@gmail.com"};
-    std::string mail_addresses[] = {"ABC 123", "ABC 123", "ABC 123", "ABC 123", "ABC 123", "ABC 123", "ABC 123", "ABC 123", "ABC 123", "ABC 123"};
-
-
-    for (i = 0; i < 10; i++) {
-        User user;
-        user.id = {i};
-        user.perms.user_type = user_types[i];
-        user.creds = {usernames[i]};
-        user.business_name = buisness_names[i];
-        user.phone_number = phone_numbers[i];
-        user.owner_name = owner_names[i];
-        user.email = emails[i];
-        user.mail_address = mail_addresses[i];
-        user.compliance_docs = {{"a", "a"}, {"a", "a", "a"}, {"a", "a"}};
-        user_system.add_user(user);
-    }
+    Assert(0, andwu: TODO: 'cp hintonMarket.db hintonMarket_original.db');
 
     // HARD CODED MARKET DATES
     time_t now = std::time(NULL);
@@ -55,6 +31,21 @@ int main(int argc, char *argv[])
 
         market_date_system.add_market_date(date, artisan_limit, food_limit);
         now += 86400 * 7;
+    }
+
+    // start the database
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+
+    QString dbPath =
+        QCoreApplication::applicationDirPath()
+        + "COMP-3007-Term-Project/hintonMarket.db";
+        // andwu: TODO: is this the right path?
+    db.setDatabaseName(dbPath);
+
+    if(!db.open())
+    {
+        fprintf(stderr, "DB: %s", db.lastError().text().toStdString().c_str());
+        Assert(0, "database failed to start");
     }
 
     LoginDialog login(&user_system);

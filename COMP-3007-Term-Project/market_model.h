@@ -12,25 +12,6 @@ class UserSystem
 {
 public:
     NotificationSystem *notification_system;
-    QSqlDatabase db;
-
-    UserSystem(
-            void)
-    {
-        db = QSqlDatabase::addDatabase("QSQLITE");
-
-        QString dbPath =
-            QCoreApplication::applicationDirPath()
-            + "COMP-3007-Term-Project/hintonMarket.db";
-            // andwu: TODO: is this the right path?
-        db.setDatabaseName(dbPath);
-
-        if(!db.open())
-        {
-            fprintf(stderr, "DB: %s", db.lastError().text().toStdString().c_str());
-            return;
-        }
-    }
 
     bool get_user(Credentials creds, User *user);
     void add_user(User user);
