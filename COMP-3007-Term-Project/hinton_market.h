@@ -193,15 +193,15 @@ public:
 
 class Booking
 {
-    public:
-        Date date;
-        std::vector<UserId> users;
-        uint64_t limit;
-        uint64_t booked;
-        Booking(){
-            limit = 0;
-            booked = 0;
-        }
+public:
+    Date date;
+    std::vector<UserId> users;
+    uint64_t limit;
+    uint64_t booked;
+    Booking(){
+        limit = 0;
+        booked = 0;
+    }
 };
 
 class MarketDateId {
@@ -227,7 +227,7 @@ public:
 class Notification
 {
 public:
-    UserId id;
+    UserId user_id;
     std::string content;
 };
 

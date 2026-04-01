@@ -17,7 +17,6 @@ bool UserSystem::get_user(Credentials creds, User *user)
     query.prepare(QString(query_string.c_str()));
     query.addBindValue(QString(creds.username.c_str()));
     {
-        uint64_t qi = 0;
         for(;query.next();)
         {
             user->id = UserId{ (uint64_t)query.value(0).toInt() };
@@ -246,35 +245,25 @@ void MarketDateSystem::cancel_booking(UserId user, MarketDateId market_date_id)
 #endif
 }
 
-int64_t MarketDateSystem::is_user_booked(UserId user, MarketDateId market_date_id)
+bool MarketDateSystem::is_user_booked(UserId user_id, MarketDateId market_date_id)
 {
     Assert(0, "TODO: check if this market date is booked by the user");
-#if 0
-    std::vector<UserId> *booking_list = nullptr;
-    int64_t booked = 0;
-
-    if (user->perms.user_type == (USER_TYPE) USER_TYPE_ARTISAN)
+    std::string query_string =
+        "SELECT * FROM bookings"
+        " ORDER BY bookings.year ASC, bookings.month ASC, bookings.day ASC";
+    QSqlQuery query;
+    query.prepare(QString(query_string.c_str()));
     {
-        booking_list = &market_dates[market_date_index].artisan_booking.users;
-        booked =  (int64_t)market_dates[market_date_index].artisan_booking.booked;
-    }
-    else if (user->perms.user_type == (USER_TYPE) USER_TYPE_FOOD)
-    {
-        booking_list = &market_dates[market_date_index].food_booking.users;
-        booked =  (int64_t)market_dates[market_date_index].food_booking.booked;
-    }
-
-    if (booking_list == nullptr) { return -2; }
-
-    for (uint32_t i = 0; i < booked; i++)
-    {
-        if (user->id == (*booking_list)[i])
+        for(;query.next();)
         {
-            return i;
+            UserId booking_user_id = UserId{ (uint64_t)query.value(4).toInt() };
+            if(booking_user_id == user_id)
+            {
+                return(1);
+            }
         }
     }
-#endif
-    return(-1);
+    return(0);
 }
 
 // -------------------------
@@ -292,13 +281,10 @@ std::vector<std::string> NotificationSystem::get_notifications(UserId id) {
     query.prepare(QString(query_string.c_str()));
     query.addBindValue((int)id.id);
     {
-        uint64_t qi = 0;
         for(;query.next();)
         {
-            UserId user_id = UserId{ (uint64_t)query.value(4).toInt() };
-            std::string content = query.value(/*TODO: missing content*/).toString().toStdString();
-            notifications.push_back(Notification(user_id, content));
-            return(1);
+            std::string content = query.value(6).toString().toStdString();
+            notifications.push_back(content);
         }
     }
 

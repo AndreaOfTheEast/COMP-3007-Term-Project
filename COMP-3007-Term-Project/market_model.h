@@ -45,5 +45,5 @@ public:
     void add_market_date(Date date, uint64_t food_limit, uint64_t artisan_limit);
     int make_booking(UserId user, MarketDateId market_date_id);
     void cancel_booking(UserId user, MarketDateId market_date_id);
-    int64_t is_user_booked(UserId user, MarketDateId market_date_id);
+    bool is_user_booked(UserId user, MarketDateId market_date_id);
 };

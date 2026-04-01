@@ -85,7 +85,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
             return;
         }
 
-        if (market_date_system->is_user_booked(current_user->id, market_date_id) >= 0)
+        if(market_date_system->is_user_booked(current_user->id, market_date_id))
         {
             QMessageBox::warning(
                         this,
@@ -192,9 +192,11 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         Assert(0, "TODO: ANDREWEWEWERE, database retrieve date as a string");
         date = "DUMMY DATE PLACEHOLDER";
 
-        int64_t is_booked = market_date_system->is_user_booked(current_user->id, market_date_id);
+        bool is_booked = market_date_system->is_user_booked(current_user->id, market_date_id);
 
-        if (is_booked == -2)
+        if(!is_booked ||
+                (current_user->perms.user_type != USER_TYPE_FOOD
+                    && current_user->perms.user_type != USER_TYPE_ARTISAN))
         {
             QMessageBox::warning(
                         this,
@@ -224,57 +226,6 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
                     msg);
 
         handle_market_schedule();
-#if 0
-        uint64_t index = (uint64_t)ui->table_market_dates->currentRow();
-        QMessageBox::StandardButton question;
-        QString msg;
-        std::string date;
-
-        // if nothing is selected than just exit
-        if (ui->table_market_dates->selectedItems().isEmpty())
-        {
-            return;
-        }
-
-        date = market_date_system->market_dates[index].date.to_string();
-
-        // Check if user is in booking list
-        // operator book for vendors
-
-        int64_t is_booked = market_date_system->is_user_booked(current_user->id, index);
-
-        if (is_booked == -2)
-        {
-            QMessageBox::warning(
-                        this,
-                        "Cancellation Failed",
-                        "Your account type prohibits cancellation.");
-            return;
-        }
-
-        // Prompt question
-        msg = QString("Are you sure you want to cancel this booking for this date (%1)?")
-                .arg(date.c_str());
-        question = QMessageBox::question(
-                    this,
-                    "Confirm Action",
-                    msg,
-                    QMessageBox::Yes | QMessageBox::No );
-
-        if (question != QMessageBox::Yes) { return; }
-
-        // Cancel booking
-        market_date_system->cancel_booking(current_user->id, index);
-
-        msg = QString("Successfully cancelled booking for %1.")
-                .arg(date.c_str());
-        QMessageBox::information(
-                    this,
-                    "Cancellation Success",
-                    msg);
-
-        handle_market_schedule();
-#endif
     });
 
     // Add selection exclusion
