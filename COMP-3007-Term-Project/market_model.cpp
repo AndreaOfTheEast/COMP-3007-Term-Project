@@ -11,31 +11,36 @@ bool UserSystem::get_user(Credentials creds, User *user)
     user->perms.user_type = USER_TYPE_NULL;
 
     std::string query_string =
-            "SELECT * FROM user"
-            " WHERE user.username = '?'";
+            "SELECT * FROM users"
+            " WHERE users.username = :username;";
     QSqlQuery query;
     query.prepare(QString(query_string.c_str()));
-    query.addBindValue(QString(creds.username.c_str()));
+    query.bindValue(":username", QString(creds.username.c_str()));
+    if(!query.exec())
     {
-        for(;query.next();)
-        {
-            user->id = UserId{ (uint64_t)query.value(0).toInt() };
-            user->creds.username                                      = query.value(1).toString().toStdString();
-            user->email                                               = query.value(2).toString().toStdString();
-            user->phone_number                                        = query.value(3).toString().toStdString();
-            user->mail_address                                        = query.value(4).toString().toStdString();
-            user->owner_name                                          = query.value(5).toString().toStdString();
-            user->business_name                                       = query.value(6).toString().toStdString();
-            user->perms.user_type                                     = (USER_TYPE)query.value(7).toInt(); // andwu: TODO: SUS
-            user->compliance_docs.business_licence.number             = query.value(8).toString().toStdString();
-            user->compliance_docs.business_licence.expiration_date    = query.value(9).toString().toStdString();
-            user->compliance_docs.liability_insurance.policy_number   = query.value(10).toString().toStdString();
-            user->compliance_docs.liability_insurance.provider        = query.value(11).toString().toStdString();
-            user->compliance_docs.liability_insurance.expiration_date = query.value(12).toString().toStdString();
-            user->compliance_docs.food_handler.certification_number   = query.value(13).toString().toStdString();
-            user->compliance_docs.food_handler.expiration_date        = query.value(14).toString().toStdString();
-            return(1);
-        }
+        fprintf(stderr, "DB Query: %s\n", query.lastError().text().toStdString().c_str());
+        Assert(0, "database failed query");
+        return(0);
+    }
+
+    if(query.next())
+    {
+        user->id                                                  = UserId{ (uint64_t)query.value(0).toInt() };
+        user->creds.username                                      = query.value(1).toString().toStdString();
+        user->email                                               = query.value(2).toString().toStdString();
+        user->phone_number                                        = query.value(3).toString().toStdString();
+        user->mail_address                                        = query.value(4).toString().toStdString();
+        user->owner_name                                          = query.value(5).toString().toStdString();
+        user->business_name                                       = query.value(6).toString().toStdString();
+        user->perms.user_type                                     = (USER_TYPE)query.value(7).toInt(); // andwu: TODO: SUS
+        user->compliance_docs.business_licence.number             = query.value(8).toString().toStdString();
+        user->compliance_docs.business_licence.expiration_date    = query.value(9).toString().toStdString();
+        user->compliance_docs.liability_insurance.policy_number   = query.value(10).toString().toStdString();
+        user->compliance_docs.liability_insurance.provider        = query.value(11).toString().toStdString();
+        user->compliance_docs.liability_insurance.expiration_date = query.value(12).toString().toStdString();
+        user->compliance_docs.food_handler.certification_number   = query.value(13).toString().toStdString();
+        user->compliance_docs.food_handler.expiration_date        = query.value(14).toString().toStdString();
+        return(1);
     }
 
     return(0);

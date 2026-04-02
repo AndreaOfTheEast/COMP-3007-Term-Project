@@ -25,6 +25,7 @@
 #include <QApplication>
 #include <QListWidget>
 #include <QTableWidget>
+#include <QFile>
 
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlQuery>
