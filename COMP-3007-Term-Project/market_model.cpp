@@ -147,7 +147,7 @@ int MarketDateSystem::make_booking(UserId user, MarketDateId market_date_id)
         int numBookings = 0;
         while(query.next()){
             numBookings++;
-            if(query.value("user_id").toInt() == user.id){
+            if((uint64_t)query.value("user_id").toInt() == user.id){
                 alreadyBooked = 1;
             }
         }

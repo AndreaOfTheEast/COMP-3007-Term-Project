@@ -4,13 +4,28 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    NotificationSystem notification_system;
-    UserSystem user_system;
+    // start the database
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+
+    QString dbPath =
+        QCoreApplication::applicationDirPath()
+        + "/hintonMarket.db";
+        // andwu: TODO: is this the right path?
+    db.setDatabaseName(dbPath);
+
+    if(!db.open())
+    {
+        fprintf(stderr, "DB: %s \n", db.lastError().text().toStdString().c_str());
+        Assert(0, "database failed to start");
+    }
+
+    NotificationSystem notification_system(db);
+    UserSystem user_system(db);
     user_system.notification_system = &notification_system;
-    MarketDateSystem market_date_system;
+    MarketDateSystem market_date_system(db);
     market_date_system.notification_system = &notification_system;
 
-    Assert(0, "andwu: TODO: 'cp hintonMarket_original.db hintonMarket.db'");
+//    Assert(0, "andwu: TODO: 'cp hintonMarket_original.db hintonMarket.db'");
 
     // HARD CODED MARKET DATES
     time_t now = std::time(NULL);
@@ -31,21 +46,6 @@ int main(int argc, char *argv[])
 
         market_date_system.add_market_date(date, artisan_limit, food_limit);
         now += 86400 * 7;
-    }
-
-    // start the database
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-
-    QString dbPath =
-        QCoreApplication::applicationDirPath()
-        + "COMP-3007-Term-Project/hintonMarket.db";
-        // andwu: TODO: is this the right path?
-    db.setDatabaseName(dbPath);
-
-    if(!db.open())
-    {
-        fprintf(stderr, "DB: %s", db.lastError().text().toStdString().c_str());
-        Assert(0, "database failed to start");
     }
 
     LoginDialog login(&user_system);

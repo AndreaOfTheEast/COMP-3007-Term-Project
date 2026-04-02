@@ -4,6 +4,10 @@
 class NotificationSystem
 {
 public:
+    QSqlDatabase& db;
+
+    NotificationSystem(QSqlDatabase& _db): db(_db){}
+
     std::vector<std::string> get_notifications(UserId id);
     void add_notification(UserId id, std::string content);
 };
@@ -11,7 +15,11 @@ public:
 class UserSystem
 {
 public:
+    QSqlDatabase& db;
+
     NotificationSystem *notification_system;
+
+    UserSystem(QSqlDatabase& _db): db(_db){}
 
     bool get_user(Credentials creds, User *user);
     void add_user(User user);
@@ -20,8 +28,11 @@ public:
 class MarketDateSystem
 {
 public:
+    QSqlDatabase& db;
     NotificationSystem *notification_system;
     std::vector<MarketDate> market_dates;
+
+    MarketDateSystem(QSqlDatabase& _db): db(_db){}
 
     void add_market_date(Date date, uint64_t food_limit, uint64_t artisan_limit);
     int make_booking(UserId user, MarketDateId market_date_id);
