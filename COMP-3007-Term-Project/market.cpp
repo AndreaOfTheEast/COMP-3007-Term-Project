@@ -642,21 +642,31 @@ void Market::handle_edit_information(){
     {
         // USER LIST VIEW
         ui->stackedWidget->setCurrentIndex(2);
-        Assert(0, "TODO: we need to query from the db all the users");
-#if 0
-        std::vector<User> users = user_system->get_user_list();
+//        Assert(0, "TODO: we need to query from the db all the users");
+        std::string query_string;
+        QSqlQuery query;
+
+        query_string = std::string("SELECT username, user_type FROM users");
+        query.prepare(QString(query_string.c_str()));
+        Assert(query.exec(), "Query for users failed");
+
+        std::vector<std::string> usernames;
+        std::vector<USER_TYPE> userperms;
+        while(query.next()){
+                usernames.push_back(query.value("username").toString().toStdString());
+                userperms.push_back((USER_TYPE)query.value("user_type").toInt());
+        }
 
         // Display all vendors
         ui->user_list->clear();
-        for (uint64_t i = 0; i < users.size(); i++)
+        for (uint64_t i = 0; i < usernames.size(); i++)
         {
-            if (users[i].perms.user_type == (USER_TYPE) USER_TYPE_FOOD ||
-                users[i].perms.user_type == (USER_TYPE) USER_TYPE_ARTISAN)
+            if (userperms[i] == (USER_TYPE) USER_TYPE_FOOD ||
+                userperms[i] == (USER_TYPE) USER_TYPE_ARTISAN)
             {
-                ui->user_list->addItem(QString::fromStdString(users[i].creds.username));
+                ui->user_list->addItem(QString::fromStdString(usernames[i]));
             }
         }
-#endif
 
         // Active bookings of user
         ui->user_booking_list->clear();
@@ -870,8 +880,8 @@ void Market::display_market_information(QTableWidget *table, User *user)
             user->perms.user_type == USER_TYPE_ADMIN)
         {
             booking.limit = 4;
-            Assert(0, "TODO: ANDWUWUWUWUWUW get booking information of the other USER_TYPE ARTISAN OR FOOD"
-                   ", this displays total availability of market date for the operator");
+//            Assert(0, "TODO: ANDWUWUWUWUWUW get booking information of the other USER_TYPE ARTISAN OR FOOD"
+//                   ", this displays total availability of market date for the operator");
             availability += (int64_t)booking.limit - (int64_t)booking.users.size();
         }
 
