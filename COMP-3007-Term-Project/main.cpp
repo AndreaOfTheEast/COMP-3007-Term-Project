@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     MarketDateSystem market_date_system;
     market_date_system.notification_system = &notification_system;
 
-    Assert(0, andwu: TODO: 'cp hintonMarket.db hintonMarket_original.db');
+    Assert(0, "andwu: TODO: 'cp hintonMarket.db hintonMarket_original.db'");
 
     // HARD CODED MARKET DATES
     time_t now = std::time(NULL);
@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     int nearest_sunday = 7 - sunday->tm_wday;
     now += 86400 * nearest_sunday;
 
-    for (i = 0; i < 8; i++) {
+    for (int i = 0; i < 8; i++) {
         sunday = localtime(&now);
         Date date;
         date.day = (uint64_t)sunday->tm_mday;
