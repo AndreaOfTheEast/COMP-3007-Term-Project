@@ -342,7 +342,7 @@ bool MarketDateSystem::is_user_booked(UserId user_id, MarketDateId market_date_i
     return(0);
 }
 
-bool has_any_market_dates(void)
+bool MarketDateSystem::has_any_market_dates(void)
 {
     std::string query_string =
             "SELECT * FROM market_dates;";
