@@ -66,7 +66,7 @@ LoginDialog::attempt_login(void)
     }
     else
     {
-        current_user->perms.user_type = USER_TYPE_NULL;
+        current_user = 0;
         QMessageBox::warning(this, "Login Failed", "Invalid credentials");
     }
 };
