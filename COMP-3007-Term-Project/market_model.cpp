@@ -142,8 +142,8 @@ int MarketDateSystem::make_booking(UserId user, MarketDateId market_date_id)
         while(query.next()){
             limit = query.value("artisan_limit").toInt();
             year = query.value("year").toInt();
-            month = query.value("day").toInt();
-            day = query.value("month").toInt();
+            month = query.value("month").toInt();
+            day = query.value("day").toInt();
         }
     }
     else if(userType == USER_TYPE_FOOD){
@@ -156,7 +156,6 @@ int MarketDateSystem::make_booking(UserId user, MarketDateId market_date_id)
         while(query.next()){
             limit = query.value("food_limit").toInt();
             year = query.value("year").toInt();
-
             month = query.value("month").toInt();
             day = query.value("day").toInt();
         }
