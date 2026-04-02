@@ -52,6 +52,7 @@ LoginDialog::attempt_login(void)
     Credentials credentials;
     credentials.username = username.toStdString();
 
+    if(current_user) { delete current_user; current_user = 0; }
     User *user = new User;
     bool ok = user_system->get_user(credentials, user);
 
@@ -66,6 +67,7 @@ LoginDialog::attempt_login(void)
     }
     else
     {
+        delete user;
         current_user = 0;
         QMessageBox::warning(this, "Login Failed", "Invalid credentials");
     }
