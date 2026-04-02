@@ -98,7 +98,6 @@ void MarketDateSystem::add_market_date(
     query.bindValue(":month", QString::fromStdString(std::to_string(date.month)));
     query.bindValue(":day", QString::fromStdString(std::to_string(date.day)));
     query.exec();
-    // andwu: TODO: test for success
 }
 
 int MarketDateSystem::make_booking(UserId user, MarketDateId market_date_id)

@@ -72,8 +72,8 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
     // Make a booking
     connect(ui->make_booking, &QPushButton::clicked, this, [=]{
-        Assert(0, "TODO: really bad, we use the UI, instead of a authority of truth.. "
-                "The marketdate should use an ID, NOT a index");
+//        Assert(0, "TODO: really bad, we use the UI, instead of a authority of truth.. "
+//                "The marketdate should use an ID, NOT a index");
 
         uint64_t index = (uint64_t)ui->table_market_dates->currentRow();
         MarketDateId market_date_id;
@@ -442,7 +442,7 @@ void Market::handle_dashboard()
     }
 
     // Notifications
-    Assert(0, "TODO: query all notifications");
+//    Assert(0, "TODO: query all notifications");
 #if 0
     ui->list_notifications->clear();
     std::vector<std::string> notifications = notification_system->get_notifications(current_user->id);
@@ -463,8 +463,8 @@ void Market::handle_dashboard()
 
         // active bookings
         ui->list_active_bookings->clear();
-        Assert(0, "TODO: query all the market dates for the user, "
-                "take into account the range limit");
+//        Assert(0, "TODO: query all the market dates for the user, "
+//                "take into account the range limit");
 #if 0
         for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++)
         {
@@ -550,8 +550,8 @@ void Market::handle_market_schedule()
     ui->stackedWidget->setCurrentIndex(1);
 
     // User list
-    Assert(0, "TODO: i have no idea what this means.. "
-            "but we can query from the db all the users if we want to");
+//    Assert(0, "TODO: i have no idea what this means.. "
+//            "but we can query from the db all the users if we want to");
 #if 0
     std::vector<User> users = user_system->get_user_list();
     ui->user_list_market->clear();
@@ -766,8 +766,28 @@ void Market::display_market_information(QTableWidget *table, User *user)
         table->setRowCount(4);
     }
 
-    Assert(0, "TODO: query all the market dates again");
+//    Assert(0, "TODO: query all the market dates again");
     std::vector<MarketDate> market_dates;
+
+    std::string query_string =
+            "SELECT * FROM market_dates";
+    QSqlQuery query;
+    query.prepare(QString(query_string.c_str()));
+    query.exec();
+    while(query.next()){
+        MarketDate marketDate;
+        Date date;
+        int year = query.value("year").toInt();
+        int month = query.value("day").toInt();
+        int day = query.value("month").toInt();
+        int id = query.value("id").toInt();
+        date.day = (uint64_t)day;
+        date.month = (uint64_t)month;
+        date.year = (uint64_t)year;
+        marketDate.date = date;
+        marketDate.id.id = (uint64_t)id;
+        market_dates.push_back(marketDate);
+    }
 
     for (uint64_t i = 0; i < market_dates.size(); i++)
     {
@@ -775,8 +795,8 @@ void Market::display_market_information(QTableWidget *table, User *user)
         int64_t book_or_wait = -1;
         uint64_t waitlist_position;
 
-        Assert(0, "TODO: ANDWUUU get booking information of "
-                  "current market date based on user type ARTISAN/FOOD");
+//        Assert(0, "TODO: ANDWUUU get booking information of "
+//                  "current market date based on user type ARTISAN/FOOD");
         Booking booking;
         booking.limit = 4;
 
