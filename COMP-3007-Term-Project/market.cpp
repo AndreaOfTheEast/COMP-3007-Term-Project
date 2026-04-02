@@ -74,7 +74,6 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
     connect(ui->make_booking, &QPushButton::clicked, this, [=]{
 //        Assert(0, "TODO: really bad, we use the UI, instead of a authority of truth.. "
 //                "The marketdate should use an ID, NOT a index");
-
         uint64_t index = (uint64_t)ui->table_market_dates->currentRow();
         MarketDateId market_date_id;
         market_date_id.id = (uint64_t)ui->table_market_dates->item((int)index, 1);
@@ -142,11 +141,10 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
                     "Confirm Action",
                     "Are you sure want to book this date?",
                     QMessageBox::Yes | QMessageBox::No);
-
         if (question == QMessageBox::Yes)
         {
+            Assert(0, "Line under here crashes the program");
             std::string username = ui->user_list_market->currentItem()->text().toStdString();
-
             if (ui->user_list_market->currentItem() != nullptr)
             {
                 username = ui->user_list_market->currentItem()->text().toStdString();
@@ -159,9 +157,8 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
                             "No selected user.",
                             QMessageBox::Ok);
             }
-
+            std::cout<<"HI"<<std::endl;
             market_date_system->make_booking(user->id, market_date_id);
-
             std::stringstream notification_msg;
             notification_msg << "[Action] Booked "
                              << ui->table_market_dates->item((int32_t)index, 0)->text().toStdString()

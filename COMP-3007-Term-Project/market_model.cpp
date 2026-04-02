@@ -346,23 +346,39 @@ void MarketDateSystem::cancel_booking(UserId user, MarketDateId market_date_id)
 
 bool MarketDateSystem::is_user_booked(UserId user_id, MarketDateId market_date_id)
 {
-    Assert(0, "TODO: check if this market date is booked by the user");
-    std::string query_string =
-        "SELECT * FROM bookings"
-        " ORDER BY bookings.year ASC, bookings.month ASC, bookings.day ASC";
+//    Assert(0, "TODO: check if this market date is booked by the user");
+    std::string query_string;
     QSqlQuery query;
+    query_string = std::string("SELECT user_id FROM bookings where user_id = :id;");
     query.prepare(QString(query_string.c_str()));
-    {
-        for(;query.next();)
-        {
-            UserId booking_user_id = UserId{ (uint64_t)query.value(4).toInt() };
-            if(booking_user_id == user_id)
-            {
-                return(1);
-            }
+
+    query.bindValue(":id", QString::fromStdString(std::to_string(user_id.id)));
+//    query.exec();
+    Assert(query.exec(), "Query for if user already booked fail");
+    while(query.next()){
+        Assert(0,"hi");
+        if((uint64_t)query.value("user_id").toInt() == user_id.id){
+            return 1;
         }
     }
-    return(0);
+    return 0;
+
+//    std::string query_string =
+//        "SELECT * FROM bookings"
+//        " ORDER BY bookings.year ASC, bookings.month ASC, bookings.day ASC";
+//    QSqlQuery query;
+//    query.prepare(QString(query_string.c_str()));
+//    {
+//        for(;query.next();)
+//        {
+//            UserId booking_user_id = UserId{ (uint64_t)query.value(4).toInt() };
+//            if(booking_user_id == user_id)
+//            {
+//                return(1);
+//            }
+//        }
+//    }
+//    return(0);
 }
 
 bool MarketDateSystem::has_any_market_dates(void)
