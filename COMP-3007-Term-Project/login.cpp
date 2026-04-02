@@ -4,6 +4,7 @@
 LoginDialog::LoginDialog(UserSystem *in_user_system, QWidget *parent)
     : QDialog(parent)
     , user_system(in_user_system)
+    , current_user(0)
 {
     setWindowTitle("Hinton Market Login");
     resize(400, 100);
