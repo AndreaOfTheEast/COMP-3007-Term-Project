@@ -22,6 +22,10 @@ HEADERS += \
     market.h \
     market_model.h
 
+copydb.commands = test -f $$OUT_PWD/hintonMarket.db || cp $$PWD/hintonMarket.db $$OUT_PWD/
+QMAKE_EXTRA_TARGETS += copydb
+PRE_TARGETDEPS += copydb
+
 FORMS += \
     market.ui
 

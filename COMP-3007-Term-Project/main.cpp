@@ -29,27 +29,28 @@ int main(int argc, char *argv[])
     MarketDateSystem market_date_system(db);
     market_date_system.notification_system = &notification_system;
 
-    Assert(0, "andwu: TODO: 'cp hintonMarket_original.db hintonMarket.db'");
-
     // HARD CODED MARKET DATES
-    time_t now = std::time(NULL);
-    struct tm *sunday = localtime(&now);
+    if(!market_date_system.has_any_market_dates())
+    {
+        time_t now = std::time(NULL);
+        struct tm *sunday = localtime(&now);
 
-    int nearest_sunday = 7 - sunday->tm_wday;
-    now += 86400 * nearest_sunday;
+        int nearest_sunday = 7 - sunday->tm_wday;
+        now += 86400 * nearest_sunday;
 
-    for (int i = 0; i < 8; i++) {
-        sunday = localtime(&now);
-        Date date;
-        date.day = (uint64_t)sunday->tm_mday;
-        date.month = (uint64_t)sunday->tm_mon;
-        date.year = (uint64_t)sunday->tm_year;
+        for (int i = 0; i < 8; i++) {
+            sunday = localtime(&now);
+            Date date;
+            date.day = (uint64_t)sunday->tm_mday;
+            date.month = (uint64_t)sunday->tm_mon;
+            date.year = (uint64_t)sunday->tm_year;
 
-        uint64_t artisan_limit = 2;
-        uint64_t food_limit = 2;
+            uint64_t artisan_limit = 2;
+            uint64_t food_limit = 2;
 
-        market_date_system.add_market_date(date, artisan_limit, food_limit);
-        now += 86400 * 7;
+            market_date_system.add_market_date(date, artisan_limit, food_limit);
+            now += 86400 * 7;
+        }
     }
 
     LoginDialog login(&user_system);
