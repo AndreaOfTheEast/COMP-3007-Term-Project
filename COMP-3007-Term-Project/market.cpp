@@ -184,12 +184,20 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
                             "No selected user.",
                             QMessageBox::Ok);
             }
+
             market_date_system->make_booking(user->id, market_date_id);
-            std::stringstream notification_msg;
-            notification_msg << "[Action] Booked "
-                             << ui->table_market_dates->item((int32_t)index, 0)->text().toStdString()
-                             << " for " << user->creds.username << ".";
-            notification_system->add_notification(current_user->id, notification_msg.str());
+
+
+            // Add notification for the operator if
+            // they made the booking
+            if(current_user->perms.user_type == USER_TYPE_OPERATOR)
+            {
+                std::stringstream notification_msg;
+                notification_msg << "[Action] Booked "
+                                 << ui->table_market_dates->item((int32_t)index, 0)->text().toStdString()
+                                 << " for " << user->creds.username << ".";
+                notification_system->add_notification(current_user->id, notification_msg.str());
+            }
         }
         else
         {
@@ -464,15 +472,12 @@ void Market::handle_dashboard()
     }
 
     // Notifications
-//    Assert(0, "TODO: query all notifications");
-#if 0
     ui->list_notifications->clear();
     std::vector<std::string> notifications = notification_system->get_notifications(current_user->id);
     for (uint64_t i = 0; i < notifications.size(); i++)
     {
         ui->list_notifications->addItem(QString(notifications[i].c_str()));
     }
-#endif
 
     // Only show active bookings and waitlists for vendors
     if (current_user->perms.user_type == (USER_TYPE) USER_TYPE_ARTISAN ||

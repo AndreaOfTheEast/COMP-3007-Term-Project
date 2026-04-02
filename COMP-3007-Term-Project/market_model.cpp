@@ -2,6 +2,7 @@
 #include "market_model.h"
 
 #include <sstream>
+#include <QDate>
 
 // ------------------------
 // ----- USER SYSTEM ------
@@ -419,16 +420,21 @@ std::vector<std::string> NotificationSystem::get_notifications(UserId id) {
     std::vector<std::string> notifications;
 
     std::string query_string =
-            "SELECT * FROM notifications"
-            " WHERE notifications.user_id = '?' OR notifications.for_all_users != 0";
+            "SELECT content FROM notifications"
+            " WHERE notifications.user_id = ? OR notifications.for_all_users != 0"
+            " ORDER BY year ASC, month ASC, day ASC";
+
     QSqlQuery query;
-    query.prepare(QString(query_string.c_str()));
-    query.addBindValue((int)id.id);
+    if(query.prepare(QString(query_string.c_str())))
     {
-        for(;query.next();)
+        query.addBindValue((int)id.id);
+        query.exec();
         {
-            std::string content = query.value(6).toString().toStdString();
-            notifications.push_back(content);
+            for(;query.next();)
+            {
+                std::string content = query.value(0).toString().toStdString();
+                notifications.push_back(content);
+            }
         }
     }
 
@@ -436,18 +442,18 @@ std::vector<std::string> NotificationSystem::get_notifications(UserId id) {
 }
 
 void NotificationSystem::add_notification(UserId id, std::string content) {
-//    Assert(0, "TODO: insert notification");
-    #if 0
     std::string query_string =
-        "INSERT INTO notifications ()"
+        "INSERT INTO notifications (year, month, day, user_id, content)"
         " VALUES(?, ?, ?, ?, ?)";
     QSqlQuery query;
     query.prepare(QString(query_string.c_str()));
-    // andwu: TODO: now();
-    query.addBindValue(user.id.id);
-    query.addBindValue(date.year);
-    query.addBindValue(date.month);
-    query.addBindValue(date.day);
-    // andwu: TODO: test for success
-    #endif
+
+    QDate date = QDate::currentDate();
+    query.addBindValue(date.year());
+    query.addBindValue(date.month());
+    query.addBindValue(date.day());
+
+    query.addBindValue((int)id.id);
+    query.addBindValue(content.c_str());
+    query.exec();
 }
