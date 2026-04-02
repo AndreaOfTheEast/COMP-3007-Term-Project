@@ -342,6 +342,22 @@ bool MarketDateSystem::is_user_booked(UserId user_id, MarketDateId market_date_i
     return(0);
 }
 
+bool has_any_market_dates(void)
+{
+    std::string query_string =
+            "SELECT * FROM market_dates;";
+    QSqlQuery query;
+    query.prepare(QString(query_string.c_str()));
+    if(!query.exec())
+    {
+        fprintf(stderr, "DB Query: %s\n", query.lastError().text().toStdString().c_str());
+        Assert(0, "database failed query");
+        return(0);
+    }
+
+    return(query.next());
+}
+
 // -------------------------
 // -- NOTIFICATION SYSTEM --
 // -------------------------
