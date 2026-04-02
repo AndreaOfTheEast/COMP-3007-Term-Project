@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     MarketDateSystem market_date_system;
     market_date_system.notification_system = &notification_system;
 
-    Assert(0, "andwu: TODO: 'cp hintonMarket.db hintonMarket_original.db'");
+    Assert(0, "andwu: TODO: 'cp hintonMarket_original.db hintonMarket.db'");
 
     // HARD CODED MARKET DATES
     time_t now = std::time(NULL);
