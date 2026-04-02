@@ -574,18 +574,29 @@ void Market::handle_market_schedule()
     // User list
 //    Assert(0, "TODO: i have no idea what this means.. "
 //            "but we can query from the db all the users if we want to");
-#if 0
-    std::vector<User> users = user_system->get_user_list();
+    std::string query_string;
+    QSqlQuery query;
+
+    query_string = std::string("SELECT username, user_type FROM users");
+    query.prepare(QString(query_string.c_str()));
+    Assert(query.exec(), "Query for users failed");
+
+    std::vector<std::string> usernames;
+    std::vector<USER_TYPE> userperms;
+    while(query.next()){
+            usernames.push_back(query.value("username").toString().toStdString());
+            userperms.push_back((USER_TYPE)query.value("user_type").toInt());
+    }
+
     ui->user_list_market->clear();
-    for (uint64_t i = 0; i < users.size(); i++)
+    for (uint64_t i = 0; i < usernames.size(); i++)
     {
-        if (users[i].perms.user_type == USER_TYPE_FOOD ||
-            users[i].perms.user_type == USER_TYPE_ARTISAN)
+        if (userperms[i] == USER_TYPE_FOOD ||
+            userperms[i] == USER_TYPE_ARTISAN)
         {
-            ui->user_list_market->addItem(users[i].creds.username.c_str());
+            ui->user_list_market->addItem(QString::fromStdString(usernames[i]));
         }
     }
-#endif
 
     // Display market dates
     if (ui->user_list_market->currentItem() != nullptr)
@@ -642,7 +653,6 @@ void Market::handle_edit_information(){
     {
         // USER LIST VIEW
         ui->stackedWidget->setCurrentIndex(2);
-//        Assert(0, "TODO: we need to query from the db all the users");
         std::string query_string;
         QSqlQuery query;
 
