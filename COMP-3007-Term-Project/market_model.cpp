@@ -91,12 +91,13 @@ void MarketDateSystem::add_market_date(
         Date date, uint64_t food_limit, uint64_t artisan_limit)
 {
     std::string query_string =
-        "INSERT INTO market_dates (booking_id, food_limit, artisan_limit)"
-        " VALUES(?, ?, ?, ?, ?)";
+        "INSERT INTO market_dates (year, month, day)  VALUES(:year, :month, :day)";
     QSqlQuery query;
     query.prepare(QString(query_string.c_str()));
-    query.addBindValue((int)food_limit);
-    query.addBindValue((int)artisan_limit);
+    query.bindValue(":year", QString::fromStdString(std::to_string(date.year)));
+    query.bindValue(":month", QString::fromStdString(std::to_string(date.month)));
+    query.bindValue(":day", QString::fromStdString(std::to_string(date.day)));
+    query.exec();
     // andwu: TODO: test for success
 }
 
@@ -385,7 +386,7 @@ bool MarketDateSystem::has_any_market_dates(void)
 // -- NOTIFICATION SYSTEM --
 // -------------------------
 std::vector<std::string> NotificationSystem::get_notifications(UserId id) {
-    Assert(0, "TODO: query for notifications");
+//    Assert(0, "TODO: query for notifications");
 
     std::vector<std::string> notifications;
 
@@ -407,7 +408,7 @@ std::vector<std::string> NotificationSystem::get_notifications(UserId id) {
 }
 
 void NotificationSystem::add_notification(UserId id, std::string content) {
-    Assert(0, "TODO: insert notification");
+//    Assert(0, "TODO: insert notification");
     #if 0
     std::string query_string =
         "INSERT INTO notifications ()"
