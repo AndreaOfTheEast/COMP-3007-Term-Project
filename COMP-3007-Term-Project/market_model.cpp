@@ -355,7 +355,6 @@ bool MarketDateSystem::is_user_booked(UserId user_id, MarketDateId market_date_i
     int month = -1;
     query_string = std::string("SELECT year, month, day FROM market_dates where id = :id");
     query.prepare(QString(query_string.c_str()));
-    std::cout<<std::to_string(market_date_id.id)<<std::endl;
     query.bindValue(":id", QString::fromStdString(std::to_string(market_date_id.id)));
 //    query.exec();
     Assert(query.exec(), "Query for if user already booked fail");
@@ -364,10 +363,8 @@ bool MarketDateSystem::is_user_booked(UserId user_id, MarketDateId market_date_i
         month = query.value("month").toInt();
         day = query.value("day").toInt();
     }
-    std::cout<<std::to_string(day)<< " " << std::to_string(month)<< " "<< std::to_string(year)<< " " << user_id.id<<std::endl;
     query_string = std::string("SELECT user_id FROM bookings where user_id = :id AND for_year = :year AND for_month = :month AND for_day = :day");
     query.prepare(QString(query_string.c_str()));
-    std::cout<<std::to_string(market_date_id.id)<<std::endl;
     query.bindValue(":id", QString::fromStdString(std::to_string(user_id.id)));
     query.bindValue(":month", QString::fromStdString(std::to_string(month)));
     query.bindValue(":day", QString::fromStdString(std::to_string(day)));

@@ -820,9 +820,50 @@ void Market::display_market_information(QTableWidget *table, User *user)
 //        Assert(0, "TODO: ANDWUUU get booking information of "
 //                  "current market date based on user type ARTISAN/FOOD");
         Booking booking;
-        booking.limit = 4;
+        //GET LIMIT
+        int year = -1;
+        int month = -1;
+        int day = -1;
+        if(user->perms.user_type == USER_TYPE_ARTISAN){
+            query_string = std::string("SELECT artisan_limit, year, day, month FROM market_dates where id = :id;");
+            query.prepare(QString(query_string.c_str()));
 
-        availability = (int64_t)booking.limit - (int64_t)booking.users.size();
+            query.bindValue(":id", QString::fromStdString(std::to_string(market_dates[i].id.id)));
+            Assert(query.exec(), "Query for Limit fail");
+
+            while(query.next()){
+                 booking.limit = (uint64_t)query.value("artisan_limit").toInt();
+            }
+        }
+        else if(user->perms.user_type == USER_TYPE_FOOD){
+            query_string = std::string("SELECT food_limit, year, day, month FROM market_dates where id = :id;");
+            query.prepare(QString(query_string.c_str()));
+
+            query.bindValue(":id", QString::fromStdString(std::to_string(market_dates[i].id.id)));
+            Assert(query.exec(), "Query for Limit fail");
+
+            while(query.next()){
+                booking.limit = (uint64_t)query.value("food_limit").toInt();
+                month = (uint64_t)query.value("month").toInt();
+                day = (uint64_t)query.value("day").toInt();
+                year = (uint64_t)query.value("year").toInt();
+            }
+        }
+
+        //GET NUM BOOKINGS
+        query_string = std::string("SELECT DISTINCT booking_id FROM bookings INNER JOIN users WHERE user_type = :type AND for_year = :year AND for_month = :month AND for_day = :day;");
+        query.prepare(QString(query_string.c_str()));
+
+        query.bindValue(":type", QString::fromStdString(std::to_string(user->perms.user_type)));
+        query.bindValue(":year", QString::fromStdString(std::to_string(year)));
+        query.bindValue(":month", QString::fromStdString(std::to_string(month)));
+        query.bindValue(":day", QString::fromStdString(std::to_string(day)));
+        Assert(query.exec(), "Query for Limit fail");
+        int numBookings = 0;
+        while(query.next()){
+            numBookings++;
+        }
+        availability = (int64_t)booking.limit - numBookings;
 
         // OPERATOR - Show overall availability
         if (user->perms.user_type == USER_TYPE_OPERATOR ||
