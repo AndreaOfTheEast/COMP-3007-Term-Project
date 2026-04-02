@@ -113,6 +113,8 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
             else { user = &temp_user; }
         }
 
+        // andwu: TODO: i dont think we don't need this anymore
+#if 0
         if (user->perms.user_type == (USER_TYPE)USER_TYPE_ARTISAN)
         {
             Assert(0, "TODO: ANDERWERWERWEWER database retrieve, artisan_booking for a market date");
@@ -132,6 +134,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
             msgBox.exec();
             return;
         }
+#endif
 
         QMessageBox::StandardButton question;
         question = QMessageBox::question(
