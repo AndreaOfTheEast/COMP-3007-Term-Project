@@ -102,10 +102,10 @@ void MarketDateSystem::add_market_date(
 
 int MarketDateSystem::make_booking(UserId user, MarketDateId market_date_id)
 {
-    Assert(0, "TODO: we want to insert a booking into the booking list"
-            "for this date and type."
-            "Then query what that position is and the limit,"
-            "so that we can have a popup about being waitlist/booked");
+//    Assert(0, "TODO: we want to insert a booking into the booking list"
+//            "for this date and type."
+//            "Then query what that position is and the limit,"
+//            "so that we can have a popup about being waitlist/booked");
 
     //GET USER TYPE
     std::string query_string;
@@ -156,13 +156,14 @@ int MarketDateSystem::make_booking(UserId user, MarketDateId market_date_id)
         while(query.next()){
             limit = query.value("food_limit").toInt();
             year = query.value("year").toInt();
-            month = query.value("day").toInt();
-            day = query.value("month").toInt();
+
+            month = query.value("month").toInt();
+            day = query.value("day").toInt();
         }
     }
 
     //CHECK IF USER BOOKED THE DAY ALREADY
-    query_string = std::string("SELECT user_id FROM bookings INNER JOIN users where year = :year AND month = :month AND day = :day AND user_type = :type;");
+    query_string = std::string("SELECT bookings.user_id FROM bookings INNER JOIN users where for_year = :year AND for_month = :month AND for_day = :day AND user_type = :type;");
     query.prepare(QString(query_string.c_str()));
 
     query.bindValue(":year", QString::fromStdString(std::to_string(year)));
@@ -186,7 +187,7 @@ int MarketDateSystem::make_booking(UserId user, MarketDateId market_date_id)
     }
 
     //INSERT BOOKING (unsure if need to insert time created or not)
-    query_string = "INSERT INTO bookings (year, month, day, user_id) VALUES(:year, :month, :day, :user_id);";
+    query_string = "INSERT INTO bookings (for_year, for_month, for_day, user_id) VALUES(:year, :month, :day, :user_id);";
     query.prepare(QString(query_string.c_str()));
     query.bindValue(":year", QString::fromStdString(std::to_string(year)));
     query.bindValue(":month", QString::fromStdString(std::to_string(month)));
@@ -349,17 +350,33 @@ bool MarketDateSystem::is_user_booked(UserId user_id, MarketDateId market_date_i
 //    Assert(0, "TODO: check if this market date is booked by the user");
     std::string query_string;
     QSqlQuery query;
-    query_string = std::string("SELECT user_id FROM bookings where user_id = :id;");
-    query.prepare(QString(query_string.c_str()));
 
-    query.bindValue(":id", QString::fromStdString(std::to_string(user_id.id)));
+    int year = -1;
+    int day = -1;
+    int month = -1;
+    query_string = std::string("SELECT year, month, day FROM market_dates where id = :id");
+    query.prepare(QString(query_string.c_str()));
+    std::cout<<std::to_string(market_date_id.id)<<std::endl;
+    query.bindValue(":id", QString::fromStdString(std::to_string(market_date_id.id)));
 //    query.exec();
     Assert(query.exec(), "Query for if user already booked fail");
     while(query.next()){
-        Assert(0,"hi");
-        if((uint64_t)query.value("user_id").toInt() == user_id.id){
-            return 1;
-        }
+        year = query.value("year").toInt();
+        month = query.value("month").toInt();
+        day = query.value("day").toInt();
+    }
+    std::cout<<std::to_string(day)<< " " << std::to_string(month)<< " "<< std::to_string(year)<< " " << user_id.id<<std::endl;
+    query_string = std::string("SELECT user_id FROM bookings where user_id = :id AND for_year = :year AND for_month = :month AND for_day = :day");
+    query.prepare(QString(query_string.c_str()));
+    std::cout<<std::to_string(market_date_id.id)<<std::endl;
+    query.bindValue(":id", QString::fromStdString(std::to_string(user_id.id)));
+    query.bindValue(":month", QString::fromStdString(std::to_string(month)));
+    query.bindValue(":day", QString::fromStdString(std::to_string(day)));
+    query.bindValue(":year", QString::fromStdString(std::to_string(year)));
+//    query.exec();
+    Assert(query.exec(), "Query for if user already booked fail");
+    while(query.next()){
+        return 1;
     }
     return 0;
 

@@ -72,11 +72,40 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
     // Make a booking
     connect(ui->make_booking, &QPushButton::clicked, this, [=]{
-//        Assert(0, "TODO: really bad, we use the UI, instead of a authority of truth.. "
-//                "The marketdate should use an ID, NOT a index");
         uint64_t index = (uint64_t)ui->table_market_dates->currentRow();
         MarketDateId market_date_id;
         market_date_id.id = (uint64_t)ui->table_market_dates->item((int)index, 1);
+        std::string mdate = ui->table_market_dates->item((int)index, 0)->text().toStdString();
+        std::string temp = "";
+        temp += mdate[0];
+        temp += mdate[1];
+        int month = std::stoi(temp);
+        temp = "";
+        temp += mdate[3];
+        temp += mdate[4];
+        int day = std::stoi(temp);
+        temp = "";
+        temp += mdate[8];
+        temp += mdate[9];
+        int year = std::stoi(temp);
+
+        int id = -1;
+        std::string query_string;
+        QSqlQuery query;
+        query_string = std::string("SELECT id FROM market_dates where year = :year and month = :month and day = :day;");
+        query.prepare(QString(query_string.c_str()));
+
+        query.bindValue(":year", QString::fromStdString(std::to_string(year+100)));
+        query.bindValue(":month", QString::fromStdString(std::to_string(month)));
+        query.bindValue(":day", QString::fromStdString(std::to_string(day-1)));
+        Assert(query.exec(), "Query for id fail");
+        while(query.next()){
+            id = query.value("id").toInt();
+        }
+        if(id == -1){
+            return;
+        }
+        market_date_id.id = (uint64_t)id;
         QMessageBox msgBox;
 
         if (ui->table_market_dates->selectedItems().isEmpty())
@@ -112,7 +141,6 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
             else { user = &temp_user; }
         }
 
-        // andwu: TODO: i dont think we don't need this anymore
 #if 0
         if (user->perms.user_type == (USER_TYPE)USER_TYPE_ARTISAN)
         {
@@ -143,13 +171,12 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
                     QMessageBox::Yes | QMessageBox::No);
         if (question == QMessageBox::Yes)
         {
-            Assert(0, "Line under here crashes the program");
-            std::string username = ui->user_list_market->currentItem()->text().toStdString();
+            std::string username;
             if (ui->user_list_market->currentItem() != nullptr)
             {
                 username = ui->user_list_market->currentItem()->text().toStdString();
             }
-            else
+            else if(current_user->perms.user_type == (USER_TYPE)USER_TYPE_ADMIN || current_user->perms.user_type == (USER_TYPE)USER_TYPE_OPERATOR)
             {
                 QMessageBox::warning(
                             this,
@@ -157,7 +184,6 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
                             "No selected user.",
                             QMessageBox::Ok);
             }
-            std::cout<<"HI"<<std::endl;
             market_date_system->make_booking(user->id, market_date_id);
             std::stringstream notification_msg;
             notification_msg << "[Action] Booked "
@@ -169,7 +195,6 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         {
             market_date_system->make_booking(user->id, market_date_id);
         }
-
         display_market_information(ui->table_market_dates, user);
     });
 
