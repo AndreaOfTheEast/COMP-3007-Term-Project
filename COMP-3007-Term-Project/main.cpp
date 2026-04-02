@@ -29,8 +29,6 @@ int main(int argc, char *argv[])
     MarketDateSystem market_date_system(db);
     market_date_system.notification_system = &notification_system;
 
-    Assert(0, "andwu: TODO: 'cp hintonMarket_original.db hintonMarket.db'");
-
     // HARD CODED MARKET DATES
     if(!market_date_system.has_any_market_dates())
     {
