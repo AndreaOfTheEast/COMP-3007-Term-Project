@@ -114,14 +114,15 @@ int MarketDateSystem::make_booking(UserId user, MarketDateId market_date_id)
     query.prepare(QString(query_string.c_str()));
 
     query.bindValue(":id", QString::fromStdString(std::to_string(user.id)));
-    query.exec();
+//    query.exec();
+    Assert(query.exec(), "Query for User Types fail");
 
     int userType;
     while(query.next()){
         userType = query.value("user_type").toInt();
     }
 
-    if (userType != USER_TYPE_ARTISAN || userType != USER_TYPE_FOOD){
+    if (userType != USER_TYPE_ARTISAN && userType != USER_TYPE_FOOD){
         return(-1);
     }
 
@@ -136,8 +137,8 @@ int MarketDateSystem::make_booking(UserId user, MarketDateId market_date_id)
         query.prepare(QString(query_string.c_str()));
 
         query.bindValue(":id", QString::fromStdString(std::to_string(market_date_id.id)));
-        query.exec();
-
+//        query.exec();
+        Assert(query.exec(), "Query for Limit fail");
         while(query.next()){
             limit = query.value("artisan_limit").toInt();
             year = query.value("year").toInt();
@@ -150,8 +151,8 @@ int MarketDateSystem::make_booking(UserId user, MarketDateId market_date_id)
         query.prepare(QString(query_string.c_str()));
 
         query.bindValue(":id", QString::fromStdString(std::to_string(market_date_id.id)));
-        query.exec();
-
+//        query.exec();
+        Assert(query.exec(), "Query for Limit fail");
         while(query.next()){
             limit = query.value("food_limit").toInt();
             year = query.value("year").toInt();
@@ -168,7 +169,8 @@ int MarketDateSystem::make_booking(UserId user, MarketDateId market_date_id)
     query.bindValue(":month", QString::fromStdString(std::to_string(month)));
     query.bindValue(":day", QString::fromStdString(std::to_string(day)));
     query.bindValue(":user_type", QString::fromStdString(std::to_string(userType)));
-    query.exec();
+//    query.exec();
+    Assert(query.exec(), "Query for if user already booked fail");
 
     bool alreadyBooked = 0;
     int numBookings = 0;
@@ -190,7 +192,7 @@ int MarketDateSystem::make_booking(UserId user, MarketDateId market_date_id)
     query.bindValue(":month", QString::fromStdString(std::to_string(month)));
     query.bindValue(":day", QString::fromStdString(std::to_string(day)));
     query.bindValue(":user_id", QString::fromStdString(std::to_string(user.id)));
-    query.exec();
+    Assert(query.exec(), "Insert Booking fail");
     QMessageBox msgBox;
     std::stringstream s;
     std::string date = std::to_string(day) + "/" + std::to_string(month) + "/" + std::to_string(year);
