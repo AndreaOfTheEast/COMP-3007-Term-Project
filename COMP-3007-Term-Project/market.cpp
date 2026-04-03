@@ -365,6 +365,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         }
 
         QString date;
+        MarketDateId market_date_id;
 
         User *user = 0;
         Credentials creds = { username };
@@ -372,13 +373,28 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         bool ok = user_system->get_user(creds, &temp_user);
         if(ok) { user = &temp_user; }
 
+        DebugTrap();
         if (!ui->user_booking_list->selectedItems().isEmpty())
         {
-            date = ui->user_booking_list->currentItem()->text();
+            QString s = ui->user_waitlist_list->currentItem()->text();
+            int i = s.indexOf(':');
+            Assert(i != -1, "dates should have ids");
+            market_date_id = MarketDateId{ (uint64_t)s.left(i).toInt() };
+
+            date = s.mid(i, s.size() - i);
         }
         else if (!ui->user_waitlist_list->selectedItems().isEmpty())
         {
-            date = ui->user_waitlist_list->currentItem()->text().left(10);
+            QString s = ui->user_waitlist_list->currentItem()->text();
+            int i = s.indexOf(':');
+            Assert(i != -1, "dates should have ids");
+            market_date_id = MarketDateId{ (uint64_t)s.left(i).toInt() };
+
+            int j = s.indexOf('(');
+            if(j < 0) { j = s.size(); }
+            j -= i;
+            date = s.mid(i, j);
+
             is_waitlist = 1;
         }
         else
@@ -386,10 +402,10 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
             return;
         }
 
-        Assert(0, "TODO: ANDREWEWWEWEWE check if date exist in database");
+        bool date_real = market_date_system->is_date_real(market_date_id);
 
         // User booking/waitlist is not found
-        if (0/* have flag here to indicate that date does not exist*/)
+        if (date_real)
         {
             QMessageBox::warning(
                         this,
@@ -399,10 +415,6 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
                         QMessageBox::Ok);
             return;
         }
-
-        Assert(0, "TODO: ANDWUWUWUWU get market date info using date");
-        MarketDateId market_date_id;
-        market_date_id.id = 0;
 
         // Cancel booking
         market_date_system->cancel_booking(user->id, market_date_id);
