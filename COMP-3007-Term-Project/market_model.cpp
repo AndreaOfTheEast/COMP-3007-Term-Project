@@ -293,7 +293,7 @@ int MarketDateSystem::make_booking(UserId user, MarketDateId market_date_id)
         s << "[Action] Waitlisted in position " << waitlist_position << " for " << date << ".";
         notification_system->add_notification(user, s.str());
 
-        query_string = "UPDATE users SET is_waitlist = 1 WHERE user_id = ?";
+        query_string = "UPDATE bookings SET is_waitlist = 1 WHERE user_id = ?";
         query.prepare(QString(query_string.c_str()));
         query.addBindValue((int)user.id);
 
@@ -443,68 +443,6 @@ void MarketDateSystem::cancel_booking(UserId user, MarketDateId market_date_id)
     query.addBindValue((int)waitlist_user_id.id);
     query.addBindValue((int)market_date_id.id);
     query.exec();
-
-#if 0
-    uint64_t *booked = nullptr;
-    uint64_t *limit = nullptr;
-    std::vector<UserId> *booking_list = nullptr;
-    std::stringstream notification_msg;
-
-    if (user->perms.user_type == (USER_TYPE) USER_TYPE_ARTISAN)
-    {
-        booking_list = &market_dates[market_date_index].artisan_booking.users;
-        booked = &market_dates[market_date_index].artisan_booking.booked;
-        limit = &market_dates[market_date_index].artisan_booking.limit;
-    }
-    else if (user->perms.user_type == (USER_TYPE) USER_TYPE_FOOD)
-    {
-        booking_list = &market_dates[market_date_index].food_booking.users;
-        booked = &market_dates[market_date_index].food_booking.booked;
-        limit = &market_dates[market_date_index].food_booking.limit;
-    }
-
-    if (booking_list == nullptr) { return; }
-
-    for (uint32_t i = 0; i < booking_list->size(); i++)
-    {
-        if (user->id == (*booking_list)[i])
-        {
-            booking_list->erase(booking_list->begin() + i);
-
-
-            // Check if it's a waitlist position
-            if (i > *limit)
-            {
-                // WAITLIST
-                notification_msg << "[Action] Cancelled waitlist for " <<
-                                    market_dates[market_date_index].date.to_string() << ".";
-                notification_system->add_notification(user->id, notification_msg.str());
-            }
-            else
-            {
-                // BOOKING
-                notification_msg << "[Action] Cancelled booking for " <<
-                                    market_dates[market_date_index].date.to_string() << ".";
-                notification_system->add_notification(user->id, notification_msg.str());
-                (*booked)--;
-
-                // Notify waitlist
-                notification_msg.str("");
-                notification_msg.clear();
-
-                if (booking_list->size() > 0)
-                {
-                    notification_msg << "[Alert] Available spot for " <<
-                                        market_dates[market_date_index].date.to_string() << "." <<
-                                        " Please respond to waitlist offer.";
-                    notification_system->add_notification((*booking_list)[*booked], notification_msg.str());
-                }
-            }
-
-            break;
-        }
-    }
-#endif
 }
 
 bool MarketDateSystem::is_date_real(MarketDateId market_date_id)
