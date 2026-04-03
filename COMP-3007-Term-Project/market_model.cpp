@@ -401,6 +401,7 @@ void MarketDateSystem::cancel_booking(UserId user, MarketDateId market_date_id)
     }
     else if (userType == USER_TYPE_ARTISAN)
     {
+        std::cout<<std::endl;
         query_string = std::string(
                     "UPDATE market_dates SET artisan_booked = artisan_booked + 1"
                     " WHERE id = ? ");
@@ -492,23 +493,6 @@ bool MarketDateSystem::is_user_booked(UserId user_id, MarketDateId market_date_i
         return 1;
     }
     return 0;
-
-//    std::string query_string =
-//        "SELECT * FROM bookings"
-//        " ORDER BY bookings.year ASC, bookings.month ASC, bookings.day ASC";
-//    QSqlQuery query;
-//    query.prepare(QString(query_string.c_str()));
-//    {
-//        for(;query.next();)
-//        {
-//            UserId booking_user_id = UserId{ (uint64_t)query.value(4).toInt() };
-//            if(booking_user_id == user_id)
-//            {
-//                return(1);
-//            }
-//        }
-//    }
-//    return(0);
 }
 
 bool MarketDateSystem::has_any_market_dates(void)

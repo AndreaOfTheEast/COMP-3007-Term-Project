@@ -963,6 +963,9 @@ void Market::display_market_information(QTableWidget *table, User *user)
 
             while(query.next()){
                  booking.limit = (uint64_t)query.value("artisan_limit").toInt();
+                 month = query.value("month").toInt();
+                 day = query.value("day").toInt();
+                 year = query.value("year").toInt();
             }
         }
         else if(user->perms.user_type == USER_TYPE_FOOD){
