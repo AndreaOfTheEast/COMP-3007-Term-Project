@@ -376,31 +376,35 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         }
 
         ui->user_waitlist_list->clear();
+        std::vector<int> wbooking_ids;
         std::vector<int> wyears;
         std::vector<int> wmonths;
         std::vector<int> wdays;
-        query_string = "SELECT for_day,for_month,for_year FROM bookings WHERE user_id = :id AND is_waitlist = 1;";
+        query_string =
+            "SELECT for_day,for_month,for_year FROM bookings"
+            " WHERE user_id = :id AND is_waitlist = 1;";
         query.prepare(QString(query_string.c_str()));
         query.bindValue(":id", QString::fromStdString(std::to_string(temp_user.id.id)));
         Assert(query.exec(), "Failed query");
 
         while(query.next()){
+            wbooking_ids.push_back(query.value("booking_id").toInt());
             wyears.push_back(query.value("for_year").toInt()+1900);
             wmonths.push_back(query.value("for_month").toInt());
             wdays.push_back(query.value("for_day").toInt()+1);
         }
 
-        for(size_t i = 0; i < (size_t)years.size(); i++){
+        for(size_t i = 0; i < (size_t)wyears.size(); i++){
             std::string toAdd = "";
-            toAdd += std::to_string(booking_ids[i]);
+            toAdd += std::to_string(wbooking_ids[i]);
             toAdd += ": ";
-            toAdd += std::to_string(months[i]);
+            toAdd += std::to_string(wmonths[i]);
             toAdd += "/";
-            toAdd += std::to_string(days[i]);
+            toAdd += std::to_string(wdays[i]);
             toAdd += "/";
-            toAdd += std::to_string(years[i]);
+            toAdd += std::to_string(wyears[i]);
             toAdd += " (queue: position ";
-            toAdd += std::to_string(waitlistPos);
+            toAdd += std::to_string(waitlistPos); // TODO: wrong af
             toAdd += ")";
             ui->user_waitlist_list->addItem(toAdd.c_str());
         }
