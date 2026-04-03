@@ -430,7 +430,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
             toAdd += "/";
             toAdd += std::to_string(wyears[i]);
             toAdd += " (queue: position ";
-            toAdd += std::to_string(wwaitlist_pos[i]);
+            toAdd += std::to_string(wwaitlist_pos[i]+1);
             toAdd += ")";
             ui->user_waitlist_list->addItem(toAdd.c_str());
         }
@@ -653,18 +653,60 @@ void Market::handle_dashboard()
             toAdd += std::to_string(years[i]);
             ui->list_active_bookings->addItem(toAdd.c_str());
         }
-
         //active waitlists
-        ui->list_active_waitlists->clear();
+
+        std::vector<int> wmarket_ids;
+        std::vector<int> wwaitlist_pos;
+        std::vector<int> wbooking_ids;
         std::vector<int> wyears;
         std::vector<int> wmonths;
         std::vector<int> wdays;
-        query_string = "SELECT for_day,for_month,for_year FROM bookings WHERE user_id = :id AND is_waitlist = 1;";
+        query_string =
+            "SELECT market_id FROM bookings"
+            " WHERE is_waitlist = 1 AND user_id = ?;";
+        query.prepare(QString(query_string.c_str()));
+        query.addBindValue((int)current_user->id.id);
+        Assert(query.exec(), "Failed query");
+
+        int waitlistPos = 0;
+        while(query.next())
+        {
+            wmarket_ids.push_back(query.value("market_id").toInt());
+        }
+
+        for(uint64_t mi = 0;
+                mi < wmarket_ids.size();
+                mi += 1)
+        {
+            query_string =
+                "SELECT market_id, user_id FROM bookings"
+                " WHERE market_id = ? AND is_waitlist = 1"
+                " ORDER BY creation_date ASC";
+            query.prepare(QString(query_string.c_str()));
+            query.addBindValue(wmarket_ids[mi]);
+            Assert(query.exec(), "Failed query");
+
+            wwaitlist_pos.push_back(0);
+            while(query.next())
+            {
+                wwaitlist_pos[mi] += 1;
+                if(current_user->id.id == (uint64_t)query.value("user_id").toInt())
+                {
+                    break;
+                }
+            }
+        }
+
+        ui->list_active_waitlists->clear();
+        query_string =
+            "SELECT booking_id,for_day,for_month,for_year FROM bookings"
+            " WHERE user_id = :id AND is_waitlist = 1;";
         query.prepare(QString(query_string.c_str()));
         query.bindValue(":id", QString::fromStdString(std::to_string(current_user->id.id)));
         Assert(query.exec(), "Failed query");
 
         while(query.next()){
+            wbooking_ids.push_back(query.value("booking_id").toInt());
             wyears.push_back(query.value("for_year").toInt()+1900);
             wmonths.push_back(query.value("for_month").toInt());
             wdays.push_back(query.value("for_day").toInt()+1);
@@ -672,18 +714,48 @@ void Market::handle_dashboard()
 
         for(size_t i = 0; i < (size_t)wyears.size(); i++){
             std::string toAdd = "";
-
+            toAdd += std::to_string(wbooking_ids[i]);
+            toAdd += ": ";
             toAdd += std::to_string(wmonths[i]);
             toAdd += "/";
             toAdd += std::to_string(wdays[i]);
             toAdd += "/";
             toAdd += std::to_string(wyears[i]);
+            toAdd += " (queue: position ";
+            toAdd += std::to_string(wwaitlist_pos[i]+1);
+            toAdd += ")";
+            ui->list_active_waitlists->addItem(toAdd.c_str());
+        }
+
+//        ui->list_active_waitlists->clear();
+//        std::vector<int> wyears;
+//        std::vector<int> wmonths;
+//        std::vector<int> wdays;
+//        query_string = "SELECT for_day,for_month,for_year FROM bookings WHERE user_id = :id AND is_waitlist = 1;";
+//        query.prepare(QString(query_string.c_str()));
+//        query.bindValue(":id", QString::fromStdString(std::to_string(current_user->id.id)));
+//        Assert(query.exec(), "Failed query");
+
+//        while(query.next()){
+//            wyears.push_back(query.value("for_year").toInt()+1900);
+//            wmonths.push_back(query.value("for_month").toInt());
+//            wdays.push_back(query.value("for_day").toInt()+1);
+//        }
+
+//        for(size_t i = 0; i < (size_t)wyears.size(); i++){
+//            std::string toAdd = "";
+
+//            toAdd += std::to_string(wmonths[i]);
+//            toAdd += "/";
+//            toAdd += std::to_string(wdays[i]);
+//            toAdd += "/";
+//            toAdd += std::to_string(wyears[i]);
 //            QString s = QString("%1 (queue position: %2)")
 //                    .arg(QString(toAdd))
 //                    .arg(j - booking->limit + 1);
 //            ui->list_active_waitlists->addItem(s);
-            ui->list_active_waitlists->addItem(toAdd.c_str());
-        }
+//            ui->list_active_waitlists->addItem(toAdd.c_str());
+//        }
     }
     else
     {
