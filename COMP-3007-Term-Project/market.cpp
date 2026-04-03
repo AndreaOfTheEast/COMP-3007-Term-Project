@@ -327,10 +327,38 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         display_account_information(ui->user_information_view, user);
 
         // Active bookings
-        Assert(0, "TODO: query all our bookings from the db");
+//        Assert(0, "TODO: query all our bookings from the db");
 
         std::vector<std::string> selected_user_bookings; // dates
         std::vector<std::string> selected_user_waitlists; // dates
+
+        ui->user_booking_list->clear();
+        QSqlQuery query;
+        std::vector<int> years;
+        std::vector<int> months;
+        std::vector<int> days;
+        std::string query_string = "SELECT for_day,for_month,for_year FROM bookings WHERE user_id = :id AND is_waitlist = 0;";
+        query.prepare(QString(query_string.c_str()));
+        query.bindValue(":id", QString::fromStdString(std::to_string(temp_user.id.id)));
+        Assert(query.exec(), "Failed query");
+
+        while(query.next()){
+            years.push_back(query.value("for_year").toInt()+1900);
+            months.push_back(query.value("for_month").toInt());
+            days.push_back(query.value("for_day").toInt()+1);
+        }
+
+        for(size_t i = 0; i < (size_t)years.size(); i++){
+            std::string toAdd = "";
+            toAdd += std::to_string(temp_user.id.id);
+            toAdd += ": ";
+            toAdd += std::to_string(months[i]);
+            toAdd += "/";
+            toAdd += std::to_string(days[i]);
+            toAdd += "/";
+            toAdd += std::to_string(years[i]);
+            ui->user_booking_list->addItem(toAdd.c_str());
+        }
     });
 
     // OPERATOR - Cancel a booking or waitlist position for a vendor
@@ -525,62 +553,62 @@ void Market::handle_dashboard()
 
         // active bookings
         ui->list_active_bookings->clear();
-//        Assert(0, "TODO: query all the market dates for the user, "
-//                "take into account the range limit");
-#if 0
-        for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++)
-        {
-            MarketDate *market_date = &market_date_system->market_dates[i];
+        QSqlQuery query;
+        std::vector<int> years;
+        std::vector<int> months;
+        std::vector<int> days;
+        std::string query_string = "SELECT for_day,for_month,for_year FROM bookings WHERE user_id = :id AND is_waitlist = 0;";
+        query.prepare(QString(query_string.c_str()));
+        query.bindValue(":id", QString::fromStdString(std::to_string(current_user->id.id)));
+        Assert(query.exec(), "Failed query");
 
-            Booking *booking = 0;
-            if(current_user->perms.user_type == USER_TYPE_ARTISAN)
-            {
-                booking = &market_date->artisan_booking;
-            }
-            if(current_user->perms.user_type == USER_TYPE_FOOD)
-            {
-                booking = &market_date->food_booking;
-            }
-            if(booking == 0) { break; }
-
-            for (uint64_t j = 0; j < std::min(booking->users.size(), booking->limit); j++)
-            {
-                if (booking->users[j].id == current_user->id.id)
-                {
-                    ui->list_active_bookings->addItem(market_date->date.to_string().c_str());
-                }
-            }
+        while(query.next()){
+            years.push_back(query.value("for_year").toInt()+1900);
+            months.push_back(query.value("for_month").toInt());
+            days.push_back(query.value("for_day").toInt()+1);
         }
 
-        // active waitlists
+        for(size_t i = 0; i < (size_t)years.size(); i++){
+            std::string toAdd = "";
+
+            toAdd += std::to_string(months[i]);
+            toAdd += "/";
+            toAdd += std::to_string(days[i]);
+            toAdd += "/";
+            toAdd += std::to_string(years[i]);
+            ui->list_active_bookings->addItem(toAdd.c_str());
+        }
+
+        //active waitlists
         ui->list_active_waitlists->clear();
-        for (uint64_t i = 0; i < market_date_system->market_dates.size(); i++)
-        {
-            MarketDate *market_date = &market_date_system->market_dates[i];
+        std::vector<int> wyears;
+        std::vector<int> wmonths;
+        std::vector<int> wdays;
+        query_string = "SELECT for_day,for_month,for_year FROM bookings WHERE user_id = :id AND is_waitlist = 1;";
+        query.prepare(QString(query_string.c_str()));
+        query.bindValue(":id", QString::fromStdString(std::to_string(current_user->id.id)));
+        Assert(query.exec(), "Failed query");
 
-            Booking *booking = 0;
-            if(current_user->perms.user_type == USER_TYPE_ARTISAN)
-            {
-                booking = &market_date->artisan_booking;
-            }
-            if(current_user->perms.user_type == USER_TYPE_FOOD)
-            {
-                booking = &market_date->food_booking;
-            }
-            if(booking == 0) { break; }
-
-            for (uint64_t j = booking->limit; j < booking->users.size(); j++)
-            {
-                if (booking->users[j].id == current_user->id.id)
-                {
-                    QString s = QString("%1 (queue position: %2)")
-                            .arg(QString(market_date->date.to_string().c_str()))
-                            .arg(j - booking->limit + 1);
-                    ui->list_active_waitlists->addItem(s);
-                }
-            }
+        while(query.next()){
+            wyears.push_back(query.value("for_year").toInt()+1900);
+            wmonths.push_back(query.value("for_month").toInt());
+            wdays.push_back(query.value("for_day").toInt()+1);
         }
-#endif
+
+        for(size_t i = 0; i < (size_t)wyears.size(); i++){
+            std::string toAdd = "";
+
+            toAdd += std::to_string(wmonths[i]);
+            toAdd += "/";
+            toAdd += std::to_string(wdays[i]);
+            toAdd += "/";
+            toAdd += std::to_string(wyears[i]);
+//            QString s = QString("%1 (queue position: %2)")
+//                    .arg(QString(toAdd))
+//                    .arg(j - booking->limit + 1);
+//            ui->list_active_waitlists->addItem(s);
+            ui->list_active_waitlists->addItem(toAdd.c_str());
+        }
     }
     else
     {
