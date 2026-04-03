@@ -511,7 +511,7 @@ bool MarketDateSystem::is_date_real(MarketDateId market_date_id)
 {
     std::string query_string =
             "SELECT user_id FROM bookings"
-            " WHERE id = :id";
+            " WHERE booking_id = :id";
     QSqlQuery query;
     query.prepare(QString(query_string.c_str()));
     query.bindValue(":id", (int)market_date_id.id);
