@@ -334,15 +334,19 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
         ui->user_booking_list->clear();
         QSqlQuery query;
+        std::vector<int> booking_ids;
         std::vector<int> years;
         std::vector<int> months;
         std::vector<int> days;
-        std::string query_string = "SELECT for_day,for_month,for_year FROM bookings WHERE user_id = :id AND is_waitlist = 0;";
+        std::string query_string =
+            "SELECT booking_id,for_day,for_month,for_year FROM bookings"
+            " WHERE user_id = :id AND is_waitlist = 0;";
         query.prepare(QString(query_string.c_str()));
         query.bindValue(":id", QString::fromStdString(std::to_string(temp_user.id.id)));
         Assert(query.exec(), "Failed query");
 
         while(query.next()){
+            booking_ids.push_back(query.value("booking_id").toInt());
             years.push_back(query.value("for_year").toInt()+1900);
             months.push_back(query.value("for_month").toInt());
             days.push_back(query.value("for_day").toInt()+1);
@@ -350,7 +354,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
         for(size_t i = 0; i < (size_t)years.size(); i++){
             std::string toAdd = "";
-            toAdd += std::to_string(temp_user.id.id);
+            toAdd += std::to_string(booking_ids[i]);
             toAdd += ": ";
             toAdd += std::to_string(months[i]);
             toAdd += "/";
@@ -388,15 +392,16 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
         for(size_t i = 0; i < (size_t)years.size(); i++){
             std::string toAdd = "";
-            toAdd += std::to_string(temp_user.id.id);
+            toAdd += std::to_string(booking_ids[i]);
             toAdd += ": ";
             toAdd += std::to_string(months[i]);
             toAdd += "/";
             toAdd += std::to_string(days[i]);
             toAdd += "/";
             toAdd += std::to_string(years[i]);
-            toAdd += " (queue: position)";
+            toAdd += " (queue: position ";
             toAdd += std::to_string(waitlistPos);
+            toAdd += ")";
             ui->user_waitlist_list->addItem(toAdd.c_str());
         }
     });
