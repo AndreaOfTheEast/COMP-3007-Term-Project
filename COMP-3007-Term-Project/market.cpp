@@ -364,24 +364,50 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
             ui->user_booking_list->addItem(toAdd.c_str());
         }
 
-        query_string = "SELECT user_id FROM bookings WHERE is_waitlist = 1;";
-        query.prepare(QString(query_string.c_str()));
-        Assert(query.exec(), "Failed query");
-        int waitlistPos = 0;
-        while(query.next()){
-            waitlistPos++;
-            if(temp_user.id.id == query.value("user_id").toInt()){
-                break;
-            }
-        }
-
-        ui->user_waitlist_list->clear();
+        std::vector<int> wmarket_ids;
+        std::vector<int> wwaitlist_pos;
         std::vector<int> wbooking_ids;
         std::vector<int> wyears;
         std::vector<int> wmonths;
         std::vector<int> wdays;
+
         query_string =
-            "SELECT for_day,for_month,for_year FROM bookings"
+            "SELECT market_id FROM bookings"
+            " WHERE is_waitlist = 1 AND user_id = ?;";
+        query.prepare(QString(query_string.c_str()));
+        query.addBindValue((int)temp_user.id.id);
+        Assert(query.exec(), "Failed query");
+        int waitlistPos = 0;
+        while(query.next())
+        {
+            wmarket_ids.push_back(query.value("market_id").toInt());
+        }
+
+        for(uint64_t mi = 0;
+                mi < wmarket_ids.size();
+                mi += 1)
+        {
+            query_string =
+                "SELECT market_id, user_id FROM bookings"
+                " WHERE market_id = ? AND is_waitlist = 1"
+                " ORDER BY creation_date ASC";
+            query.prepare(QString(query_string.c_str()));
+            query.addBindValue(wmarket_ids[mi]);
+            Assert(query.exec(), "Failed query");
+            wwaitlist_pos.push_back(0);
+            while(query.next())
+            {
+                wwaitlist_pos[mi] += 1;
+                if(temp_user.id.id == (uint64_t)query.value("user_id").toInt())
+                {
+                    break;
+                }
+            }
+        }
+
+        ui->user_waitlist_list->clear();
+        query_string =
+            "SELECT booking_id,for_day,for_month,for_year FROM bookings"
             " WHERE user_id = :id AND is_waitlist = 1;";
         query.prepare(QString(query_string.c_str()));
         query.bindValue(":id", QString::fromStdString(std::to_string(temp_user.id.id)));
@@ -404,7 +430,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
             toAdd += "/";
             toAdd += std::to_string(wyears[i]);
             toAdd += " (queue: position ";
-            toAdd += std::to_string(waitlistPos); // TODO: wrong af
+            toAdd += std::to_string(wwaitlist_pos[i]);
             toAdd += ")";
             ui->user_waitlist_list->addItem(toAdd.c_str());
         }
