@@ -507,18 +507,17 @@ void MarketDateSystem::cancel_booking(UserId user, MarketDateId market_date_id)
 #endif
 }
 
-bool is_date_real(MarketDateId market_date_id)
+bool MarketDateSystem::is_date_real(MarketDateId market_date_id)
 {
     std::string query_string =
             "SELECT user_id FROM bookings"
             " WHERE id = :id";
     QSqlQuery query;
     query.prepare(QString(query_string.c_str()));
+    query.bindValue(":id", (int)market_date_id.id);
+    Assert(query.exec(), "query for date failed");
+    if(query.next())
     {
-        query.bindValue(":id", (int)market_date_id.id);
-    }
-    Assert(query.exec(), "Query for if user already booked fail");
-    if(query.next()){
         return 1;
     }
     return 0;

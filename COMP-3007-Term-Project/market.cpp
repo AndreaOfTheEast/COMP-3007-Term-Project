@@ -363,7 +363,6 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
     // OPERATOR - Cancel a booking or waitlist position for a vendor
     connect(ui->cancel_booking_waitlist, &QPushButton::clicked, this, [=] {
-        Assert(0, "TODO: cancel booking for a vendor from operator, with booking id");
         std::string username;
         uint8_t is_waitlist = 0;
         std::vector<std::string> str = { "booking", "waitlist" };
@@ -401,14 +400,14 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         bool ok = user_system->get_user(creds, &temp_user);
         if(ok) { user = &temp_user; }
 
-        DebugTrap();
         if (!ui->user_booking_list->selectedItems().isEmpty())
         {
-            QString s = ui->user_waitlist_list->currentItem()->text();
+            QString s = ui->user_booking_list->currentItem()->text();
             int i = s.indexOf(':');
             Assert(i != -1, "dates should have ids");
             market_date_id = MarketDateId{ (uint64_t)s.left(i).toInt() };
 
+            i += 2;
             date = s.mid(i, s.size() - i);
         }
         else if (!ui->user_waitlist_list->selectedItems().isEmpty())
@@ -418,6 +417,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
             Assert(i != -1, "dates should have ids");
             market_date_id = MarketDateId{ (uint64_t)s.left(i).toInt() };
 
+            i += 2;
             int j = s.indexOf('(');
             if(j < 0) { j = s.size(); }
             j -= i;
