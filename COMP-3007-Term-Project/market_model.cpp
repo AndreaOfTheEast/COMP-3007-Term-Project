@@ -3,6 +3,7 @@
 
 #include <sstream>
 #include <QDate>
+#include <QDebug>
 
 // ------------------------
 // ----- USER SYSTEM ------
@@ -143,7 +144,7 @@ int MarketDateSystem::make_booking(UserId user, MarketDateId market_date_id)
 //            "Then query what that position is and the limit,"
 //            "so that we can have a popup about being waitlist/booked");
 
-    //GET USER TYPE
+    // GET USER TYPE
     std::string query_string;
     QSqlQuery query;
     query_string = std::string("SELECT user_type FROM users where user_id = :id;");
@@ -162,7 +163,7 @@ int MarketDateSystem::make_booking(UserId user, MarketDateId market_date_id)
         return(-1);
     }
 
-    //CHECK IF ALREADY BOOKED
+    // CHECK IF ALREADY BOOKED
     int ayear = -1;
     int aday = -1;
     int amonth = -1;
@@ -181,15 +182,40 @@ int MarketDateSystem::make_booking(UserId user, MarketDateId market_date_id)
     query.bindValue(":month", QString::fromStdString(std::to_string(amonth)));
     query.bindValue(":day", QString::fromStdString(std::to_string(aday)));
     query.bindValue(":year", QString::fromStdString(std::to_string(ayear)));
-//    query.exec();
     Assert(query.exec(), "Query for if user already booked fail");
     while(query.next()){
         return -1;
     }
-    int numBookings = 1;
 
+    // QUERY THE USER TYPE
+    query_string = std::string(
+                "SELECT user_type FROM users"
+                " WHERE user_id = ?");
+    query.prepare(QString(query_string.c_str()));
+    query.addBindValue((int)user.id);
+    query.exec();
+    int user_type = 0;
+    if(query.next())
+    {
+        user_type = query.value(0).toInt();
+    }
 
-    //GET LIMIT
+    query_string = std::string(
+                "SELECT COUNT(booking_id) FROM bookings JOIN users "
+                "WHERE market_id = ? AND users.user_id = bookings.user_id AND users.user_type = ?");
+    query.prepare(QString(query_string.c_str()));
+    query.addBindValue((int)market_date_id.id);
+    query.addBindValue(user_type);
+
+    Assert(query.exec(), "Fail counting bookings");
+    int numBookings = 0;
+
+    if(query.next())
+    {
+        numBookings = query.value(0).toInt();
+    }
+
+    // GET LIMIT
     int limit = 0;
     int year = 0;
     int month = 0;
@@ -200,7 +226,6 @@ int MarketDateSystem::make_booking(UserId user, MarketDateId market_date_id)
         query.prepare(QString(query_string.c_str()));
 
         query.bindValue(":id", QString::fromStdString(std::to_string(market_date_id.id)));
-//        query.exec();
         Assert(query.exec(), "Query for Limit fail");
         while(query.next()){
             limit = query.value("artisan_limit").toInt();
@@ -214,7 +239,6 @@ int MarketDateSystem::make_booking(UserId user, MarketDateId market_date_id)
         query.prepare(QString(query_string.c_str()));
 
         query.bindValue(":id", QString::fromStdString(std::to_string(market_date_id.id)));
-//        query.exec();
         Assert(query.exec(), "Query for Limit fail");
         while(query.next()){
             limit = query.value("food_limit").toInt();
@@ -224,101 +248,185 @@ int MarketDateSystem::make_booking(UserId user, MarketDateId market_date_id)
         }
     }
 
-    //INSERT BOOKING (unsure if need to insert time created or not)
-    query_string = "INSERT INTO bookings (for_year, for_month, for_day, user_id) VALUES(:year, :month, :day, :user_id);";
+    // INSERT BOOKING (unsure if need to insert time created or not)
+    query_string = "INSERT INTO bookings (for_year, for_month, for_day, user_id, market_id) VALUES(:year, :month, :day, :user_id, :market_id);";
     query.prepare(QString(query_string.c_str()));
     query.bindValue(":year", QString::fromStdString(std::to_string(year)));
     query.bindValue(":month", QString::fromStdString(std::to_string(month)));
     query.bindValue(":day", QString::fromStdString(std::to_string(day)));
     query.bindValue(":user_id", QString::fromStdString(std::to_string(user.id)));
+    query.bindValue(":market_id", QString::fromStdString(std::to_string(market_date_id.id)));
     Assert(query.exec(), "Insert Booking fail");
+
     QMessageBox msgBox;
     std::stringstream s;
-    std::string date = std::to_string(day) + "/" + std::to_string(month) + "/" + std::to_string(year);
-    //if waitlisted (# of bookings already reached the limit) put message
+    std::string date = std::to_string(month) + "/" + std::to_string(day + 1) + "/" + std::to_string(year + 1900);
+
+    // if waitlisted (# of bookings already reached the limit) put message
     if (numBookings >= limit)
     {
-        int waitlist_position = numBookings+1-limit;
+        int waitlist_position = numBookings + 1 - limit;
+
         // Set up waitlist message
         QString qs = QString("You have been put on a waitlist for. You are in position %1.")
             .arg(waitlist_position);
         msgBox.setText(qs);
         msgBox.exec();
+
         s << "[Action] Waitlisted in position " << waitlist_position << " for " << date << ".";
         notification_system->add_notification(user, s.str());
-    }
-    else
-    {
-        s << "[Action] Booked for " << date << ".";
-        notification_system->add_notification(user, s.str());
-    }
-#if 0
-    uint8_t waitlisted = 0;
-    uint64_t waitlist_position = 0;
-    std::stringstream s;
-    std::string date = market_dates[market_date_index].date.to_string();
 
-    QMessageBox msgBox;
-    std::vector<UserId> *booking_list = nullptr;
-    uint64_t booking_limit = 0;
-    uint64_t *booked = nullptr;
+        query_string = "UPDATE users SET is_waitlist = 1 WHERE user_id = ?";
+        query.prepare(QString(query_string.c_str()));
+        query.addBindValue((int)user.id);
 
-    // handle artisan vendor booking
-    if (user->perms.user_type == USER_TYPE_ARTISAN)
-    {
-        booking_list = &market_dates[market_date_index].artisan_booking.users;
-        booking_limit = market_dates[market_date_index].artisan_booking.limit;
-        booked = &market_dates[market_date_index].artisan_booking.booked;
-    }
-    else if (user->perms.user_type == USER_TYPE_FOOD)
-    {
-        booking_list = &market_dates[market_date_index].food_booking.users;
-        booking_limit = market_dates[market_date_index].food_booking.limit;
-        booked = &market_dates[market_date_index].food_booking.booked;
-    }
-
-    if (booking_list == nullptr) { return -1; }
-
-    for(uint64_t i = 0; i < booking_list->size(); i++){
-        if((*booking_list)[i] == user->id){
-            return -2;
+        if(query.exec())
+        {
+            qDebug() << "Successfully put vendor in waitlist!";
         }
     }
-
-    booking_list->push_back(user->id);
-    if (booking_list->size() > booking_limit)
-    {
-        waitlisted = 1;
-        waitlist_position = booking_list->size() - booking_limit;
-    }
-    else
-    {
-        (*booked)++;
-    }
-
-    if (waitlisted == 1)
-    {
-        // Set up waitlist message
-        QString qs = QString("You have been put on a waitlist for. You are in position %1.")
-            .arg(waitlist_position);
-        msgBox.setText(qs);
-        msgBox.exec();
-        s << "[Action] Waitlisted in position " << waitlist_position << " for " << date << ".";
-        notification_system->add_notification(user->id, s.str());
-    }
     else
     {
         s << "[Action] Booked for " << date << ".";
-        notification_system->add_notification(user->id, s.str());
+        notification_system->add_notification(user, s.str());
+
+        if(user_type == USER_TYPE_FOOD)
+        {
+            query_string = std::string(
+                        "UPDATE market_dates SET food_booked = food_booked + 1"
+                        " WHERE id = ?");
+        }
+        else if(user_type == USER_TYPE_ARTISAN)
+        {
+            query_string = std::string(
+                        "UPDATE market_dates SET artisan_booked = artisan_booked + 1"
+                        " WHERE id = ?");
+        }
+        query.prepare(QString(query_string.c_str()));
+        query.addBindValue((int)market_date_id.id);
+        query.exec();
     }
-#endif
+
     return(0);
 }
 
 void MarketDateSystem::cancel_booking(UserId user, MarketDateId market_date_id)
 {
     // andwu: TODO: maybe we use a delete style of: booking_id, user_id
-    Assert(0, "TODO: we want to remove a booking, add a notification for waitlister that are ready");
+    std::stringstream notification_msg;
+    QSqlQuery query;
+
+    std::string query_string =
+            "DELETE FROM bookings WHERE user_id = ? AND market_id = ?";
+    query.prepare(QString(query_string.c_str()));
+    query.addBindValue((int)user.id);
+    query.addBindValue((int)market_date_id.id);
+
+    if(query.exec())
+    {
+        if (query.numRowsAffected() > 0)
+        {
+            qDebug() << "Successfully deleted booking, rows affected" <<
+                        query.numRowsAffected();
+        }
+        else
+        {
+            qDebug() << "No rows were found.";
+            return;
+        }
+    }
+
+    // CANCELLATION ACTION NOTIFICATION
+    query_string = std::string(
+                "SELECT year, month, day FROM market_dates"
+                " WHERE id = ?");
+    query.prepare(QString(query_string.c_str()));
+    query.addBindValue((int)market_date_id.id);
+
+    int year, month, day;
+    if(query.exec() && query.next())
+    {
+        year  = query.value(0).toInt() + 1900;
+        month = query.value(1).toInt();
+        day   = query.value(2).toInt() + 1;
+    }
+    else
+    {
+        qDebug() << "Something went wrong with getting market_date!";
+        return;
+    }
+
+    QDate date(year, month, day);
+    QString formatted_date = date.toString("MM/dd/yyyy");
+    notification_msg << "[Action] Cancelled " << formatted_date.toStdString()
+                     << ".";
+    notification_system->add_notification(user, notification_msg.str());
+
+    // UPDATE MARKET DATE AVAILABILITY
+    // Get the user type
+    query_string = std::string("SELECT user_type FROM users where user_id = :id;");
+    query.prepare(QString(query_string.c_str()));
+
+    query.bindValue(":id", QString::fromStdString(std::to_string(user.id)));
+    Assert(query.exec(), "Query for User Types fail");
+
+    int userType;
+    while(query.next()){
+        userType = query.value("user_type").toInt();
+    }
+
+    // Update availability
+    if(userType == USER_TYPE_FOOD)
+    {
+        query_string = std::string(
+                    "UPDATE market_dates SET food_booked = food_booked + 1"
+                    " WHERE id = ? ");
+    }
+    else if (userType == USER_TYPE_ARTISAN)
+    {
+        query_string = std::string(
+                    "UPDATE market_dates SET artisan_booked = artisan_booked + 1"
+                    " WHERE id = ? ");
+    }
+
+    query.prepare(QString(query_string.c_str()));
+    query.addBindValue((int)market_date_id.id);
+    query.exec();
+
+    // NOTIFY WAITLIST
+    query_string = std::string(
+                "SELECT user_id FROM bookings"
+                " WHERE market_id = ?"
+                " ORDER BY creation_date ASC");
+    query.prepare(QString(query_string.c_str()));
+    query.addBindValue((int)market_date_id.id);
+    query.exec();
+
+    UserId waitlist_user_id = { 0 };
+    waitlist_user_id.id = 0;
+
+    if(query.next())
+    {
+        waitlist_user_id.id = (uint64_t)query.value(0).toInt();
+    }
+
+    if (waitlist_user_id.id == 0) { return; }
+
+    notification_msg.str("");
+    notification_msg.clear();
+
+    notification_msg << "[Alert] Available spot for " << formatted_date.toStdString() << ".";
+    notification_system->add_notification(waitlist_user_id, notification_msg.str());
+
+    // BOOK WAITLIST VENDOR
+    query_string = std::string(
+                "UPDATE bookings SET is_waitlist = 0"
+                " WHERE user_id = ? AND market_id = ?");
+    query.prepare(QString(query_string.c_str()));
+    query.addBindValue((int)waitlist_user_id.id);
+    query.addBindValue((int)market_date_id.id);
+    query.exec();
+
 #if 0
     uint64_t *booked = nullptr;
     uint64_t *limit = nullptr;

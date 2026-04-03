@@ -41,8 +41,8 @@ int main(int argc, char *argv[])
         for (int i = 0; i < 8; i++) {
             sunday = localtime(&now);
             Date date;
-            date.day = (uint64_t)sunday->tm_mday;
-            date.month = (uint64_t)sunday->tm_mon;
+            date.day = (uint64_t)sunday->tm_mday - 1;
+            date.month = (uint64_t)sunday->tm_mon + 1;
             date.year = (uint64_t)sunday->tm_year;
 
             uint64_t artisan_limit = 2;
