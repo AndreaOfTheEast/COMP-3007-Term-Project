@@ -40,4 +40,5 @@ public:
     void cancel_booking(UserId user, MarketDateId market_date_id);
     bool is_user_booked(UserId user, MarketDateId market_date_id);
     bool has_any_market_dates(void);
+    std::string date_str_from_id(MarketDateId market_date_id);
 };

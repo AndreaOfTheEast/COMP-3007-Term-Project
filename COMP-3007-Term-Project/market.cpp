@@ -227,12 +227,13 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
     // Cancel booking
     connect(ui->cancel_booking, &QPushButton::clicked, this, [=]{
-        Assert(0, "TODO: remove the booking id from the table, notify the booker; "
-                "i have a note on this in the implementation as well.");
+        // Assert(0, "TODO: remove the booking id from the table, notify the booker; "
+        //         "i have a note on this in the implementation as well.");
+        int x = ui->table_market_dates->currentRow();
+        printf("%d\n", x);
         uint64_t index = (uint64_t) ui->table_market_dates->currentRow();
         QMessageBox::StandardButton question;
         QString msg;
-        std::string date;
 
         MarketDateId market_date_id;
         market_date_id.id = (uint64_t) ui->table_market_dates->item((int)index, 1); // COLUMN 1 = IDs
@@ -241,8 +242,8 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
             return;
         }
 
-        Assert(0, "TODO: ANDREWEWEWERE, database retrieve date as a string");
-        date = "DUMMY DATE PLACEHOLDER";
+        std::string date = market_date_system->date_str_from_id(market_date_id);
+        // TODO: if(date == "") { }
 
         bool is_booked = market_date_system->is_user_booked(current_user->id, market_date_id);
 
@@ -762,7 +763,7 @@ void Market::save_user_information(){
         ui->food_exp->clear();
     }
 
-    user_system->update_user(*user);
+    user_system->update_user(*current_user);
 
     handle_dashboard();
 }
@@ -890,9 +891,9 @@ void Market::display_market_information(QTableWidget *table, User *user)
 
             while(query.next()){
                 booking.limit = (uint64_t)query.value("food_limit").toInt();
-                month = (uint64_t)query.value("month").toInt();
-                day = (uint64_t)query.value("day").toInt();
-                year = (uint64_t)query.value("year").toInt();
+                month = query.value("month").toInt();
+                day = query.value("day").toInt();
+                year = query.value("year").toInt();
             }
         }
 

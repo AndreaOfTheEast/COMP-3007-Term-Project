@@ -136,6 +136,25 @@ void MarketDateSystem::add_market_date(
     query.exec();
 }
 
+std::string MarketDateSystem::date_str_from_id(MarketDateId market_date_id)
+{
+    std::string query_string =
+        "SELECT * FROM market_dates WHERE market_dates.id = :id";
+    QSqlQuery query;
+    query.prepare(QString(query_string.c_str()));
+    query.bindValue(":id", QString::fromStdString(std::to_string(market_date_id.id)));
+    query.exec();
+    std::string str = "";
+    if(query.next())
+    {
+        uint64_t year = (uint64_t)query.value("year").toInt();
+        uint64_t month = (uint64_t)query.value("month").toInt();
+        uint64_t day = (uint64_t)query.value("day").toInt();
+        return(std::to_string(day) + "/" + std::to_string(month) + "/" + std::to_string(year));
+    }
+    return(str);
+}
+
 int MarketDateSystem::make_booking(UserId user, MarketDateId market_date_id)
 {
 //    Assert(0, "TODO: we want to insert a booking into the booking list"
