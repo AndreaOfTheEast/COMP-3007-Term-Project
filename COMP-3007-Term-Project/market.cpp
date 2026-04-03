@@ -404,7 +404,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         {
             QString s = ui->user_booking_list->currentItem()->text();
             int i = s.indexOf(':');
-            Assert(i != -1, "dates should have ids");
+            Assert(i >= 0, "dates should have ids");
             market_date_id = MarketDateId{ (uint64_t)s.left(i).toInt() };
 
             i += 2;
@@ -418,9 +418,9 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
             market_date_id = MarketDateId{ (uint64_t)s.left(i).toInt() };
 
             i += 2;
-            int j = s.indexOf('(') - 1;
-            if(j < 0) { j = s.size(); }
-            j -= i;
+            int j = s.indexOf('(');
+            Assert(j >= 0, "dates should have waitlist");
+            j = j - i - 1;
             date = s.mid(i, j);
 
             is_waitlist = 1;
