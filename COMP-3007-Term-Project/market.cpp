@@ -821,7 +821,7 @@ void Market::display_account_information(QListWidget *list, User *user)
 void Market::display_market_information(QTableWidget *table, User *user)
 {
     table->clear();
-    table->setColumnCount(4);
+    table->setColumnCount(3);
     table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     table->verticalHeader()->setVisible(false);
     table->setSelectionBehavior(QAbstractItemView::SelectRows);
