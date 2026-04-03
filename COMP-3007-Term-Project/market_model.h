@@ -23,6 +23,7 @@ public:
 
     bool get_user(Credentials creds, User *user);
     void add_user(User user);
+    void update_user(User user);
 };
 
 class MarketDateSystem

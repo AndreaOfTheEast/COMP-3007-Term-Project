@@ -146,7 +146,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
                 query.bindValue(":username", QString::fromStdString(username));
                 Assert(query.exec(), "Query for User id fail");
                 while(query.next()){
-                    temp_user.id.id = query.value("user_id").toInt();
+                    temp_user.id.id = (uint64_t)query.value("user_id").toInt();
                 }
             }
             if(market_date_system->is_user_booked(temp_user.id, market_date_id))
@@ -761,6 +761,8 @@ void Market::save_user_information(){
         current_user->compliance_docs.food_handler.expiration_date = ui->food_exp->text().toStdString();
         ui->food_exp->clear();
     }
+
+    user_system->update_user(*user);
 
     handle_dashboard();
 }

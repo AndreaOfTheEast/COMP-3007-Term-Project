@@ -77,6 +77,41 @@ void UserSystem::add_user(User user)
 #endif
 }
 
+void UserSystem::update_user(
+        User user)
+{
+    std::string query_string =
+        "UPDATE users SET"
+        " username = :username, email = :email, phone = :phone,"
+        " mail_address = :mail, owner_name = :owner, business_name = :business,"
+        " user_type = :usertype, bl_licence = :compliance_licence,"
+        " bl_expiration_date = :compliance_exp, li_policy_number = :liability_policy,"
+        " li_provider = :liability_insurance, li_expiration_date = :liability_exp,"
+        " fh_certification_number = :food_certification, fh_expiration_date = :food_expiration"
+        " WHERE users.user_id = :id";
+
+    QSqlQuery query;
+    query.prepare(QString(query_string.c_str()));
+    {
+        query.bindValue(":id", (int)user.id.id);
+        query.bindValue(":username", QString(user.creds.username.c_str()));
+        query.bindValue(":email", QString(user.email.c_str()));
+        query.bindValue(":phone", QString(user.phone_number.c_str()));
+        query.bindValue(":mail", QString(user.mail_address.c_str()));
+        query.bindValue(":owner", QString(user.owner_name.c_str()));
+        query.bindValue(":business", QString(user.business_name.c_str()));
+        query.bindValue(":usertype", (int)user.perms.user_type);
+        query.bindValue(":compliance_licence", QString(user.compliance_docs.business_licence.number.c_str()));
+        query.bindValue(":compliance_exp", QString(user.compliance_docs.business_licence.expiration_date.c_str()));
+        query.bindValue(":liability_policy", QString(user.compliance_docs.liability_insurance.policy_number.c_str()));
+        query.bindValue(":liability_insurance", QString(user.compliance_docs.liability_insurance.provider.c_str()));
+        query.bindValue(":liability_exp", QString(user.compliance_docs.liability_insurance.expiration_date.c_str()));
+        query.bindValue(":food_certification", QString(user.compliance_docs.food_handler.certification_number.c_str()));
+        query.bindValue(":food_expiration", QString(user.compliance_docs.food_handler.expiration_date.c_str()));
+    }
+    Assert(query.exec(), "update user failed");
+}
+
 std::string Date::to_string()
 {
     char buff[1024];
