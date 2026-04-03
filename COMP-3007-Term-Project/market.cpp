@@ -395,7 +395,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
             toAdd += std::to_string(days[i]);
             toAdd += "/";
             toAdd += std::to_string(years[i]);
-            toAdd += "(queue: position ";
+            toAdd += " (queue: position)";
             toAdd += std::to_string(waitlistPos);
             ui->user_waitlist_list->addItem(toAdd.c_str());
         }
@@ -473,7 +473,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
         bool date_real = market_date_system->is_date_real(market_date_id);
 
         // User booking/waitlist is not found
-        if (date_real)
+        if(!date_real)
         {
             QMessageBox::warning(
                         this,
