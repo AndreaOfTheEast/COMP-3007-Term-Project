@@ -213,10 +213,9 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
                 std::stringstream notification_msg;
                 notification_msg << "[Action] Booked "
                                  << ui->table_market_dates->item((int32_t)index, 0)->text().toStdString()
-                                 << " for " << username << ".";
+                                 << " for " << user->creds.username << ".";
                 notification_system->add_notification(current_user->id, notification_msg.str());
             }
-
         }
         else
         {
@@ -227,16 +226,20 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
     // Cancel booking
     connect(ui->cancel_booking, &QPushButton::clicked, this, [=]{
-        // Assert(0, "TODO: remove the booking id from the table, notify the booker; "
-        //         "i have a note on this in the implementation as well.");
-        int x = ui->table_market_dates->currentRow();
-        printf("%d\n", x);
-        uint64_t index = (uint64_t) ui->table_market_dates->currentRow();
         QMessageBox::StandardButton question;
         QString msg;
 
+        int64_t index = (int64_t)ui->table_market_dates->currentRow();
+
+        if (ui->table_market_dates->currentRow() < 0)
+        {
+            return;
+        }
+
         MarketDateId market_date_id;
-        market_date_id.id = (uint64_t) ui->table_market_dates->item((int)index, 1); // COLUMN 1 = IDs
+        QTableWidgetItem *market_id_widget = ui->table_market_dates->item((int)index, 1);
+        market_date_id.id = (uint64_t)market_id_widget->text().toInt(); // COLUMN 1 = IDs
+
         if (ui->table_market_dates->selectedItems().isEmpty())
         {
             return;
@@ -247,9 +250,9 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
 
         bool is_booked = market_date_system->is_user_booked(current_user->id, market_date_id);
 
-        if(!is_booked ||
-                (current_user->perms.user_type != USER_TYPE_FOOD
-                    && current_user->perms.user_type != USER_TYPE_ARTISAN))
+        if(current_user->perms.user_type != USER_TYPE_FOOD &&
+           current_user->perms.user_type != USER_TYPE_ARTISAN &&
+           current_user->perms.user_type != USER_TYPE_OPERATOR)
         {
             QMessageBox::warning(
                         this,
@@ -818,7 +821,7 @@ void Market::display_account_information(QListWidget *list, User *user)
 void Market::display_market_information(QTableWidget *table, User *user)
 {
     table->clear();
-    table->setColumnCount(3);
+    table->setColumnCount(4);
     table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     table->verticalHeader()->setVisible(false);
     table->setSelectionBehavior(QAbstractItemView::SelectRows);
