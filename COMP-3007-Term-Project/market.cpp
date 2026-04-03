@@ -418,7 +418,7 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
             market_date_id = MarketDateId{ (uint64_t)s.left(i).toInt() };
 
             i += 2;
-            int j = s.indexOf('(');
+            int j = s.indexOf('(') - 1;
             if(j < 0) { j = s.size(); }
             j -= i;
             date = s.mid(i, j);
