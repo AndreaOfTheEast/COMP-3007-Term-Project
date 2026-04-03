@@ -138,7 +138,25 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
             User temp_user;
             bool ok = user_system->get_user(creds, &temp_user);
             if(!ok) { user = 0; }
-            else { user = &temp_user; }
+            else {
+                user = &temp_user;
+                query_string = std::string("SELECT user_id FROM users where username = :username;");
+                query.prepare(QString(query_string.c_str()));
+
+                query.bindValue(":username", QString::fromStdString(username));
+                Assert(query.exec(), "Query for User id fail");
+                while(query.next()){
+                    temp_user.id.id = query.value("user_id").toInt();
+                }
+            }
+            if(market_date_system->is_user_booked(temp_user.id, market_date_id))
+            {
+                QMessageBox::warning(
+                            this,
+                            "Booking Failed",
+                            "You already booked for this date.");
+                return;
+            }
         }
 
 #if 0
@@ -184,12 +202,13 @@ Market::Market(UserSystem *in_user_system, MarketDateSystem *in_market_date_syst
                             "No selected user.",
                             QMessageBox::Ok);
             }
+
             market_date_system->make_booking(user->id, market_date_id);
             std::stringstream notification_msg;
             notification_msg << "[Action] Booked "
                              << ui->table_market_dates->item((int32_t)index, 0)->text().toStdString()
-                             << " for " << user->creds.username << ".";
-            notification_system->add_notification(current_user->id, notification_msg.str());
+                             << " for " << username << ".";
+//            notification_system->add_notification(current_user->id, notification_msg.str());
         }
         else
         {
